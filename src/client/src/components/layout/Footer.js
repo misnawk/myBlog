@@ -23,7 +23,7 @@ function Footer() {
               My Blog
             </Typography>
             <Typography variant="body2" sx={{ mb: 2 }}>
-              개발하면서 배운것들을하는 블로그입니다..
+              개발하면서 배운것들을하는 블로그입니다.
             </Typography>
             <Box>
               <IconButton color="inherit" component="a" href="https://github.com" target="_blank">
