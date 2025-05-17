@@ -24,11 +24,11 @@ build:
   stage: build
   script:
     # 프론트엔드 빌드
-    - docker build -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA -f frontend/Dockerfile frontend/
-    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
+    - docker build -t $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA -f src/client/Dockerfile src/client/
+    - docker push $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA
     # 백엔드 빌드
-    - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA -f backend/Dockerfile backend/
-    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA
+    - docker build -t $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA -f src/server/Dockerfile src/server/
+    - docker push $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
   only:
     - main
     - develop
@@ -38,8 +38,8 @@ build:
 test:
   stage: test
   script:
-    - cd frontend && npm install && npm run test
-    - cd ../backend && npm install && npm run test
+    - cd src/client && npm install && npm run test
+    - cd ../server && npm install && npm run test
   only:
     - main
     - develop
@@ -62,8 +62,8 @@ deploy:
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
     # 최신
-    - docker-compose -f docker-compose.yml pull frontend
-    - docker-compose -f docker-compose.yml pull backend
+    - docker-compose -f docker-compose.yml pull client
+    - docker-compose -f docker-compose.yml pull server
     # 서비스 재시작
     - docker-compose -f docker-compose.yml down
     - docker-compose -f docker-compose.yml up -d
@@ -90,8 +90,8 @@ deploy_staging:
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
     # 최신 이미지로 업데이트
-    - docker-compose -f docker-compose.yml pull frontend
-    - docker-compose -f docker-compose.yml pull backend
+    - docker-compose -f docker-compose.yml pull client
+    - docker-compose -f docker-compose.yml pull server
     # 서비스 재시작
     - docker-compose -f docker-compose.yml down
     - docker-compose -f docker-compose.yml up -d
