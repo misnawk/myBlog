@@ -33,6 +33,8 @@ build:
   only:
     - main
     - develop
+  tags:
+    - blog
 
 test:
   stage: test
@@ -42,6 +44,8 @@ test:
   only:
     - main
     - develop
+  tags:
+    - blog
 
 deploy:
   stage: deploy
@@ -58,7 +62,7 @@ deploy:
       DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
-    # 최신 이미지로 업데이트
+    # 최신
     - docker-compose -f docker-compose.yml pull frontend
     - docker-compose -f docker-compose.yml pull backend
     # 서비스 재시작
@@ -68,6 +72,8 @@ deploy:
     name: production
   only:
     - main
+  tags:
+    - blog
 
 deploy_staging:
   stage: deploy
@@ -94,3 +100,5 @@ deploy_staging:
     name: staging
   only:
     - develop
+  tags:
+    - blog
