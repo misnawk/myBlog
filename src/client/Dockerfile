@@ -20,8 +20,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy built files
+# Copy built files and public directory
 COPY --from=builder /app/build ./build
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
 
 # Install production dependencies
@@ -31,4 +32,4 @@ RUN npm install --production
 EXPOSE 3000
 
 # Start server
-CMD ["npm", "start"] 
+CMD ["npx", "serve", "-s", "build", "-l", "3000"] 
