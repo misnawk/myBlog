@@ -6,11 +6,20 @@ services:
 variables:
   DOCKER_TLS_CERTDIR: ""  # TLS 비활성화
   DOCKER_HOST: tcp://docker:2375  # TLS 없는 포트
-  # DOCKER_TLS_VERIFY: 1  # 주석 처리 또는 제거
-  # DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"  # 주석 처리 또는 제거
+  DOCKER_BUILDKIT: 1  # Docker BuildKit 활성화
+  DOCKER_CLI_EXPERIMENTAL: enabled
   DB_USERNAME: "postgres"
   DB_PASSWORD: "postgres"
   DB_DATABASE: "homeblog"
+  NODE_MODULES_CACHE_KEY: ${CI_COMMIT_REF_SLUG}-node-modules
+  NODE_OPTIONS: "--max-old-space-size=4096"
+
+cache:
+  key: ${NODE_MODULES_CACHE_KEY}
+  paths:
+    - src/client/node_modules/
+    - src/server/node_modules/
+  policy: pull-push
 
 stages:
   - build
@@ -22,24 +31,35 @@ before_script:
 
 build:
   stage: build
+  parallel: 2
   script:
-    # 프론트엔드 빌드
-    - docker build -t $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA -f src/client/Dockerfile src/client/
-    - docker push $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA
-    # 백엔드 빌드
-    - docker build -t $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA -f src/server/Dockerfile src/server/
-    - docker push $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
+    - |
+      if [ "$CI_NODE_INDEX" = "0" ]; then
+        # 클라이언트 빌드
+        docker build -t $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA -f src/client/Dockerfile src/client/
+        docker push $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA
+      else
+        # 서버 빌드
+        docker build -t $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA -f src/server/Dockerfile src/server/
+        docker push $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
+      fi
   only:
     - main
     - develop
   tags:
     - blog
+  timeout: 20m  # 타임아웃을 20분으로 증가
 
 test:
   stage: test
+  parallel: 2
   script:
-    - cd src/client && npm install && npm run test
-    - cd ../server && npm install && npm run test
+    - |
+      if [ "$CI_NODE_INDEX" = "0" ]; then
+        cd src/client && npm install && npm run test
+      else
+        cd src/server && npm install && npm run test
+      fi
   only:
     - main
     - develop
@@ -61,9 +81,8 @@ deploy:
       DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
-    # 최신
-    - docker-compose -f docker-compose.yml pull client
-    - docker-compose -f docker-compose.yml pull server
+    # 최신 이미지로 업데이트 (병렬 실행)
+    - docker-compose -f docker-compose.yml pull client & docker-compose -f docker-compose.yml pull server & wait
     # 서비스 재시작
     - docker-compose -f docker-compose.yml down
     - docker-compose -f docker-compose.yml up -d
@@ -89,9 +108,8 @@ deploy_staging:
       DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
-    # 최신 이미지로 업데이트
-    - docker-compose -f docker-compose.yml pull client
-    - docker-compose -f docker-compose.yml pull server
+    # 최신 이미지로 업데이트 (병렬 실행)
+    - docker-compose -f docker-compose.yml pull client & docker-compose -f docker-compose.yml pull server & wait
     # 서비스 재시작
     - docker-compose -f docker-compose.yml down
     - docker-compose -f docker-compose.yml up -d
