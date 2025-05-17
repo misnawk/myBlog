@@ -9,9 +9,9 @@ variables:
   DOCKER_TLS_VERIFY: 1
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   NAS_DEPLOY_PATH: "/volume1/docker/homeblog"  # NAS의 배포 경로
-  DB_USERNAME=postgres
-  DB_PASSWORD=postgres
-  DB_DATABASE=homeblog
+  DB_USERNAME: "postgres"
+  DB_PASSWORD: "postgres"
+  DB_DATABASE: "homeblog"
 
 stages:
   - build
