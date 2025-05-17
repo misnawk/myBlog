@@ -4,11 +4,10 @@ services:
   - docker:20.10.16-dind
 
 variables:
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_VERIFY: 1
-  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-  NAS_DEPLOY_PATH: "/volume1/docker/homeblog"  # NAS의 배포 경로
+  DOCKER_TLS_CERTDIR: ""  # TLS 비활성화
+  DOCKER_HOST: tcp://docker:2375  # TLS 없는 포트
+  # DOCKER_TLS_VERIFY: 1  # 주석 처리 또는 제거
+  # DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"  # 주석 처리 또는 제거
   DB_USERNAME: "postgres"
   DB_PASSWORD: "postgres"
   DB_DATABASE: "homeblog"
