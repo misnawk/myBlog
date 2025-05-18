@@ -66,9 +66,10 @@ deploy:
     - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
     - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
     - cd $CI_PROJECT_DIR
+    - npm install -g serve
     - ls -la src/server/dist/
     - pm2 start src/server/dist/main.js --name "blog-server"
-    - pm2 start src/client/build/index.js --name "blog-client"
+    - pm2 start "serve -s src/client/build -l 7000" --name "blog-client"
     - pm2 restart all
   environment:
     name: production
@@ -97,8 +98,11 @@ deploy_staging:
     # 서비스 재시작
     - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
     - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
+    - cd $CI_PROJECT_DIR
+    - npm install -g serve
+    - ls -la src/server/dist/
     - pm2 start src/server/dist/main.js --name "blog-server"
-    - pm2 start src/client/build/index.js --name "blog-client"
+    - pm2 start "serve -s src/client/build -l 7000" --name "blog-client"
     - pm2 restart all
   environment:
     name: staging
