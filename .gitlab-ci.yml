@@ -1,5 +1,6 @@
 image: node:18
 
+# 환경설정
 variables:
   DB_USERNAME: "postgres"
   DB_PASSWORD: "postgres"
@@ -7,6 +8,7 @@ variables:
   NODE_MODULES_CACHE_KEY: ${CI_COMMIT_REF_SLUG}-node-modules
   NODE_OPTIONS: "--max-old-space-size=4096"
 
+# 캐쉬
 cache:
   key: ${NODE_MODULES_CACHE_KEY}
   paths:
@@ -14,10 +16,12 @@ cache:
     - src/server/node_modules/
   policy: pull-push
 
+# 순서
 stages:
   - build
   - deploy
 
+# 빌드
 build:
   stage: build
   parallel: 2
