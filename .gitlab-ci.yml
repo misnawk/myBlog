@@ -65,6 +65,8 @@ deploy:
     # 서비스 재시작
     - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
     - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
+    - cd $CI_PROJECT_DIR
+    - ls -la src/server/dist/
     - pm2 start src/server/dist/main.js --name "blog-server"
     - pm2 start src/client/build/index.js --name "blog-client"
     - pm2 restart all
