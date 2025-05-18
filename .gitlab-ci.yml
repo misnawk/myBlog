@@ -1,4 +1,4 @@
-image: node:18.0.1
+image: node:18
 
 variables:
   DOCKER_TLS_CERTDIR: "" # TLS 비활성화
