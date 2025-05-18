@@ -8,10 +8,17 @@
     "dev": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "install:all": "npm install && cd src/client && npm install && cd ../server && npm install"
   },
-  "keywords": ["blog", "react", "nest"],
+  "keywords": [
+    "blog",
+    "react",
+    "nest"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "homeblog": "file:"
   }
-} 
+}
