@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -10,34 +10,33 @@ import {
   IconButton,
   Link,
   Divider,
-  Alert
-} from '@mui/material';
+} from "@mui/material";
 import {
   Visibility,
   VisibilityOff,
   Google as GoogleIcon,
-  GitHub as GitHubIcon
-} from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
+  GitHub as GitHubIcon,
+} from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // TODO: 로그인 로직 구현
-    console.log('Login attempt:', formData);
+    console.log("Login attempt:", formData);
   };
 
   return (
@@ -45,26 +44,26 @@ function Login() {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Paper
           elevation={3}
           sx={{
             padding: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
           }}
         >
           <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
             로그인
           </Typography>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
             <TextField
               margin="normal"
               required
@@ -83,7 +82,7 @@ function Login() {
               fullWidth
               name="password"
               label="비밀번호"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="current-password"
               value={formData.password}
@@ -112,7 +111,11 @@ function Login() {
             </Button>
 
             <Box sx={{ mb: 2 }}>
-              <Link component={RouterLink} to="/forgot-password" variant="body2">
+              <Link
+                component={RouterLink}
+                to="/forgot-password"
+                variant="body2"
+              >
                 비밀번호를 잊으셨나요?
               </Link>
             </Box>
@@ -127,17 +130,13 @@ function Login() {
             >
               Google로 계속하기
             </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GitHubIcon />}
-            >
+            <Button fullWidth variant="outlined" startIcon={<GitHubIcon />}>
               GitHub로 계속하기
             </Button>
 
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                계정이 없으신가요?{' '}
+                계정이 없으신가요?{" "}
                 <Link component={RouterLink} to="/register">
                   회원가입
                 </Link>
@@ -150,4 +149,4 @@ function Login() {
   );
 }
 
-export default Login; 
+export default Login;

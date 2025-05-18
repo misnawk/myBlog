@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Grid,
@@ -17,95 +17,100 @@ import {
   InputLabel,
   Pagination,
   Paper,
-  Divider
-} from '@mui/material';
-import { Link } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import CommentIcon from '@mui/icons-material/Comment';
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import SearchIcon from "@mui/icons-material/Search";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import CommentIcon from "@mui/icons-material/Comment";
 
 // 임시 포스트 데이터
 const posts = [
   {
     id: 1,
-    title: 'React Hooks 완벽 가이드',
-    excerpt: 'React Hooks의 기본 개념부터 고급 사용법까지 알아보는 완벽 가이드입니다',
-    image: 'https://source.unsplash.com/random/800x600?react',
-    category: '프론트엔드',
-    date: '2024-03-15',
-    readTime: '5분',
+    title: "React Hooks 완벽 가이드",
+    excerpt:
+      "React Hooks의 기본 개념부터 고급 사용법까지 알아보는 완벽 가이드입니다",
+    image: "https://source.unsplash.com/random/800x600?react",
+    category: "프론트엔드",
+    date: "2024-03-15",
+    readTime: "5분",
     likes: 42,
     comments: 12,
-    tags: ['React', 'JavaScript', 'Hooks']
+    tags: ["React", "JavaScript", "Hooks"],
   },
   {
     id: 2,
-    title: 'Node.js 성능 최적화',
-    excerpt: 'Node.js 애플리케이션의 성능을 최적화하는 다양한 방법을 소개합니다.',
-    image: 'https://source.unsplash.com/random/800x600?nodejs',
-    category: '백엔드',
-    date: '2024-03-14',
-    readTime: '8분',
+    title: "Node.js 성능 최적화",
+    excerpt:
+      "Node.js 애플리케이션의 성능을 최적화하는 다양한 방법을 소개합니다.",
+    image: "https://source.unsplash.com/random/800x600?nodejs",
+    category: "백엔드",
+    date: "2024-03-14",
+    readTime: "8분",
     likes: 35,
     comments: 8,
-    tags: ['Node.js', 'JavaScript', 'Performance']
+    tags: ["Node.js", "JavaScript", "Performance"],
   },
   {
     id: 3,
-    title: 'Docker 컨테이너 관리',
-    excerpt: 'Docker 컨테이너를 효율적으로 관리하는 방법과 모범 사례를 알아봅니다.',
-    image: 'https://source.unsplash.com/random/800x600?docker',
-    category: 'DevOps',
-    date: '2024-03-13',
-    readTime: '6분',
+    title: "Docker 컨테이너 관리",
+    excerpt:
+      "Docker 컨테이너를 효율적으로 관리하는 방법과 모범 사례를 알아봅니다.",
+    image: "https://source.unsplash.com/random/800x600?docker",
+    category: "DevOps",
+    date: "2024-03-13",
+    readTime: "6분",
     likes: 28,
     comments: 5,
-    tags: ['Docker', 'DevOps', 'Container']
+    tags: ["Docker", "DevOps", "Container"],
   },
   {
     id: 4,
-    title: 'TypeScript 타입 시스템',
-    excerpt: 'TypeScript의 타입 시스템을 깊이 있게 이해하고 활용하는 방법을 알아봅니다.',
-    image: 'https://source.unsplash.com/random/800x600?typescript',
-    category: '프론트엔드',
-    date: '2024-03-12',
-    readTime: '7분',
+    title: "TypeScript 타입 시스템",
+    excerpt:
+      "TypeScript의 타입 시스템을 깊이 있게 이해하고 활용하는 방법을 알아봅니다.",
+    image: "https://source.unsplash.com/random/800x600?typescript",
+    category: "프론트엔드",
+    date: "2024-03-12",
+    readTime: "7분",
     likes: 31,
     comments: 9,
-    tags: ['TypeScript', 'JavaScript', 'Type System']
-  }
+    tags: ["TypeScript", "JavaScript", "Type System"],
+  },
 ];
 
-const categories = ['전체', '프론트엔드', '백엔드', 'DevOps', '알고리즘'];
+const categories = ["전체", "프론트엔드", "백엔드", "DevOps", "알고리즘"];
 const sortOptions = [
-  { value: 'latest', label: '최신순' },
-  { value: 'popular', label: '인기순' },
-  { value: 'comments', label: '댓글순' }
+  { value: "latest", label: "최신순" },
+  { value: "popular", label: "인기순" },
+  { value: "comments", label: "댓글순" },
 ];
 
 function Blog() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('전체');
-  const [sortBy, setSortBy] = useState('latest');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [sortBy, setSortBy] = useState("latest");
   const [page, setPage] = useState(1);
   const postsPerPage = 6;
 
   // 검색어, 카테고리, 정렬 기준에 따라 포스트 필터링
   const filteredPosts = posts
-    .filter(post => {
-      const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === '전체' || post.category === selectedCategory;
+    .filter((post) => {
+      const matchesSearch =
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "전체" || post.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'latest':
+        case "latest":
           return new Date(b.date) - new Date(a.date);
-        case 'popular':
+        case "popular":
           return b.likes - a.likes;
-        case 'comments':
+        case "comments":
           return b.comments - a.comments;
         default:
           return 0;
@@ -121,7 +126,7 @@ function Blog() {
 
   const handlePageChange = (event, value) => {
     setPage(value);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -193,16 +198,16 @@ function Blog() {
       <Grid container spacing={4}>
         {currentPosts.map((post) => (
           <Grid item xs={12} md={6} key={post.id}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 3
-                }
+            <Card
+              sx={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                transition: "transform 0.2s",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: 3,
+                },
               }}
             >
               <CardMedia
@@ -212,11 +217,15 @@ function Blog() {
                 alt={post.title}
               />
               <CardContent sx={{ flexGrow: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Chip 
-                    label={post.category}
-                    size="small"
-                  />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Chip label={post.category} size="small" />
                   <Typography variant="body2" color="text.secondary">
                     {post.date}
                   </Typography>
@@ -237,13 +246,21 @@ function Blog() {
                     />
                   ))}
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mr: 2 }}
+                  >
                     {post.readTime}
                   </Typography>
                   <FavoriteIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mr: 2 }}
+                  >
                     {post.likes}
                   </Typography>
                   <CommentIcon sx={{ fontSize: 16, mr: 0.5 }} />
@@ -267,7 +284,7 @@ function Blog() {
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <Pagination
             count={totalPages}
             page={page}
@@ -281,4 +298,4 @@ function Blog() {
   );
 }
 
-export default Blog; 
+export default Blog;

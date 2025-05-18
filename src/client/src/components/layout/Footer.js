@@ -1,18 +1,18 @@
-import React from 'react';
-import { Box, Container, Grid, Typography, Link, IconButton } from '@mui/material';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import React from "react";
+import { Box, Container, Grid, Typography, IconButton } from "@mui/material";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
 function Footer() {
   return (
     <Box
       component="footer"
       sx={{
-        bgcolor: 'primary.main',
-        color: 'white',
+        bgcolor: "primary.main",
+        color: "white",
         py: 6,
-        mt: 'auto'
+        mt: "auto",
       }}
     >
       <Container maxWidth="lg">
@@ -26,13 +26,28 @@ function Footer() {
               개발하면서 배운것들을하는 블로그입니다..
             </Typography>
             <Box>
-              <IconButton color="inherit" component="a" href="https://github.com" target="_blank">
+              <IconButton
+                color="inherit"
+                component="a"
+                href="https://github.com"
+                target="_blank"
+              >
                 <GitHubIcon />
               </IconButton>
-              <IconButton color="inherit" component="a" href="https://twitter.com" target="_blank">
+              <IconButton
+                color="inherit"
+                component="a"
+                href="https://twitter.com"
+                target="_blank"
+              >
                 <TwitterIcon />
               </IconButton>
-              <IconButton color="inherit" component="a" href="https://linkedin.com" target="_blank">
+              <IconButton
+                color="inherit"
+                component="a"
+                href="https://linkedin.com"
+                target="_blank"
+              >
                 <LinkedInIcon />
               </IconButton>
             </Box>
@@ -43,4 +58,4 @@ function Footer() {
   );
 }
 
-export default Footer; 
+export default Footer;
