@@ -1,12 +1,9 @@
-image: docker:20.10.16
-
-services:
-  - docker:20.10.16-dind
+image: node:18.0.1
 
 variables:
-  DOCKER_TLS_CERTDIR: ""  # TLS 비활성화
-  DOCKER_HOST: tcp://docker:2375  # TLS 없는 포트
-  DOCKER_BUILDKIT: 1  # Docker BuildKit 활성화
+  DOCKER_TLS_CERTDIR: "" # TLS 비활성화
+  DOCKER_HOST: tcp://docker:2375 # TLS 없는 포트
+  DOCKER_BUILDKIT: 1 # Docker BuildKit 활성화
   DOCKER_CLI_EXPERIMENTAL: enabled
   DB_USERNAME: "postgres"
   DB_PASSWORD: "postgres"
@@ -36,19 +33,21 @@ build:
     - |
       if [ "$CI_NODE_INDEX" = "0" ]; then
         # 클라이언트 빌드
-        docker build -t $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA -f src/client/Dockerfile src/client/
-        docker push $CI_REGISTRY_IMAGE/client:$CI_COMMIT_SHA
+        cd src/client
+        npm install
+        npm run build
       else
         # 서버 빌드
-        docker build -t $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA -f src/server/Dockerfile src/server/
-        docker push $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
+        cd src/server
+        npm install
+        npm run build
       fi
   only:
     - main
     - develop
   tags:
     - blog
-  timeout: 20m  # 타임아웃을 20분으로 증가
+  timeout: 20m
 
 test:
   stage: test
@@ -81,11 +80,10 @@ deploy:
       DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
-    # 최신 이미지로 업데이트 (병렬 실행)
-    - docker-compose -f docker-compose.yml pull client & docker-compose -f docker-compose.yml pull server & wait
     # 서비스 재시작
-    - docker-compose -f docker-compose.yml down
-    - docker-compose -f docker-compose.yml up -d
+    - cd src/client && npm install && npm run build
+    - cd src/server && npm install && npm run build
+    - pm2 restart all
   environment:
     name: production
   only:
@@ -108,11 +106,10 @@ deploy_staging:
       DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
-    # 최신 이미지로 업데이트 (병렬 실행)
-    - docker-compose -f docker-compose.yml pull client & docker-compose -f docker-compose.yml pull server & wait
     # 서비스 재시작
-    - docker-compose -f docker-compose.yml down
-    - docker-compose -f docker-compose.yml up -d
+    - cd src/client && npm install && npm run build
+    - cd src/server && npm install && npm run build
+    - pm2 restart all
   environment:
     name: staging
   only:
