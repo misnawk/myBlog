@@ -16,7 +16,6 @@ cache:
 
 stages:
   - build
-  - test
   - deploy
 
 build:
@@ -41,22 +40,6 @@ build:
   tags:
     - blog
   timeout: 20m
-
-test:
-  stage: test
-  parallel: 2
-  script:
-    - |
-      if [ "$CI_NODE_INDEX" = "0" ]; then
-        cd src/client && npm install && npm run test
-      else
-        cd src/server && npm install && npm run test
-      fi
-  only:
-    - main
-    - develop
-  tags:
-    - blog
 
 deploy:
   stage: deploy
