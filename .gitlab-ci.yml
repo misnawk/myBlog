@@ -76,7 +76,7 @@ deploy:
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
     # 서비스 재시작
-    - cd $CI_PROJECT_DIR/src/client && npm install && npm run build
+    - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
     - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
     - pm2 restart all
   environment:
@@ -104,7 +104,7 @@ deploy_staging:
       NEXT_PUBLIC_API_URL=http://backend:4000
       EOL
     # 서비스 재시작
-    - cd $CI_PROJECT_DIR/src/client && npm install && npm run build
+    - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
     - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
     - pm2 restart all
   environment:
