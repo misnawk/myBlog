@@ -18,7 +18,7 @@ import {
   Pagination,
   Paper,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -88,6 +88,7 @@ const sortOptions = [
 ];
 
 function Blog() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [sortBy, setSortBy] = useState("latest");
@@ -127,6 +128,10 @@ function Blog() {
   const handlePageChange = (event, value) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePostClick = (postId) => {
+    navigate(`/blogDetail/${postId}`);
   };
 
   return (
@@ -246,36 +251,30 @@ function Blog() {
                     />
                   ))}
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mr: 2 }}
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
+                      <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                      {post.readTime}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
+                      <FavoriteIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                      {post.likes}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
+                      <CommentIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                      {post.comments}
+                    </Typography>
+                  </Box>
+                  <Button
+                    onClick={() => handlePostClick(post.id)}
+                    variant="contained"
+                    color="primary"
+                    size="small"
                   >
-                    {post.readTime}
-                  </Typography>
-                  <FavoriteIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mr: 2 }}
-                  >
-                    {post.likes}
-                  </Typography>
-                  <CommentIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                  <Typography variant="body2" color="text.secondary">
-                    {post.comments}
-                  </Typography>
+                     자세히 보기
+                  </Button>
                 </Box>
-                <Button
-                  component={Link}
-                  to={`/post/${post.id}`}
-                  variant="outlined"
-                  fullWidth
-                >
-                  자세히 보기
-                </Button>
               </CardContent>
             </Card>
           </Grid>

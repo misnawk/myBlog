@@ -63,7 +63,13 @@ const popularCategories = [
   { name: '프론트엔드', count: 12 },
   { name: '백엔드', count: 8 },
   { name: 'DevOps', count: 5 },
-  { name: '알고리즘', count: 15 }
+  { name: '알고리즘', count: 15 },
+  { name: '데이터베이스', count: 10 },
+  { name: '머신러닝', count: 7 },
+  { name: '딥러닝', count: 5 },
+  { name: '빅데이터', count: 3 },
+  { name: '보안', count: 1 },
+  { name: '네트워크', count: 1 }
 ];
 
 // 임시 댓글 데이터
@@ -179,7 +185,7 @@ function Home() {
                   </Box>
                   <Button
                     component={Link}
-                    to={`/post/${post.id}`}
+                    to={`/blogDetail/${post.id}`}
                     variant="outlined"
                     fullWidth
                   >
