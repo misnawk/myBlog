@@ -7,6 +7,9 @@ variables:
   DB_DATABASE: "homeblog"
   NODE_MODULES_CACHE_KEY: ${CI_COMMIT_REF_SLUG}-node-modules
   NODE_OPTIONS: "--max-old-space-size=4096"
+  DOCKER_IMAGE_CLIENT: $CI_REGISTRY_IMAGE/client
+  DOCKER_IMAGE_SERVER: $CI_REGISTRY_IMAGE/server
+  DOCKER_TAG: ${CI_COMMIT_SHORT_SHA}
 
 # 캐쉬
 cache:
@@ -24,19 +27,27 @@ stages:
 # 빌드
 build:
   stage: build
-  parallel: 2
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - |
       if [ "$CI_NODE_INDEX" = "0" ]; then
-        # 클라이언트 빌드
+        # 클라이언트 빌드 및 이미지 푸시
         cd src/client
-        npm install
-        npm run build
+        docker build -t $DOCKER_IMAGE_CLIENT:$DOCKER_TAG -t $DOCKER_IMAGE_CLIENT:latest .
+        docker push $DOCKER_IMAGE_CLIENT:$DOCKER_TAG
+        docker push $DOCKER_IMAGE_CLIENT:latest
       else
-        # 서버 빌드
+        # 서버 빌드 및 이미지 푸시
         cd src/server
-        npm install
-        npm run build
+        docker build -t $DOCKER_IMAGE_SERVER:$DOCKER_TAG -t $DOCKER_IMAGE_SERVER:latest .
+        docker push $DOCKER_IMAGE_SERVER:$DOCKER_TAG
+        docker push $DOCKER_IMAGE_SERVER:latest
       fi
   only:
     - main
@@ -47,30 +58,29 @@ build:
 
 deploy:
   stage: deploy
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    # PM2 설치
-    - npm install -g pm2
-    # NAS 배포 디렉토리로 이동
     - cd $NAS_DEPLOY_PATH
-    # 환경 변수 파일 생성
     - |
       cat > .env << EOL
-      MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE=${MYSQL_DATABASE}
-      MYSQL_USER=${MYSQL_USER}
-      MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
-      NEXT_PUBLIC_API_URL=http://backend:4000
+      DB_USERNAME=${DB_USERNAME}
+      DB_PASSWORD=${DB_PASSWORD}
+      DB_DATABASE=${DB_DATABASE}
+      NODE_ENV=production
+      NEXT_PUBLIC_API_URL=http://localhost:4000
+      DOCKER_IMAGE_CLIENT=${DOCKER_IMAGE_CLIENT}
+      DOCKER_IMAGE_SERVER=${DOCKER_IMAGE_SERVER}
+      DOCKER_TAG=${DOCKER_TAG}
       EOL
-    # 서비스 재시작
-    - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
-    - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
-    - cd $CI_PROJECT_DIR
-    - npm install -g serve
-    - ls -la src/server/dist/
-    - pm2 start src/server/dist/main.js --name "blog-server"
-    - pm2 start "serve -s src/client/build -l 7000" --name "blog-client"
-    - pm2 restart all
+    - docker-compose pull
+    - docker-compose down
+    - docker-compose up -d
   environment:
     name: production
   only:
@@ -80,30 +90,29 @@ deploy:
 
 deploy_staging:
   stage: deploy
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    # PM2 설치
-    - npm install -g pm2
-    # NAS 배포 디렉토리로 이동
     - cd $NAS_DEPLOY_PATH
-    # 환경 변수 파일 생성
     - |
       cat > .env << EOL
-      MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE=${MYSQL_DATABASE}
-      MYSQL_USER=${MYSQL_USER}
-      MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
-      NEXT_PUBLIC_API_URL=http://backend:4000
+      DB_USERNAME=${DB_USERNAME}
+      DB_PASSWORD=${DB_PASSWORD}
+      DB_DATABASE=${DB_DATABASE}
+      NODE_ENV=staging
+      NEXT_PUBLIC_API_URL=http://localhost:4000
+      DOCKER_IMAGE_CLIENT=${DOCKER_IMAGE_CLIENT}
+      DOCKER_IMAGE_SERVER=${DOCKER_IMAGE_SERVER}
+      DOCKER_TAG=${DOCKER_TAG}
       EOL
-    # 서비스 재시작
-    - cd $CI_PROJECT_DIR/src/client && CI=false npm install && npm run build
-    - cd $CI_PROJECT_DIR/src/server && npm install && npm run build
-    - cd $CI_PROJECT_DIR
-    - npm install -g serve
-    - ls -la src/server/dist/
-    - pm2 start src/server/dist/main.js --name "blog-server"
-    - pm2 start "serve -s src/client/build -l 7000" --name "blog-client"
-    - pm2 restart all
+    - docker-compose pull
+    - docker-compose down
+    - docker-compose up -d
   environment:
     name: staging
   only:
