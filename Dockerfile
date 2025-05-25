@@ -12,13 +12,12 @@ COPY src/client/build ./src/client/build
 
 # 빌드된 서버 파일 복사
 COPY src/server/dist ./src/server/dist
-COPY src/server/package*.json ./src/server/
 
 # 환경 변수 설정
 ENV NODE_ENV=production
 
-# 포트 노출
-EXPOSE 4000
+# 포트 노출 - Docker Compose에서 3000으로 매핑하므로 3000으로 변경
+EXPOSE 3000
 
 # 서버 시작
-CMD ["node", "src/server/dist/main"] 
+CMD ["node", "src/server/dist/main"]
