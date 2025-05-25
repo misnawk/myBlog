@@ -15,6 +15,6 @@ async function bootstrap() {
   // API 라우트 prefix 설정
   app.setGlobalPrefix('api');
   
-  await app.listen(process.env.PORT ?? 4000);
+  await app.listen(process.env.PORT ?? 7000);
 }
 bootstrap();
