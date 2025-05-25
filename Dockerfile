@@ -17,7 +17,7 @@ COPY src/server/dist ./src/server/dist
 ENV NODE_ENV=production
 
 # 포트 노출 - Docker Compose에서 3000으로 매핑하므로 3000으로 변경
-EXPOSE 3000
+EXPOSE 7000
 
 # 서버 시작
 CMD ["node", "src/server/dist/main"]
