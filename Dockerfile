@@ -1,44 +1,24 @@
-# Build stage
-FROM node:18-alpine as builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-COPY src/client/package*.json ./src/client/
-COPY src/server/package*.json ./src/server/
-
-# Install dependencies
-RUN npm install
-RUN cd src/client && npm install
-RUN cd src/server && npm install
-
-# Copy source code
-COPY . .
-
-# Build client
-RUN cd src/client && npm run build
-
-# Production stage
+# 최적화된 Dockerfile - Jenkins 빌드 결과물 활용
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy built client files
-COPY --from=builder /app/src/client/build ./src/client/build
+# 서버 의존성만 설치 (이미 빌드된 상태)
+COPY src/server/package*.json ./src/server/
+RUN cd src/server && npm ci --only=production --prefer-offline --no-audit
 
-# Copy server files
-COPY --from=builder /app/src/server ./src/server
-COPY --from=builder /app/src/server/package*.json ./src/server/
+# 빌드된 클라이언트 파일 복사
+COPY src/client/build ./src/client/build
 
-# Install production dependencies
-RUN cd src/server && npm install --production
+# 빌드된 서버 파일 복사
+COPY src/server/dist ./src/server/dist
+COPY src/server/package*.json ./src/server/
 
-# Set environment variables
+# 환경 변수 설정
 ENV NODE_ENV=production
 
-# Expose port
+# 포트 노출
 EXPOSE 4000
 
-# Start server
+# 서버 시작
 CMD ["node", "src/server/dist/main"] 
