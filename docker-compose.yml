@@ -18,6 +18,24 @@ services:
     networks:
       - app-network
 
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: always
+    ports:
+      - "81:81"   # 관리 포털
+      - "80:80"   # HTTP
+      - "443:443" # HTTPS
+    volumes:
+      - ./nginx-proxy-manager/data:/data
+      - ./nginx-proxy-manager/letsencrypt:/etc/letsencrypt
+    environment:
+      - DISABLE_IPV6=true
+    depends_on:
+      - app
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
