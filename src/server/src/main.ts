@@ -9,8 +9,8 @@ async function bootstrap() {
   // 개선된 CORS 설정
   app.enableCors({
     origin: [
-      'http://localhost:3000',    // 개발 환경
-      'http://localhost:7000',    // 프로덕션 로컬
+      'https://localhost:3000',    // 개발 환경
+      'https://localhost:7000',    // 프로덕션 로컬
       'https://blog.minseok.life' // 실제 도메인
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
