@@ -7,28 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 
 
-// @Module({
-//   imports: [
-//     TypeOrmModule.forRoot({
-//       type: 'mysql',
-//       host: process.env.DB_HOST || 'localhost',
-//       port: parseInt(process.env.DB_PORT || '3306'),
-//       username: process.env.DB_USERNAME || 'root',
-//       password: process.env.DB_PASSWORD || '0000',
-//       database: process.env.DB_DATABASE || 'homeblog',
-//       autoLoadEntities: true,
-//       // synchronize: true
-//     }),
-//     AuthModule,
-//     UserModule
-//   ],
-//   controllers: [AppController],
-//   providers: [AppService],
-// })
-// export class AppModule {}
-
-
-
 
 @Module({
   imports: [
@@ -37,10 +15,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '3306'),
       username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || '0000',
+      password: process.env.DB_PASSWORD || 'password',
       database: process.env.DB_DATABASE || 'homeblog',
       autoLoadEntities: true,
-    //  synchronize: true, // 개발용만
     }),
     AuthModule,
     UserModule
