@@ -1,11 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { User } from "./user.entity";
 import * as bcrypt from "bcryptjs";
-
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 
 @Injectable()
 export class UserService {
+    
+    constructor(
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
+    ){}
+
     private users: User[] = [];
 
     // 사용자 생성
@@ -15,10 +22,12 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(password,10);
         
         // 새 사용자를 생성
-        const user = new User(username, email, hashedPassword);
-        this.users.push(user);
-        
-        return user;
+        const user = this.userRepository.create({
+            username,
+            email,
+            password: hashedPassword,
+        })
+        return this.userRepository.save(user);
     }
 
     // 사용자명으로 찾기

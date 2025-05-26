@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Container,
   Box,
@@ -33,9 +34,19 @@ function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: 로그인 로직 구현
+
+
+  const handleSubmit = async(e) => {
+    e.preventDefault(); // 기본 동작 방지
+    try {
+      const response =  await axios.post(`/api/auth/login`,{
+        email:formData.email,
+        password:formData.password,
+      });
+      console.log("로그인 성공:",response.data);
+    } catch (error) {
+      console.error("로그인 실패:",error);
+    }
     console.log("Login attempt:", formData);
   };
 

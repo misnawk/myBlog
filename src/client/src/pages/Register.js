@@ -19,6 +19,7 @@ import {
   GitHub as GitHubIcon,
 } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
+import axios from '../api/config';
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,9 +39,18 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: 회원가입 로직 구현
+  const handleSubmit = async(e) => {
+    e.preventDefault(); // 기본 동작 방지
+    try {
+      const response = await axios.post(`/api/auth/register`,{
+        username:formData.username,
+        email:formData.email,
+        password:formData.password,
+      })
+      console.log("회원가입 성공:",response.data);
+    } catch (error) {
+      console.error("회원가입 실패:",error);
+    }    
     console.log("Register attempt:", formData);
   };
 
