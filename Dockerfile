@@ -1,5 +1,5 @@
 # 최적화된 Dockerfile - Jenkins 빌드 결과물 활용
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
