@@ -8,13 +8,15 @@ services:
     ports:
       - "7000:7000"
     environment:
-      - NODE_ENV=production
-      - PORT=7000
-      - DB_PORT=3306
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-7000}
       - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-3306}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
+      - DB_SYNCHRONIZE=${DB_SYNCHRONIZE:-false}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - app-network
 
