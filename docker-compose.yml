@@ -9,8 +9,8 @@ services:
       - "7000:7000"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
-      - PORT=${PORT:-7000}
-      - DB_HOST=${DB_HOST}
+      - PORT=7000
+      - DB_HOST=192.168.55.50
       - DB_PORT=${DB_PORT:-3306}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
