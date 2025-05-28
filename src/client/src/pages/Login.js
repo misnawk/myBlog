@@ -121,11 +121,20 @@ function Login() {
               로그인
             </Button>
 
-            <Box sx={{ mb: 2 }}>
+          
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Link
+              component={RouterLink}
+                to="/forgot-email"
+                variant="body2"
+              >
+                이메일을 잊으셨나요?
+              </Link>
+           
               <Link
                 component={RouterLink}
                 to="/forgot-password"
-                variant="body2"
+                variant="body2"  
               >
                 비밀번호를 잊으셨나요?
               </Link>

@@ -24,26 +24,42 @@ import { Link as RouterLink } from "react-router-dom";
 import axios from '../api/config';
 
 function Register() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); //비밀번호 show 상태저장
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); //비밀번호 확인 show 상태저장
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success' // 'success', 'error', 'warning', 'info'
   });
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
+    username: "", //사용자 이름
+    email: "", //이메일
+    password: "", //비밀번호
+    confirmPassword: "", //비밀번호 확인
+    agreeToTerms: false, //약관동의
   });
 
+  const [emailError, setEmailError] = useState('');
+  
+  //이메일 유효성검사 함수
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      return '이메일을 입력해주세요.';
+    }
+    if (!emailRegex.test(email)) {
+      return '올바른 이메일 형식이 아닙니다.';
+    }
+    return '';
+  }
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target
+    setFormData({...formData,[e.target.name]: e.target.value});
+
+    if(name === 'email'){
+      setEmailError(validateEmail(value));
+    }
   };
 
   const handleSubmit = async(e) => {
@@ -129,6 +145,8 @@ function Register() {
               </Grid>
               <Grid item xs={12}>
                 <TextField
+                  error={!!emailError}
+                  helperText={emailError}
                   required
                   fullWidth
                   id="email"
