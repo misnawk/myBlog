@@ -17,6 +17,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 function Header() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -77,15 +78,26 @@ function Header() {
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
+          {!isLoggedIn && (
             <MenuItem component={Link} to="/login" onClick={handleClose}>
               로그인
             </MenuItem>
+            )}
+          {isLoggedIn && (
+            <MenuItem component={Link} to="/logout" onClick={handleClose}>
+              로그아웃
+            </MenuItem>
+          )}
+          {!isLoggedIn && (
             <MenuItem component={Link} to="/register" onClick={handleClose}>
               회원가입
             </MenuItem>
+          )} 
+          {isLoggedIn && (
             <MenuItem component={Link} to="/profile" onClick={handleClose}>
-              프로필
+              내정보
             </MenuItem>
+          )}
           </Menu>
         </Box>
       </Toolbar>
