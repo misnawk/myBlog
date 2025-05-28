@@ -11,6 +11,8 @@ import {
   Link,
   Divider,
   Grid,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Visibility,
@@ -24,6 +26,11 @@ import axios from '../api/config';
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' // 'success', 'error', 'warning', 'info'
+  });
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -48,10 +55,37 @@ function Register() {
         password:formData.password,
       })
       console.log("회원가입 성공:",response.data);
+      
+      // 성공 알림 표시
+      setSnackbar({
+        open: true,
+        message: '회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.',
+        severity: 'success'
+      });
+      
+      // 3초 후 로그인 페이지로 이동
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 3000);
+      
     } catch (error) {
       console.error("회원가입 실패:",error);
+      
+      // 실패 알림 표시
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || '회원가입에 실패했습니다.',
+        severity: 'error'
+      });
     }    
     console.log("Register attempt:", formData);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -196,6 +230,23 @@ function Register() {
           </Box>
         </Paper>
       </Box>
+      
+      {/* 성공/실패 알림 Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
