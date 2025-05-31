@@ -27,10 +27,6 @@ function Header() {
     setAnchorEl(null);
   };
 
-  // const handleLogin = () => {
-  //   setIsLoggedIn(true);
-  // }
-
   return (
     <AppBar position="static">
       <Toolbar>
