@@ -6,6 +6,9 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
+  // API 라우트 prefix 설정을 먼저 해야 함
+  app.setGlobalPrefix('api');
+  
   // 개선된 CORS 설정
   app.enableCors({
     origin: [
@@ -26,11 +29,8 @@ async function bootstrap() {
     optionsSuccessStatus: 204
   });
   
-  // 정적 파일 서빙 설정 (React 빌드 파일)
-  app.useStaticAssets(join(__dirname, '..', '..', 'client', 'build'));
-  
-  // API 라우트 prefix 설정
-  app.setGlobalPrefix('api');
+  // 정적 파일 서빙을 일시적으로 제거하여 API 테스트
+  // app.useStaticAssets(join(__dirname, '..', '..', 'client', 'build'));
   
   await app.listen(process.env.PORT ?? 7000);
 }
