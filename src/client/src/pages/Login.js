@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "../api/config";
+import axios from "axios";
 import {
   Container,
   Box,
@@ -18,11 +18,9 @@ import {
   Google as GoogleIcon,
   GitHub as GitHubIcon,
 } from "@mui/icons-material";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { toast } from 'react-toastify';
+import { Link as RouterLink } from "react-router-dom";
 
 function Login() {
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -45,24 +43,9 @@ function Login() {
         email:formData.email,
         password:formData.password,
       });
-
-      //토큰 값 따로 변수에 저장
-      const token = response.data.access_token;
-      console.log("토큰 값:", token);
-
-
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-
-      console.log("서버 응답 전체:", response.data);
-      console.log("토큰 값:", response.data.access_token); 
-
-      // blog 페이지로 리다이렉트
-      navigate('/home');
-      
+      console.log("로그인 성공:",response.data);
     } catch (error) {
       console.error("로그인 실패:",error);
-      toast.error('로그인 실패! 이메일과 비밀번호를 확인해주세요.');
     }
     console.log("Login attempt:", formData);
   };

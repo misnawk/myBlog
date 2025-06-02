@@ -9,9 +9,6 @@ import Register from './pages/Register';
 import Categories from './pages/Categories';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Landing from './pages/Landing';
 
 const theme = createTheme({
   palette: {
@@ -68,8 +65,7 @@ function App() {
           <Header />
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/home" element={<Home />} />
+              <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/categories" element={<Categories />} />
@@ -79,7 +75,6 @@ function App() {
           </Box>
           <Footer />
         </Box>
-        <ToastContainer />
       </Router>
     </ThemeProvider>
   );

@@ -13,6 +13,8 @@ export class UserService {
         private userRepository: Repository<User>,
     ){}
 
+    private users: User[] = [];
+
     // 사용자 생성
     async create(username:string, email:string, password:string): Promise<User>{
         
@@ -29,18 +31,18 @@ export class UserService {
     }
 
     // 사용자명으로 찾기
-    async findByUsername(username:string):Promise<User | null>{
-        return this.userRepository.findOne({ where: { username } }) 
+    async findByUsername(username:string):Promise<User | undefined>{
+        return this.users.find(user=>user.username === username);
     }
 
     // 이메일로 찾기
-    async findByEmail(email:string):Promise<User | null>{
-        return this.userRepository.findOne({ where: { email } })
+    async findByEmail(email:string):Promise<User | undefined>{
+        return this.users.find(user=>user.email === email);
     }
 
     // ID로 찾기
-    async findById(id:number):Promise<User | null>{
-        return this.userRepository.findOne({ where: { id } })
+    async findById(id:number):Promise<User | undefined>{
+        return this.users.find(user=>user.id === id);
     }
 
     // 비밀번호 검증
