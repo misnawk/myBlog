@@ -21,7 +21,7 @@ function Landing() {
               }
         }
         checkAuthAndRedirect();
-    }, [navigate]);
+    }, []);
 
     return (
         <Box
