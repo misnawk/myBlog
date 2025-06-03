@@ -16,27 +16,40 @@ export class AuthService{
     
     //회원가입
     async register(registerDto:RegisterDto){
+       try {
         
-        const existingEmail = await this.userService.findByEmail(registerDto.email);
-        if(existingEmail){
-            throw new ConflictException('이미 존재하는 이메일입니다.');
-        }
-        
-        //이메일 검증이 끝나면
-        const user = await this.userService.create(
-            registerDto.username,
-            registerDto.email,
-            registerDto.password
-        )
-        
-        return{
-            message: '회원가입에 성공했습니다.',
-            user:{
-                id:user.id,
-                username:user.username,
-                email:user.email
-            },
-        };
+            const existingEmail = await this.userService.findByEmail(registerDto.email);
+                if(existingEmail){
+                    throw new ConflictException('이미 존재하는 이메일입니다.');
+                }
+ 
+            //이메일 검증이 끝나면
+            const user = await this.userService.create(
+                registerDto.username,
+                registerDto.email,
+                registerDto.password
+                )
+
+            return{
+                message: '회원가입에 성공했습니다.',
+                user:{
+                    id:user.id,
+                    username:user.username,
+                    email:user.email
+                    },
+                };
+
+       } catch (error) {
+            if(error.code ==='ER_DUP_ENTRY'){
+                throw new ConflictException('이미 존재하는 이메일입니다.');
+            }
+
+            if(error instanceof ConflictException){
+                throw error;
+            }
+            
+       }
+
     }
 
     async login(loginDto: LoginDto){
