@@ -51,35 +51,43 @@ export class AuthService{
        }
 
     }
+    
 
+    // 로그인 
     async login(loginDto: LoginDto){
-        //DB에서 이메일로 사용자 정보 가져옴
-        const user = await this.userService.findByEmail(loginDto.email);
-        if(!user){
-            throw new ConflictException('가입 되어있지 않은 사용자입니다.');
+
+        try {
+            //DB에서 이메일로 사용자 정보 가져옴
+            const user = await this.userService.findByEmail(loginDto.email);
+
+            if(!user){
+                throw new ConflictException('가입 되어있지 않은 사용자입니다.');
+            }
+
+            //입력한 PW 와 DB에 있는 PW 대조
+            const isPasswordValid = await this.userService.validatePassword(
+                loginDto.password,
+                user.password
+            );
+
+            if(!isPasswordValid){
+                throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
+            }
+
+            //JWT 토큰 생성
+            const payload = {email:user.email, sub:user.id};
+            const access_token = this.jwtService.sign(payload);
+
+            return{
+                access_token: access_token,
+                user:{
+                    id:user.id,
+                    username:user.username,
+                    email:user.email
+                },
+            };
+        } catch (error) {
+            throw new UnauthorizedException('로그인에 실패했습니다.');
         }
-
-        //입력한 PW 와 DB에 있는 PW 대조
-        const isPasswordValid = await this.userService.validatePassword(
-            loginDto.password,
-            user.password
-        );
-
-        if(!isPasswordValid){
-            throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
-        }
-
-        //JWT 토큰 생성
-        const payload = {email:user.email, sub:user.id};
-        const access_token = this.jwtService.sign(payload);
-
-        return{
-            access_token: access_token,
-            user:{
-                id:user.id,
-                username:user.username,
-                email:user.email
-            },
-        };
     }
 }

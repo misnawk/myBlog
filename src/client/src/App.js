@@ -1,6 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -52,31 +53,53 @@ const theme = createTheme({
   },
 });
 
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  // 보호된 경로 목록
+  const protectedRoutes = ['/category', '/blog', '/blogDetail','/tag','/about','/categories'];
+  const isProtectedRoute = protectedRoutes.some(route => 
+    location.pathname.startsWith(route.replace('/:id', ''))
+  );
+
+  // 로그인하지 않은 상태에서 보호된 경로 접근 시 로그인 페이지로 리다이렉트
+  if (!isAuthenticated() && isProtectedRoute) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return (
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      minHeight: '100vh'
+    }}>
+      <Header />
+      <Box component="main" sx={{ flexGrow: 1 }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/blogDetail/:id" element={<BlogDetail />} />
+          <Route path="/blog" element={<Blog />} />
+        </Routes>
+      </Box>
+      <Footer />
+    </Box>
+  );
+}
+
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          minHeight: '100vh'
-        }}>
-          <Header />
-          <Box component="main" sx={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/blogDetail/:id" element={<BlogDetail />} />
-              <Route path="/blog" element={<Blog />} />
-            </Routes>
-          </Box>
-          <Footer />
-        </Box>
-      </Router>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <AppContent />
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

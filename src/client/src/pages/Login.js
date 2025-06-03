@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Container,
   Box,
@@ -11,6 +12,9 @@ import {
   IconButton,
   Link,
   Divider,
+  Alert,
+  Snackbar,
+  CircularProgress,
 } from "@mui/material";
 import {
   Visibility,
@@ -21,11 +25,29 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 function Login() {
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate(); // 페이지 이동
+  const location = useLocation(); // 현재 페이지 정보
+  const { login, isAuthenticated } = useAuth(); // 로그인 상태 관리
+  
+  const [showPassword, setShowPassword] = useState(false); // 비밀번호 보임/숨김 상태
+  const [loading, setLoading] = useState(false); // 로딩 상태
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'error'
+  });
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // 이미 로그인되어 있으면 홈으로 리다이렉트
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from);
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const handleChange = (e) => {
     setFormData({
@@ -34,20 +56,45 @@ function Login() {
     });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-
-  const handleSubmit = async(e) => {
-    e.preventDefault(); // 기본 동작 방지
     try {
-      const response =  await axios.post(`/api/auth/login`,{
-        email:formData.email,
-        password:formData.password,
-      });
-      console.log("로그인 성공:",response.data);
+      const result = await login(formData.email, formData.password);
+      
+      if (result.success) {
+        setSnackbar({
+          open: true,
+          message: '로그인에 성공했습니다!',
+          severity: 'success'
+        });
+        
+        // 성공 시 이전 페이지 또는 홈페이지로 이동
+        const from = location.state?.from?.pathname || '/';
+        setTimeout(() => {
+          navigate(from);
+        }, 1500);
+      } else {
+        setSnackbar({
+          open: true,
+          message: result.error,
+          severity: 'error'
+        });
+      }
     } catch (error) {
-      console.error("로그인 실패:",error);
+      setSnackbar({
+        open: true,
+        message: '로그인 중 오류가 발생했습니다.',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
     }
-    console.log("Login attempt:", formData);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -86,6 +133,7 @@ function Login() {
               autoFocus
               value={formData.email}
               onChange={handleChange}
+              disabled={loading}
             />
             <TextField
               margin="normal"
@@ -98,12 +146,14 @@ function Login() {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      disabled={loading}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -117,14 +167,15 @@ function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
+              startIcon={loading && <CircularProgress size={20} />}
             >
-              로그인
+              {loading ? "로그인 중..." : "로그인"}
             </Button>
 
-          
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
               <Link
-              component={RouterLink}
+                component={RouterLink}
                 to="/forgot-email"
                 variant="body2"
               >
@@ -147,10 +198,16 @@ function Login() {
               variant="outlined"
               startIcon={<GoogleIcon />}
               sx={{ mb: 1 }}
+              disabled={loading}
             >
               Google로 계속하기
             </Button>
-            <Button fullWidth variant="outlined" startIcon={<GitHubIcon />}>
+            <Button 
+              fullWidth 
+              variant="outlined" 
+              startIcon={<GitHubIcon />}
+              disabled={loading}
+            >
               GitHub로 계속하기
             </Button>
 
@@ -165,6 +222,23 @@ function Login() {
           </Box>
         </Paper>
       </Box>
+
+      {/* 성공/실패 알림 Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { User } from "./user.entity";
 import * as bcrypt from "bcryptjs";
 import { Repository } from "typeorm";
@@ -37,7 +37,13 @@ export class UserService {
 
     // 이메일로 찾기
     async findByEmail(email:string):Promise<User | undefined>{
-        return this.users.find(user=>user.email === email);
+        try {
+          const user = await this.userRepository.findOne({where: {email}});
+          console.log("DB에서 사용자 정보 가져옴" + user?.email);
+          return user || undefined; 
+        } catch (error) {
+            throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
+        }
     }
 
     // ID로 찾기
