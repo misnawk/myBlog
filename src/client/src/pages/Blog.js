@@ -17,12 +17,15 @@ import {
   InputLabel,
   Pagination,
   Paper,
+  Fab,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
+import CreateIcon from "@mui/icons-material/Create";
+import { useAuth } from "../contexts/AuthContext";
 
 // 임시 포스트 데이터
 const posts = [
@@ -89,6 +92,7 @@ const sortOptions = [
 
 function Blog() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [sortBy, setSortBy] = useState("latest");
@@ -292,6 +296,27 @@ function Blog() {
             size="large"
           />
         </Box>
+      )}
+
+      {/* 플로팅 글쓰기 버튼 */}
+      {isAuthenticated() && (
+        <Fab
+          color="primary"
+          onClick={() => navigate('/create')}
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            boxShadow: 3,
+            '&:hover': {
+              transform: 'scale(1.1)',
+              boxShadow: 6
+            },
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <CreateIcon />
+        </Fab>
       )}
     </Container>
   );

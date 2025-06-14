@@ -16,6 +16,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+import CreateIcon from "@mui/icons-material/Create";
 import { useAuth } from "../../contexts/AuthContext";
 
 function Header() {
@@ -71,9 +72,28 @@ function Header() {
 
         {/* 네비게이션 메뉴 */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Button color="inherit" component={Link} to="/blog">
+            블로그
+          </Button>
           <Button color="inherit" component={Link} to="/categories">
             카테고리
           </Button>
+          {isAuthenticated() && (
+            <Button 
+              color="inherit" 
+              component={Link} 
+              to="/create"
+              startIcon={<CreateIcon />}
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.2)'
+                }
+              }}
+            >
+              글쓰기
+            </Button>
+          )}
           <Button color="inherit" component={Link} to="/about">
             소개
           </Button>
@@ -106,6 +126,10 @@ function Header() {
             {isAuthenticated() ? (
               // 로그인된 사용자 메뉴
               [
+                <MenuItem key="create" component={Link} to="/create" onClick={handleClose}>
+                  <CreateIcon sx={{ mr: 1 }} />
+                  글쓰기
+                </MenuItem>,
                 <MenuItem key="profile" component={Link} to="/profile" onClick={handleClose}>
                   <PersonIcon sx={{ mr: 1 }} />
                   내 정보
