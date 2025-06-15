@@ -72,31 +72,30 @@ function Header() {
 
         {/* 네비게이션 메뉴 */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button color="inherit" component={Link} to="/blog">
-            블로그
-          </Button>
           <Button color="inherit" component={Link} to="/categories">
             카테고리
           </Button>
-          {isAuthenticated() && (
-            <Button 
-              color="inherit" 
-              component={Link} 
-              to="/create"
-              startIcon={<CreateIcon />}
-              sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.2)'
-                }
-              }}
-            >
-              글쓰기
-            </Button>
-          )}
           <Button color="inherit" component={Link} to="/about">
             소개
           </Button>
+          {isAuthenticated() && (
+            <Button 
+            color="inherit" 
+            component={Link} 
+            to="/create"
+            startIcon={<CreateIcon />}
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.2)'
+              }
+            }}
+          >
+            글쓰기
+          </Button>
+          )}
+
+          
         </Box>
 
         {/* 사용자 메뉴 */}

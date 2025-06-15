@@ -9,13 +9,7 @@ import {
   Box,
   Button,
   Chip,
-  Paper,
-  Divider,
-  Avatar,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText
+  Paper
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -72,42 +66,7 @@ const popularCategories = [
   { name: '네트워크', count: 1 }
 ];
 
-// 임시 댓글 데이터
-const recentComments = [
-  {
-    id: 1,
-    author: '김개발',
-    content: '정말 유용한 글이네요! 특히 React Hooks 부분이 도움이 많이 되었습니다.',
-    postTitle: 'React Hooks 완벽 가이드',
-    date: '2024-03-15'
-  },
-  {
-    id: 2,
-    author: '이코딩',
-    content: 'Node.js 성능 최적화 팁이 실무에서 바로 적용할 수 있어서 좋았습니다.',
-    postTitle: 'Node.js 성능 최적화',
-    date: '2024-03-14'
-  },
-  {
-    id: 3,
-    author: '박개발',
-    content: 'Docker 컨테이너 관리에 대한 내용이 체계적으로 정리되어 있네요.',
-    postTitle: 'Docker 컨테이너 관리',
-    date: '2024-03-13'
-  }
-];
 
-// 임시 태그 데이터
-const popularTags = [
-  { name: 'React', count: 25 },
-  { name: 'JavaScript', count: 20 },
-  { name: 'Node.js', count: 18 },
-  { name: 'TypeScript', count: 15 },
-  { name: 'Docker', count: 12 },
-  { name: 'AWS', count: 10 },
-  { name: 'Python', count: 8 },
-  { name: 'Database', count: 7 }
-];
 
 function Home() {
   return (
@@ -230,71 +189,7 @@ function Home() {
         </Grid>
       </Paper>
 
-      {/* 최근 댓글과 태그 클라우드 섹션 */}
-      <Grid container spacing={4}>
-        {/* 최근 댓글 */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-              최근 댓글
-            </Typography>
-            <List>
-              {recentComments.map((comment) => (
-                <React.Fragment key={comment.id}>
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar>{comment.author[0]}</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle2">
-                          {comment.author}님이 {comment.postTitle}에 댓글을 남겼습니다
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mt: 1 }}
-                        >
-                          {comment.content}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
 
-        {/* 태그 클라우드 */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-              인기 태그
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {popularTags.map((tag) => (
-                <Chip
-                  key={tag.name}
-                  label={`${tag.name} (${tag.count})`}
-                  component={Link}
-                  to={`/tag/${tag.name}`}
-                  clickable
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'primary.main',
-                      color: 'white'
-                    }
-                  }}
-                />
-              ))}
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
     </Container>
   );
 }

@@ -31,6 +31,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import PreviewIcon from '@mui/icons-material/Preview';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 function CreatePost() {
   const navigate = useNavigate();
@@ -64,6 +65,8 @@ function CreatePost() {
     }
   };
 
+
+
   const handleRemoveTag = (tagToRemove) => {
     setFormData(prev => ({
       ...prev,
@@ -79,37 +82,27 @@ function CreatePost() {
   };
 
   const insertMarkdown = (syntax) => {
-    // 마크다운 문법 삽입 로직
-    const textarea = document.getElementById('content-textarea');
-    if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const selectedText = formData.content.substring(start, end);
-      let newText = '';
-      
-      switch (syntax) {
-        case 'bold':
-          newText = `**${selectedText || '굵은 텍스트'}**`;
-          break;
-        case 'italic':
-          newText = `*${selectedText || '기울임 텍스트'}*`;
-          break;
-        case 'code':
-          newText = selectedText.includes('\n') 
-            ? `\`\`\`\n${selectedText || '코드 블록'}\n\`\`\``
-            : `\`${selectedText || '인라인 코드'}\``;
-          break;
-        default:
-          return;
-      }
-      
-      const updatedContent = 
-        formData.content.substring(0, start) + 
-        newText + 
-        formData.content.substring(end);
-      
-      handleInputChange('content', updatedContent);
+    const currentContent = formData.content;
+    let newContent = '';
+    
+    switch (syntax) {
+      case 'bold':
+        newContent = currentContent + '\n**굵은 텍스트**';
+        break;
+      case 'italic':
+        newContent = currentContent + '\n*기울임 텍스트*';
+        break;
+      case 'code':
+        newContent = currentContent + '\n`인라인 코드`';
+        break;
+      default:
+        return;
     }
+    
+    setFormData(prev => ({
+      ...prev,
+      content: newContent
+    }));
   };
 
   return (
@@ -128,7 +121,7 @@ function CreatePost() {
           <TextField
             fullWidth
             variant="standard"
-            placeholder="무엇에 대해 쓰고 싶나요?"
+            placeholder="제목을 입력하세요..."
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
             InputProps={{ 
@@ -234,17 +227,10 @@ function CreatePost() {
             multiline
             rows={15}
             variant="standard"
-            placeholder="여기에 내용을 작성하세요...
-
-마크다운 문법을 지원합니다:
-- **굵은 텍스트**
-- *기울임 텍스트*
-- `인라인 코드`
-- 코드 블록은 ```로 감싸세요
-
-당신의 이야기를 들려주세요! ✨"
+            placeholder="여기에 내용을 작성하세요..."
             value={formData.content}
             onChange={(e) => handleInputChange('content', e.target.value)}
+
             InputProps={{ 
               disableUnderline: true,
               sx: {
@@ -356,17 +342,32 @@ function CreatePost() {
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
           <Paper elevation={0} sx={{ p: 3, backgroundColor: 'background.default' }}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
               {formData.title || '제목을 입력하세요'}
             </Typography>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
-              {formData.content || '내용을 입력하세요'}
-            </Typography>
+            
+            {formData.content ? (
+              <MarkdownRenderer content={formData.content} />
+            ) : (
+              <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                내용을 입력하세요...
+              </Typography>
+            )}
+            
             {formData.tags.length > 0 && (
-              <Box sx={{ mt: 3 }}>
+              <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" gutterBottom color="text.secondary">
+                  태그
+                </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {formData.tags.map((tag, index) => (
-                    <Chip key={index} label={tag} size="small" />
+                    <Chip 
+                      key={index} 
+                      label={tag} 
+                      size="small" 
+                      variant="outlined"
+                      sx={{ backgroundColor: 'primary.light', color: 'primary.contrastText' }}
+                    />
                   ))}
                 </Stack>
               </Box>

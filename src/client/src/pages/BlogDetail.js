@@ -35,25 +35,95 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ShareIcon from '@mui/icons-material/Share';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 // 임시 포스트 데이터 (실제로는 API에서 가져와야 함)
 const posts = [
   {
     id: 1,
     title: "React Hooks 완벽 가이드",
-    content: `React Hooks는 React 16.8에서 도입된 기능으로, 함수형 컴포넌트에서도 상태 관리와 생명주기 메서드를 사용할 수 있게 해줍니다.
+    content: `# React Hooks 완벽 가이드
 
-이 가이드에서는 다음과 같은 내용을 다룹니다:
+React Hooks는 **React 16.8**에서 도입된 혁신적인 기능으로, 함수형 컴포넌트에서도 상태 관리와 생명주기 메서드를 사용할 수 있게 해줍니다.
 
-1. useState - 상태 관리
-2. useEffect - 생명주기 관리
-3. useContext - Context API 사용
-4. useReducer - 복잡한 상태 관리
-5. useCallback - 메모이제이션된 콜백
-6. useMemo - 메모이제이션된 값
-7. useRef - DOM 참조 및 값 저장
+## 📚 이 가이드에서 다루는 내용
 
-각 Hook의 사용법과 실제 예제를 통해 React Hooks를 마스터해보세요.`,
+1. **useState** - 상태 관리
+2. **useEffect** - 생명주기 관리  
+3. **useContext** - Context API 사용
+4. **useReducer** - 복잡한 상태 관리
+5. **useCallback** - 메모이제이션된 콜백
+6. **useMemo** - 메모이제이션된 값
+7. **useRef** - DOM 참조 및 값 저장
+
+## 🚀 useState Hook
+
+가장 기본적인 Hook으로, 함수형 컴포넌트에 상태를 추가할 수 있습니다.
+
+\`\`\`javascript
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <p>현재 카운트: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        증가
+      </button>
+    </div>
+  );
+}
+\`\`\`
+
+## ⚡ useEffect Hook
+
+컴포넌트의 생명주기를 관리하고 부수 효과(side effects)를 처리합니다.
+
+\`\`\`javascript
+import React, { useState, useEffect } from 'react';
+
+function Timer() {
+  const [seconds, setSeconds] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds(seconds => seconds + 1);
+    }, 1000);
+    
+    // 클린업 함수
+    return () => clearInterval(interval);
+  }, []); // 빈 배열: 마운트시에만 실행
+  
+  return <div>타이머: {seconds}초</div>;
+}
+\`\`\`
+
+## 💡 주요 포인트
+
+> **중요**: Hook은 항상 함수형 컴포넌트의 최상위 레벨에서 호출해야 합니다. 조건문, 반복문, 중첩 함수 내에서는 사용할 수 없습니다.
+
+### Hook 사용 규칙
+- ✅ 함수형 컴포넌트 내에서만 사용
+- ✅ 최상위 레벨에서 호출
+- ✅ 일관된 순서로 호출
+- ❌ 조건문 내에서 사용 금지
+- ❌ 일반 JavaScript 함수에서 사용 금지
+
+## 📊 성능 최적화
+
+React Hooks를 사용할 때 성능을 고려한 몇 가지 팁:
+
+| Hook | 용도 | 사용 시기 |
+|------|------|-----------|
+| \`useMemo\` | 값 메모이제이션 | 계산 비용이 높은 작업 |
+| \`useCallback\` | 함수 메모이제이션 | 자식 컴포넌트 최적화 |
+| \`React.memo\` | 컴포넌트 메모이제이션 | 불필요한 리렌더링 방지 |
+
+---
+
+이제 React Hooks를 마스터해서 더 효율적이고 깔끔한 React 코드를 작성해보세요! 🎉`,
     image: "https://source.unsplash.com/random/800x600?react",
     category: "프론트엔드",
     date: "2024-03-15",
@@ -324,9 +394,7 @@ export default function BlogDetail() {
           </Button>
         </Box>
 
-        <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-line' }}>
-          {post.content}
-        </Typography>
+        <MarkdownRenderer content={post.content} sx={{ mt: 3 }} />
       </Paper>
 
       {/* 댓글 섹션 */}
