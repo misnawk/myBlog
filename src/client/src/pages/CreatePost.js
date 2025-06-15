@@ -30,7 +30,7 @@ import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import CodeIcon from '@mui/icons-material/Code';
 import PreviewIcon from '@mui/icons-material/Preview';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 
 function CreatePost() {
