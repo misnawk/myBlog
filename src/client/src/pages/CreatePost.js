@@ -34,7 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 
 function CreatePost() {
-  const navigate = useNavigate();
+ // const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -64,8 +64,6 @@ function CreatePost() {
       setTagInput('');
     }
   };
-
-
 
   const handleRemoveTag = (tagToRemove) => {
     setFormData(prev => ({
@@ -103,6 +101,39 @@ function CreatePost() {
       ...prev,
       content: newContent
     }));
+  };
+
+  const handlePaste = async (e) => {
+    console.log('붙여넣기 이벤트 감지!');
+    
+    for (let item of e.clipboardData.items) {
+      if (item.type.indexOf('image') === 0) {
+        e.preventDefault(); // 기본 붙여넣기 동작 방지
+        
+        // 🔹 File 객체 생성
+        const file = item.getAsFile();
+        console.log('📁 파일 정보:', {
+          name: file.name || 'clipboard-image.png',
+          size: file.size,
+          type: file.type
+        });
+        
+        // 🔹 임시 미리보기 URL 생성
+        const imageUrl = URL.createObjectURL(file);
+        console.log('🖼️ 임시 URL:', imageUrl);
+        
+        // 🔹 마크다운에 임시로 삽입
+        const markdownImage = `\n![이미지](${imageUrl})\n`;
+        const newContent = formData.content + markdownImage;
+        
+        setFormData(prev => ({
+          ...prev,
+          content: newContent
+        }));
+        
+        console.log('✅ 마크다운에 이미지 삽입 완료!');
+      }
+    }
   };
 
   return (
@@ -230,7 +261,7 @@ function CreatePost() {
             placeholder="여기에 내용을 작성하세요..."
             value={formData.content}
             onChange={(e) => handleInputChange('content', e.target.value)}
-
+            onPaste={handlePaste}
             InputProps={{ 
               disableUnderline: true,
               sx: {
