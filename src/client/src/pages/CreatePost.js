@@ -3,7 +3,6 @@ import {
   Container, 
   Box, 
   Typography, 
-  Paper, 
   List, 
   ListItem, 
   ListItemText, 
@@ -36,7 +35,7 @@ import {
   Palette,
   Close
 } from '@mui/icons-material';
-import { createEditor, Transforms, Editor, Text, Element, Range, Point } from 'slate';
+import { createEditor, Transforms, Editor, Element, Range } from 'slate';
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
 import imageCompression from 'browser-image-compression';
@@ -199,7 +198,6 @@ const handleCodeBlockEnter = (editor) => {
   
   // 현재 줄이 비어있는지 확인
   const beforeCursor = currentText.slice(0, selection.anchor.offset);
-  const afterCursor = currentText.slice(selection.anchor.offset);
   const lines = beforeCursor.split('\n');
   const currentLine = lines[lines.length - 1];
   
@@ -520,6 +518,8 @@ function CreatePost() {
           setShowSlashMenu(false);
           break;
         }
+        default:
+          break;
       }
       return;
     }
@@ -545,7 +545,7 @@ function CreatePost() {
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
         const { selection } = editor;
         if (selection && Range.isCollapsed(selection)) {
-          const [node, path] = Editor.node(editor, selection);
+          const [node] = Editor.node(editor, selection);
           const isAtEnd = selection.anchor.offset === node.text.length;
           
           if (isAtEnd && event.key === 'ArrowDown') {
@@ -613,6 +613,8 @@ function CreatePost() {
           toggleBlock(editor, 'heading-three');
           break;
         }
+        default:
+          break;
       }
     }
 
@@ -910,7 +912,7 @@ function CreatePost() {
     
     setSelectedImagePath(path);
     setShowImageResizeMenu(true);
-  }, []);
+  }, [setImageMenuPosition, setSelectedImagePath, setShowImageResizeMenu]);
 
   // 마우스 움직임 추적
   const handleMouseMove = useCallback((event) => {
