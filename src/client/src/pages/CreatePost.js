@@ -39,15 +39,16 @@ import {
 import { createEditor, Transforms, Editor, Text, Element, Range, Point } from 'slate';
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
+import imageCompression from 'browser-image-compression';
 
 // 슬래시 명령어 목록
 const SLASH_COMMANDS = [
-  { key: '1', label: '제목 1', type: 'heading-one', icon: <Title sx={{ color: '#1976d2' }} />, description: '큰 제목' },
-  { key: '2', label: '제목 2', type: 'heading-two', icon: <Title sx={{ color: '#1976d2', fontSize: 20 }} />, description: '중간 제목' },
-  { key: '3', label: '제목 3', type: 'heading-three', icon: <Title sx={{ color: '#1976d2', fontSize: 18 }} />, description: '작은 제목' },
-  { key: 'ul', label: '불릿 리스트', type: 'bulleted-list', icon: <FormatListBulleted sx={{ color: '#9c27b0' }} />, description: '순서 없는 목록' },
-  { key: 'ol', label: '번호 리스트', type: 'numbered-list', icon: <FormatListNumbered sx={{ color: '#9c27b0' }} />, description: '순서 있는 목록' },
-  { key: 'quote', label: '인용구', type: 'block-quote', icon: <FormatQuote sx={{ color: '#ff9800' }} />, description: '인용문 블록' },
+  { key: '1', label: '제목 1', type: 'heading-one', icon: <Title sx={{ color: '#000000' }} />, description: '큰 제목' },
+  { key: '2', label: '제목 2', type: 'heading-two', icon: <Title sx={{ color: '#000000', fontSize: 20 }} />, description: '중간 제목' },
+  { key: '3', label: '제목 3', type: 'heading-three', icon: <Title sx={{ color: '#757575', fontSize: 18 }} />, description: '작은 제목' },
+  { key: 'ul', label: '불릿 리스트', type: 'bulleted-list', icon: <FormatListBulleted sx={{ color: '#757575' }} />, description: '순서 없는 목록' },
+  { key: 'ol', label: '번호 리스트', type: 'numbered-list', icon: <FormatListNumbered sx={{ color: '#757575' }} />, description: '순서 있는 목록' },
+  { key: 'quote', label: '인용구', type: 'block-quote', icon: <FormatQuote sx={{ color: '#757575' }} />, description: '인용문 블록' },
   { key: 'code', label: '코드 블록', type: 'code-block', icon: <Code sx={{ color: '#4caf50' }} />, description: '코드 스니펫' },
   { key: 'image', label: '이미지', type: 'image', icon: <ImageIcon sx={{ color: '#f44336' }} />, description: '이미지 업로드' },
   { key: 'p', label: '일반 텍스트', type: 'paragraph', icon: <Typography sx={{ color: '#757575', fontSize: 16, fontWeight: 'bold' }}>P</Typography>, description: '일반 단락' },
@@ -67,35 +68,91 @@ const TEXT_COLORS = [
   { key: 'red', label: '빨강', color: '#E03E3E' },
 ];
 
-// 이미지 파일을 Base64로 변환
-const convertToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
+// 이미지 압축 및 Base64 변환
+const compressAndConvertImage = async (file) => {
+  try {
+    console.log('📁 원본 이미지:', {
+      name: file.name,
+      size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      type: file.type
+    });
+
+    // 압축 옵션
+    const options = {
+      maxSizeMB: 1,          // 최대 1MB
+      maxWidthOrHeight: 1920, // 최대 1920px
+      useWebWorker: true,     // 웹워커 사용으로 성능 향상
+      quality: 0.8,           // 품질 80%
+      initialQuality: 0.6     // 초기 품질 60%
+    };
+    
+    // 이미지 압축
+    const compressedFile = await imageCompression(file, options);
+    
+    console.log('🗜️ 압축된 이미지:', {
+      size: `${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+      compressionRatio: `${((file.size - compressedFile.size) / file.size * 100).toFixed(1)}% 절약`
+    });
+    
+    // Base64 변환
+    const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
+    
+    return {
+      src: base64,
+      originalSize: file.size,
+      compressedSize: compressedFile.size,
+      compressionRatio: ((file.size - compressedFile.size) / file.size * 100).toFixed(1)
+    };
+  } catch (error) {
+    console.error('❌ 이미지 압축 실패:', error);
+    // 압축 실패 시 원본으로 폴백
     const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
+    return new Promise((resolve, reject) => {
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve({
+        src: reader.result,
+        originalSize: file.size,
+        compressedSize: file.size,
+        compressionRatio: '0'
+      });
+      reader.onerror = reject;
+    });
+  }
 };
 
-// 이미지 삽입 함수
+// 이미지 삽입 함수 (압축 기능 추가)
 const insertImage = async (editor, file) => {
   try {
-    const base64 = await convertToBase64(file);
-    const image = {
-      type: 'image',
-      src: base64,
-      alt: file.name,
-      size: 'medium',
-      children: [{ text: '' }],
-    };
+    // 로딩 상태 표시
+    console.log('🚀 이미지 업로드 시작...');
+    
+    // 이미지 압축 및 변환
+    const imageData = await compressAndConvertImage(file);
+    
+    if (imageData) {
+      const image = {
+        type: 'image',
+        src: imageData.src,
+        alt: file.name,
+        size: 'medium',
+        metadata: {
+          originalSize: imageData.originalSize,
+          compressedSize: imageData.compressedSize,
+          compressionRatio: imageData.compressionRatio
+        },
+        children: [{ text: '' }],
+      };
 
-    Transforms.insertNodes(editor, image);
-    Transforms.insertNodes(editor, {
-      type: 'paragraph',
-      children: [{ text: '' }],
-    });
+      Transforms.insertNodes(editor, image);
+      Transforms.insertNodes(editor, {
+        type: 'paragraph',
+        children: [{ text: '' }],
+      });
+      
+      console.log('✅ 이미지 업로드 완료!');
+    }
   } catch (error) {
-    console.error('이미지 업로드 실패:', error);
+    console.error('❌ 이미지 업로드 실패:', error);
   }
 };
 
