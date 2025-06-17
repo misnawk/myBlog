@@ -859,7 +859,7 @@ function CreatePost() {
           </Typography>
         );
     }
-  }, []);
+  }, [editor, handleImageClick]);
 
   // 텍스트 렌더링 함수
   const renderLeaf = useCallback((props) => {
