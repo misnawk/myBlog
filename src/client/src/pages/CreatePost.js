@@ -626,6 +626,35 @@ function CreatePost() {
     }
   }, [editor, showSlashMenu, filteredCommands, selectedCommandIndex, executeSlashCommand, handleSave, toggleColorPicker]);
 
+  // 이미지 클릭 핸들러 (renderElement보다 먼저 정의)
+  const handleImageClick = useCallback((event, element, path) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const rect = event.target.getBoundingClientRect();
+    setImageMenuPosition({
+      top: rect.bottom + window.scrollY + 5,
+      left: rect.left + window.scrollX,
+    });
+    
+    setSelectedImagePath(path);
+    setShowImageResizeMenu(true);
+  }, [setImageMenuPosition, setSelectedImagePath, setShowImageResizeMenu]);
+
+  // 이미지 크기 변경 함수
+  const changeImageSize = useCallback((size) => {
+    if (!selectedImagePath) return;
+    
+    Transforms.setNodes(
+      editor,
+      { size: size },
+      { at: selectedImagePath }
+    );
+    
+    setShowImageResizeMenu(false);
+    setSelectedImagePath(null);
+  }, [editor, selectedImagePath]);
+
   // 텍스트 변경 감지
   const onChange = useCallback((newValue) => {
     setValue(newValue);
@@ -885,34 +914,7 @@ function CreatePost() {
     return <span {...attributes}>{children}</span>;
   }, []);
 
-  // 이미지 크기 변경 함수
-  const changeImageSize = useCallback((size) => {
-    if (!selectedImagePath) return;
-    
-    Transforms.setNodes(
-      editor,
-      { size: size },
-      { at: selectedImagePath }
-    );
-    
-    setShowImageResizeMenu(false);
-    setSelectedImagePath(null);
-  }, [editor, selectedImagePath]);
 
-  // 이미지 클릭 핸들러
-  const handleImageClick = useCallback((event, element, path) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const rect = event.target.getBoundingClientRect();
-    setImageMenuPosition({
-      top: rect.bottom + window.scrollY + 5,
-      left: rect.left + window.scrollX,
-    });
-    
-    setSelectedImagePath(path);
-    setShowImageResizeMenu(true);
-  }, [setImageMenuPosition, setSelectedImagePath, setShowImageResizeMenu]);
 
   // 마우스 움직임 추적
   const handleMouseMove = useCallback((event) => {
