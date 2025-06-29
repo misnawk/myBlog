@@ -198,11 +198,13 @@ export default function CreatePost() {
                             <MenuItem value="">
                                 <em>카테고리를 선택하세요</em>
                             </MenuItem>
-                            <MenuItem value="tech">기술</MenuItem>
-                            <MenuItem value="life">일상</MenuItem>
-                            <MenuItem value="travel">여행</MenuItem>
-                            <MenuItem value="food">음식</MenuItem>
-                            <MenuItem value="book">독서</MenuItem>
+                            <MenuItem value="tech">프론트</MenuItem>
+                            <MenuItem value="life">백엔드</MenuItem>
+                            <MenuItem value="travel">데이터베이스</MenuItem>
+                            <MenuItem value="food">보안</MenuItem>
+                            <MenuItem value="food">네트워크</MenuItem>         
+                            <MenuItem value="food">모의해킹</MenuItem> 
+                            <MenuItem value="food">인공지능</MenuItem>
                         </Select>
                     </FormControl>
 
