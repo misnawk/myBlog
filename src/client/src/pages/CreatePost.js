@@ -61,7 +61,7 @@ export default function CreatePost() {
                 quill.insertText(range.index, '이미지 업로드 중...');
                 
                 const response = await fetch(
-                    `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_IMGBB_API_KEY || 'YOUR_API_KEY'}`, 
+                    `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_IMGBB_API_KEY || '115376878bc76479b9c6775a72f120aa'}`, 
                     {
                         method: 'POST',
                         body: formData
