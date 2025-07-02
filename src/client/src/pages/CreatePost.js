@@ -1,6 +1,7 @@
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     Container, 
     Paper, 
@@ -12,20 +13,32 @@ import {
     InputLabel, 
     Select, 
     MenuItem,
-    Stack
+    Stack,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import { Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
 import createPost from '../api/createPost';
 
 export default function CreatePost() {
+    const navigate = useNavigate();
+    
     // 상태 관리
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('');
     const [mounted, setMounted] = useState(false); // 컴포넌트 마운트 확인용
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+    const [isLoading, setIsLoading] = useState(false);
     
     // 에디터 참조 생성
     const quillRef = useRef(null);
+    const timeoutRef = useRef(null);
+    const abortControllerRef = useRef(null);
 
     // 컴포넌트 마운트 확인
     useEffect(() => {
@@ -40,7 +53,6 @@ export default function CreatePost() {
         input.click();
 
         input.onchange = async () => {
-            console.log("input.onchange");
             const file = input.files[0];
             
             // 파일 크기 체크
@@ -152,29 +164,87 @@ export default function CreatePost() {
             category,
         };      
         
-        console.log('저장할 데이터:', postData);
-        // TODO: API 호출 로직 추가
-
-        try{
-            const result = await createPost(postData);
+        try {
+            setIsLoading(true);
+            
+            // AbortController 생성
+            abortControllerRef.current = new AbortController();
+            
+            // axios 요청에 signal 추가 필요 (createPost API 수정 필요)
+            const result = await createPost(postData, abortControllerRef.current.signal);
+            
+            //여기서 중단되면 아래 코드 실행 안됨
             console.log('게시글 생성 성공:', result);
+            
+            // 성공 알림
+            setSnackbar({
+                open: true,
+                message: '게시글이 성공적으로 저장되었습니다! 🎉',
+                severity: 'success'
+            });
+            
+            // 1초 후 페이지 이동
+            timeoutRef.current = setTimeout(() => {
+                navigate('/');
+            }, 1000);
+            
         } catch (error) {
-            console.error('게시글 생성 실패:', error);
+            setIsLoading(false);
+            
+            if (error.name === 'AbortError') {
+                // 🔥 취소된 경우 - 저장 안됨
+                console.log('저장이 취소되었습니다.');
+                setSnackbar({
+                    open: true,
+                    message: '저장이 취소되었습니다.',
+                    severity: 'info'
+                });
+            } else {
+                // 실제 에러
+                console.error('게시글 생성 실패:', error);
+                setSnackbar({
+                    open: true,
+                    message: '게시글 저장에 실패했습니다. 😢',
+                    severity: 'error'
+                });
+            }
         }
-
     };
 
     const handleCancel = () => {
+        // 진행 중인 모든 작업 취소
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort(); //  API 요청 취소
+        }
+        
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current); //  타이머 취소
+        }
+        
+        setIsLoading(false); //로딩 상태 초기화
+        
+        // 내용이 있으면 확인 후 이동
         if (title || (content && content !== '<p><br></p>')) {
             if (window.confirm('작성 중인 내용이 있습니다. 정말 취소하시겠습니까?')) {
-                // TODO: 라우터로 이전 페이지 이동
-                console.log('취소됨');
+                navigate('/');
             }
         } else {
-            // TODO: 라우터로 이전 페이지 이동
-            console.log('취소됨');
+            navigate('/');
         }
     };
+
+    // 컴포넌트 언마운트 시 정리
+    useEffect(() => {
+        return () => {
+            // 컴포넌트 언마운트 시 정리
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -270,9 +340,10 @@ export default function CreatePost() {
                             size="large"
                             startIcon={<SaveIcon />}
                             onClick={handleSave}
+                            disabled={isLoading}
                             sx={{ px: 4 }}
                         >
-                            저장
+                            {isLoading ? '저장 중...' : '저장'}
                         </Button>
                         <Button
                             variant="outlined"
@@ -287,6 +358,20 @@ export default function CreatePost() {
                     </Box>
                 </Stack>
             </Paper>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} 
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }

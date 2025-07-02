@@ -13,7 +13,8 @@ export class PostController{
     @Post()
     @UseGuards(JwtAuthGuard)
     async createPost(@Body() postData: CreatePostDto, @Request() req) {
-        return this.postService.createPost(postData, req.user.id);
+        console.log("req.user" + req.user.email);
+        return this.postService.createPost(postData, req.user.email);
     }
 
     //모든 게시글 조회
