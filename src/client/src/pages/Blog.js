@@ -26,62 +26,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
 import CreateIcon from "@mui/icons-material/Create";
 import { useAuth } from "../contexts/AuthContext";
-
-// 임시 포스트 데이터
-const posts = [
-  {
-    id: 1,
-    title: "React Hooks 완벽 가이드",
-    excerpt:
-      "React Hooks의 기본 개념부터 고급 사용법까지 알아보는 완벽 가이드입니다",
-    image: "https://source.unsplash.com/random/800x600?react",
-    category: "프론트엔드",
-    date: "2024-03-15",
-    readTime: "5분",
-    likes: 42,
-    comments: 12,
-    tags: ["React", "JavaScript", "Hooks"],
-  },
-  {
-    id: 2,
-    title: "Node.js 성능 최적화",
-    excerpt:
-      "Node.js 애플리케이션의 성능을 최적화하는 다양한 방법을 소개합니다.",
-    image: "https://source.unsplash.com/random/800x600?nodejs",
-    category: "백엔드",
-    date: "2024-03-14",
-    readTime: "8분",
-    likes: 35,
-    comments: 8,
-    tags: ["Node.js", "JavaScript", "Performance"],
-  },
-  {
-    id: 3,
-    title: "Docker 컨테이너 관리",
-    excerpt:
-      "Docker 컨테이너를 효율적으로 관리하는 방법과 모범 사례를 알아봅니다.",
-    image: "https://source.unsplash.com/random/800x600?docker",
-    category: "DevOps",
-    date: "2024-03-13",
-    readTime: "6분",
-    likes: 28,
-    comments: 5,
-    tags: ["Docker", "DevOps", "Container"],
-  },
-  {
-    id: 4,
-    title: "TypeScript 타입 시스템",
-    excerpt:
-      "TypeScript의 타입 시스템을 깊이 있게 이해하고 활용하는 방법을 알아봅니다.",
-    image: "https://source.unsplash.com/random/800x600?typescript",
-    category: "프론트엔드",
-    date: "2024-03-12",
-    readTime: "7분",
-    likes: 31,
-    comments: 9,
-    tags: ["TypeScript", "JavaScript", "Type System"],
-  },
-];
+import getPosts from "../api/fetchPosts"
+import { useEffect } from "react";
 
 const categories = ["전체", "프론트엔드", "백엔드", "DevOps", "알고리즘"];
 const sortOptions = [
@@ -97,7 +43,47 @@ function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [sortBy, setSortBy] = useState("latest");
   const [page, setPage] = useState(1);
+  const [posts, setPosts] = useState([]); // API에서 가져올 데이터
+  const [loading, setLoading] = useState(true); // 로딩 상태
+  const [error, setError] = useState(null); // 에러 상태
   const postsPerPage = 6;
+
+  // API에서 게시글 목록 가져오기
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        const data = await getPosts();
+        setPosts(data);
+        setError(null);
+      } catch (error) {
+        setError('게시글을 불러오는데 실패했습니다.');
+        console.error('Posts loading error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, []);
+
+  // 로딩 중일 때 표시
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
+        <Typography variant="h6">게시글을 불러오는 중...</Typography>
+      </Container>
+    );
+  }
+
+  // 에러 발생 시 표시
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
+        <Typography variant="h6" color="error">{error}</Typography>
+      </Container>
+    );
+  }
 
   // 검색어, 카테고리, 정렬 기준에 따라 포스트 필터링
   const filteredPosts = posts

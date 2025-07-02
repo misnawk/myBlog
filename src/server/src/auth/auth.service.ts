@@ -75,7 +75,7 @@ export class AuthService{
             }
 
             //JWT 토큰 생성
-            const payload = {email:user.email, sub:user.id};
+            const payload = {email:user.email, id:user.id , username:user.username};
             const access_token = this.jwtService.sign(payload);
 
             return{
@@ -88,6 +88,6 @@ export class AuthService{
             };
         } catch (error) {
             throw new UnauthorizedException('로그인에 실패했습니다.');
-        }
+        }   
     }
 }

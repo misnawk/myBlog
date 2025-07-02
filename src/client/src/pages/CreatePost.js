@@ -15,6 +15,7 @@ import {
     Stack
 } from '@mui/material';
 import { Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import createPost from '../api/createPost';
 
 export default function CreatePost() {
     // 상태 관리
@@ -39,6 +40,7 @@ export default function CreatePost() {
         input.click();
 
         input.onchange = async () => {
+            console.log("input.onchange");
             const file = input.files[0];
             
             // 파일 크기 체크
@@ -56,7 +58,7 @@ export default function CreatePost() {
                 if (!quill) return;
                 
                 const range = quill.getSelection();
-                
+               
                 // 로딩 텍스트 삽입
                 quill.insertText(range.index, '이미지 업로드 중...');
                 
@@ -72,6 +74,10 @@ export default function CreatePost() {
                 
                 const data = await response.json();
                 const imageUrl = data.data.url;
+
+                console.log("imageUrl" + imageUrl);
+
+
                 
                 // 로딩 텍스트 제거
                 quill.deleteText(range.index, 16);
@@ -125,7 +131,7 @@ export default function CreatePost() {
         setContent(value);
     }, []);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         // 유효성 검사
         if (!title.trim()) {
             alert('제목을 입력해주세요');
@@ -144,11 +150,18 @@ export default function CreatePost() {
             title: title.trim(),
             content,
             category,
-            createdAt: new Date().toISOString()
-        };
+        };      
         
         console.log('저장할 데이터:', postData);
         // TODO: API 호출 로직 추가
+
+        try{
+            const result = await createPost(postData);
+            console.log('게시글 생성 성공:', result);
+        } catch (error) {
+            console.error('게시글 생성 실패:', error);
+        }
+
     };
 
     const handleCancel = () => {
@@ -198,13 +211,13 @@ export default function CreatePost() {
                             <MenuItem value="">
                                 <em>카테고리를 선택하세요</em>
                             </MenuItem>
-                            <MenuItem value="tech">프론트</MenuItem>
-                            <MenuItem value="life">백엔드</MenuItem>
-                            <MenuItem value="travel">데이터베이스</MenuItem>
-                            <MenuItem value="food">보안</MenuItem>
-                            <MenuItem value="food">네트워크</MenuItem>         
-                            <MenuItem value="food">모의해킹</MenuItem> 
-                            <MenuItem value="food">인공지능</MenuItem>
+                            <MenuItem value="프론트">프론트</MenuItem>
+                            <MenuItem value="백엔드">백엔드</MenuItem>
+                            <MenuItem value="데이터베이스">데이터베이스</MenuItem>
+                            <MenuItem value="보안">보안</MenuItem>
+                            <MenuItem value="네트워크">네트워크</MenuItem>         
+                            <MenuItem value="모의해킹">모의해킹</MenuItem> 
+                            <MenuItem value="인공지능">인공지능</MenuItem>
                         </Select>
                     </FormControl>
 
