@@ -1,10 +1,10 @@
-import { IsOptional, IsString, MaxLength } from "class-validator";
+import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class UpdatePostDto {
     // 제목
     @IsOptional()
     @IsString()
-    @MaxLength(10)
+    @IsNotEmpty()
     title?: string;
 
     // 내용
@@ -15,7 +15,6 @@ export class UpdatePostDto {
     // 카테고리
     @IsOptional()
     @IsString()
-    @MaxLength(10)
     category?: string;
 
     // 이미지

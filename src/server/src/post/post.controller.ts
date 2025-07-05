@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Post, Request, UseGuards, Param } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request, UseGuards, Param, Put, Delete } from "@nestjs/common";
 import { PostService } from "./post.service";
 import { CreatePostDto } from "./create-post.dto";
+import { UpdatePostDto } from "./update-post.dto";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
-
-
 
 @Controller('posts')
 export class PostController{
@@ -32,6 +31,53 @@ export class PostController{
         } catch (error) {
             console.error("게시글 생성 실패:", error.message);
             console.error("=== 게시글 생성 오류 ===");
+            throw error;
+        }
+    }
+
+    //게시글 수정
+    @Put(':id')
+    @UseGuards(JwtAuthGuard)
+    async updatePost(@Param('id') id: string, @Body() updateData: UpdatePostDto, @Request() req) {
+        console.log("=== 게시글 수정 요청 시작 ===");
+        console.log("요청 시간:", new Date().toISOString());
+        console.log("게시글 ID:", id);
+        console.log("사용자 이메일:", req.user?.email);
+        console.log("수정 데이터:", {
+            title: updateData.title,
+            category: updateData.category,
+            contentLength: updateData.content?.length || 0
+        });
+        
+        try {
+            const result = await this.postService.updatePost(+id, updateData, req.user.email);
+            console.log("게시글 수정 성공:", result.id);
+            console.log("=== 게시글 수정 완료 ===");
+            return result;
+        } catch (error) {
+            console.error("게시글 수정 실패:", error.message);
+            console.error("=== 게시글 수정 오류 ===");
+            throw error;
+        }
+    }
+
+    //게시글 삭제
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    async deletePost(@Param('id') id: string, @Request() req) {
+        console.log("=== 게시글 삭제 요청 시작 ===");
+        console.log("요청 시간:", new Date().toISOString());
+        console.log("게시글 ID:", id);
+        console.log("사용자 이메일:", req.user?.email);
+        
+        try {
+            await this.postService.deletePost(+id, req.user.email);
+            console.log("게시글 삭제 성공:", id);
+            console.log("=== 게시글 삭제 완료 ===");
+            return { message: '게시글이 성공적으로 삭제되었습니다.' };
+        } catch (error) {
+            console.error("게시글 삭제 실패:", error.message);
+            console.error("=== 게시글 삭제 오류 ===");
             throw error;
         }
     }
@@ -68,5 +114,4 @@ export class PostController{
             throw error;
         }
     }
-    
 }

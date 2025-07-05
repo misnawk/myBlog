@@ -1,11 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { Post } from "./post.entity";
-import { CreatePostDto } from "./create-post.dto";
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Post } from './post.entity';
+import { CreatePostDto } from './create-post.dto';
+import { UpdatePostDto } from './update-post.dto';
 
 @Injectable()
-export class PostService{
+export class PostService {
     constructor(
         @InjectRepository(Post)
         private postRepository: Repository<Post>,
@@ -79,7 +80,7 @@ export class PostService{
             
             if (!post) {
                 console.log("게시글을 찾을 수 없음:", id);
-                throw new Error(`게시글 ID ${id}를 찾을 수 없습니다.`);
+                throw new NotFoundException(`게시글 ID ${id}를 찾을 수 없습니다.`);
             }
             
             console.log("게시글 조회 성공:", post.title);
@@ -93,5 +94,77 @@ export class PostService{
         }
     }
 
+    async updatePost(id: number, updatePostDto: UpdatePostDto, userEmail: string): Promise<Post> {
+        console.log("=== 포스트 서비스: 게시글 수정 시작 ===");
+        console.log("수정할 게시글 ID:", id);
+        console.log("수정 데이터:", updatePostDto);
+        console.log("요청 사용자:", userEmail);
 
+        try {
+            // 게시글 존재 확인 및 작성자 검증
+            const post = await this.postRepository.findOne({
+                where: { id },
+                relations: ['author'],
+            });
+
+            if (!post) {
+                console.log("게시글을 찾을 수 없음:", id);
+                throw new NotFoundException(`게시글 ID ${id}를 찾을 수 없습니다.`);
+            }
+
+            // 작성자 확인
+            if (post.author.email !== userEmail) {
+                console.log("권한 없음:", userEmail, "vs", post.author.email);
+                throw new ForbiddenException('게시글 수정 권한이 없습니다.');
+            }
+
+            // 게시글 업데이트
+            Object.assign(post, updatePostDto);
+            const updatedPost = await this.postRepository.save(post);
+            
+            console.log("게시글 수정 성공:", updatedPost.id);
+            console.log("=== 포스트 서비스: 게시글 수정 완료 ===");
+            
+            return updatedPost;
+        } catch (error) {
+            console.error("=== 포스트 서비스: 게시글 수정 실패 ===");
+            console.error("데이터베이스 오류:", error.message);
+            throw error;
+        }
+    }
+
+    async deletePost(id: number, userEmail: string): Promise<void> {
+        console.log("=== 포스트 서비스: 게시글 삭제 시작 ===");
+        console.log("삭제할 게시글 ID:", id);
+        console.log("요청 사용자:", userEmail);
+
+        try {
+            // 게시글 존재 확인 및 작성자 검증
+            const post = await this.postRepository.findOne({
+                where: { id },
+                relations: ['author'],
+            });
+
+            if (!post) {
+                console.log("게시글을 찾을 수 없음:", id);
+                throw new NotFoundException(`게시글 ID ${id}를 찾을 수 없습니다.`);
+            }
+
+            // 작성자 확인
+            if (post.author.email !== userEmail) {
+                console.log("권한 없음:", userEmail, "vs", post.author.email);
+                throw new ForbiddenException('게시글 삭제 권한이 없습니다.');
+            }
+
+            // 게시글 삭제
+            await this.postRepository.remove(post);
+            
+            console.log("게시글 삭제 성공:", id);
+            console.log("=== 포스트 서비스: 게시글 삭제 완료 ===");
+        } catch (error) {
+            console.error("=== 포스트 서비스: 게시글 삭제 실패 ===");
+            console.error("데이터베이스 오류:", error.message);
+            throw error;
+        }
+    }
 }

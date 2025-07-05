@@ -33,10 +33,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { getPost } from '../api/postGetApi';
+import { deletePost } from '../api/postApi';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function BlogDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [post, setPost] = useState(null);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
@@ -48,6 +52,7 @@ export default function BlogDetail() {
   const [editComment, setEditComment] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     console.log(' BlogDetail 페이지 로딩 시작, ID:', id);
@@ -81,6 +86,35 @@ export default function BlogDetail() {
 
     fetchPost();
   }, [id]);
+
+  // 게시글 수정 핸들러
+  const handleEditPost = () => {
+    navigate(`/edit/${id}`);
+  };
+
+  // 게시글 삭제 핸들러
+  const handleDeletePost = async () => {
+    try {
+      console.log(' 게시글 삭제 시작:', id);
+      await deletePost(id);
+      console.log(' 게시글 삭제 성공');
+      
+      toast.success('게시글이 삭제되었습니다.');
+      navigate('/blog');
+    } catch (error) {
+      console.error(' 게시글 삭제 실패:', error);
+      
+      if (error.response?.status === 403) {
+        toast.error('게시글 삭제 권한이 없습니다.');
+      } else {
+        toast.error('게시글 삭제에 실패했습니다.');
+      }
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  // 현재 사용자가 게시글 작성자인지 확인
+  const isAuthor = user && post && user.email === post.author?.email;
 
   const handleLike = () => {
     // 실제로는 API 호출로 대체
@@ -193,9 +227,33 @@ export default function BlogDetail() {
       </Button>
 
       <Paper sx={{ p: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {post.title}
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            {post.title}
+          </Typography>
+          
+          {/* 작성자만 수정/삭제 버튼 표시 */}
+          {isAuthor && (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                startIcon={<EditIcon />}
+                onClick={handleEditPost}
+                variant="outlined"
+                color="primary"
+              >
+                수정
+              </Button>
+              <Button
+                startIcon={<DeleteIcon />}
+                onClick={() => setDeleteDialogOpen(true)}
+                variant="outlined"
+                color="error"
+              >
+                삭제
+              </Button>
+            </Box>
+          )}
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <Avatar src={post.author?.avatar || '/default-avatar.png'} sx={{ mr: 2 }} />
@@ -351,6 +409,22 @@ export default function BlogDetail() {
           <Button onClick={() => setEditDialogOpen(false)}>취소</Button>
           <Button onClick={handleEditSubmit} variant="contained">
             수정
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 게시글 삭제 확인 다이얼로그 */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>게시글 삭제</DialogTitle>
+        <DialogContent>
+          <Typography>
+            정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>취소</Button>
+          <Button onClick={handleDeletePost} color="error" variant="contained">
+            삭제
           </Button>
         </DialogActions>
       </Dialog>

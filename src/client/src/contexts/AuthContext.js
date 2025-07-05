@@ -102,3 +102,6 @@ export const AuthProvider = ({children}) => {
     );
 }
 
+// AuthContext도 export
+export { AuthContext };
+

@@ -13,6 +13,7 @@ import Categories from './pages/Categories';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import CreatePost from './pages/CreatePost';
+import EditPost from './pages/EditPost';
 
 const theme = createTheme({
   palette: {
@@ -61,7 +62,7 @@ function AppContent() {
   const location = useLocation();
 
   // 보호된 경로 목록
-  const protectedRoutes = ['/category', '/blog', '/blogDetail','/tag','/about','/categories', '/create'];
+  const protectedRoutes = ['/category', '/blog', '/blogDetail','/tag','/about','/categories', '/create', '/edit'];
   const isProtectedRoute = protectedRoutes.some(route => 
     location.pathname.startsWith(route.replace('/:id', ''))
   );
@@ -87,6 +88,7 @@ function AppContent() {
           <Route path="/blogDetail/:id" element={<BlogDetail />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/create" element={<CreatePost />} />
+          <Route path="/edit/:id" element={<EditPost />} />
         </Routes>
       </Box>
       <Footer />
