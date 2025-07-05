@@ -1,4 +1,4 @@
-# 최적화된 Dockerfile - Jenkins 빌드 결과물 활용
+# 젠킨스 빌드 결과물을 활용하는 최적화된 Dockerfile
 FROM node:20-alpine
 
 WORKDIR /app
@@ -16,7 +16,7 @@ COPY src/server/dist ./src/server/dist
 # 환경 변수 설정
 ENV NODE_ENV=production
 
-# 포트 노출 - Docker Compose에서 3000으로 매핑하므로 3000으로 변경
+# 포트 노출
 EXPOSE 7000
 
 # 서버 시작
