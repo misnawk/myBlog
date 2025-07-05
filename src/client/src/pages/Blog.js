@@ -21,9 +21,6 @@ import {
 } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import CommentIcon from "@mui/icons-material/Comment";
 import CreateIcon from "@mui/icons-material/Create";
 import { useAuth } from "../contexts/AuthContext";
 import getPosts from "../api/postGetApi"

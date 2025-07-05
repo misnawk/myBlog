@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -22,10 +22,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -36,7 +32,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MarkdownRenderer from '../components/MarkdownRenderer';
-import { getPost, getPosts } from '../api/postGetApi';
+import { getPost } from '../api/postGetApi';
 
 export default function BlogDetail() {
   const { id } = useParams();
@@ -51,7 +47,6 @@ export default function BlogDetail() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editComment, setEditComment] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,15 +59,7 @@ export default function BlogDetail() {
         setPost(postData);
         setLikeCount(postData.likes || 0);
         
-        // 모든 포스트를 가져와서 관련 포스트 찾기
-        const allPosts = await getPosts();
-        const related = allPosts
-          .filter(p => p.id !== postData.id && (
-            p.category === postData.category ||
-            (p.tags && postData.tags && p.tags.some(tag => postData.tags.includes(tag)))
-          ))
-          .slice(0, 3);
-        setRelatedPosts(related);
+        // 관련 포스트 기능은 현재 사용하지 않음
 
         // 임시 댓글 데이터 (실제로는 댓글 API에서 가져와야 함)
      
