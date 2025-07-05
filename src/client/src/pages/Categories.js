@@ -1,255 +1,245 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
 import {
-    Container,
-    Typography,
-    Box,
-    Tabs,
-    Tab,
-    Card,
-    CardContent,
-    Grid,
-    Chip,
-    Button,
-    Alert
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  Paper,
+  Tabs,
+  Tab,
+  Button,
+  CircularProgress
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { getPosts } from '../api/postGetApi';
 
-const Categories = () => {
-    const [posts, setPosts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('all');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [searchParams, setSearchParams] = useSearchParams();
-
-    console.log('🏷️ [CATEGORIES PAGE] 카테고리 페이지 컴포넌트 렌더링');
-
-    useEffect(() => {
-        console.log('🏷️ [CATEGORIES PAGE] useEffect 실행 - 데이터 로딩 시작');
-        loadPosts();
-    }, []);
-
-    useEffect(() => {
-        console.log('🏷️ [CATEGORIES PAGE] URL 파라미터 확인');
-        const categoryFromUrl = searchParams.get('category');
-        if (categoryFromUrl) {
-            console.log('🏷️ [CATEGORIES PAGE] URL에서 카테고리 설정:', categoryFromUrl);
-            setSelectedCategory(categoryFromUrl);
-        }
-    }, [searchParams]);
-
-    const loadPosts = async () => {
-        console.log('📊 [CATEGORIES PAGE] 포스트 데이터 로딩 시작');
-        setLoading(true);
-        setError(null);
-        
-        try {
-            const data = await getPosts();
-            console.log('✅ [CATEGORIES PAGE] 포스트 데이터 로딩 성공');
-            console.log('📊 [CATEGORIES PAGE] 총 포스트 수:', data?.length || 0);
-            
-            setPosts(data || []);
-            
-            // 카테고리 추출 및 통계 계산
-            const categoryStats = {};
-            data?.forEach(post => {
-                if (post.category) {
-                    categoryStats[post.category] = (categoryStats[post.category] || 0) + 1;
-                }
-            });
-            
-            const categoryList = Object.entries(categoryStats).map(([name, count]) => ({
-                name,
-                count
-            }));
-            
-            console.log('🏷️ [CATEGORIES PAGE] 카테고리 통계:', categoryStats);
-            console.log('🏷️ [CATEGORIES PAGE] 카테고리 목록:', categoryList);
-            
-            setCategories(categoryList);
-            
-        } catch (error) {
-            console.error('❌ [CATEGORIES PAGE] 포스트 데이터 로딩 실패');
-            console.error('❌ [CATEGORIES PAGE] Error:', error.message);
-            setError('데이터를 불러오는데 실패했습니다.');
-        } finally {
-            setLoading(false);
-            console.log('🏷️ [CATEGORIES PAGE] 데이터 로딩 완료');
-        }
-    };
-
-    const handleCategoryChange = (event, newValue) => {
-        console.log('🏷️ [CATEGORIES PAGE] 카테고리 탭 변경:', newValue);
-        setSelectedCategory(newValue);
-        
-        // URL 파라미터 업데이트
-        if (newValue === 'all') {
-            setSearchParams({});
-        } else {
-            setSearchParams({ category: newValue });
-        }
-    };
-
-    const getFilteredPosts = () => {
-        if (selectedCategory === 'all') {
-            console.log('🔍 [CATEGORIES PAGE] 전체 포스트 반환:', posts.length);
-            return posts;
-        }
-        
-        const filtered = posts.filter(post => post.category === selectedCategory);
-        console.log('🔍 [CATEGORIES PAGE] 필터링된 포스트:', filtered.length);
-        return filtered;
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '날짜 없음';
-        
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        } catch (error) {
-            console.error('❌ [CATEGORIES PAGE] 날짜 포맷팅 오류:', error);
-            return '날짜 오류';
-        }
-    };
-
-    const filteredPosts = getFilteredPosts();
-
-    console.log('🏷️ [CATEGORIES PAGE] 렌더링 상태:', {
-        loading,
-        error: !!error,
-        totalPosts: posts.length,
-        categoriesCount: categories.length,
-        selectedCategory,
-        filteredPostsCount: filteredPosts.length
-    });
-
-    if (loading) {
-        console.log('⏳ [CATEGORIES PAGE] 로딩 중 표시');
-        return (
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-                    <Typography variant="h6">데이터를 불러오는 중...</Typography>
-                </Box>
-            </Container>
-        );
-    }
-
-    if (error) {
-        console.log('❌ [CATEGORIES PAGE] 오류 상태 표시:', error);
-        return (
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                <Box display="flex" flexDirection="column" alignItems="center" minHeight="50vh">
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                        {error}
-                    </Alert>
-                    <Button 
-                        variant="contained" 
-                        onClick={loadPosts}
-                    >
-                        다시 시도
-                    </Button>
-                </Box>
-            </Container>
-        );
-    }
-
-    return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                카테고리별 포스트
-            </Typography>
-            
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                관심 있는 카테고리를 선택하여 포스트를 확인해보세요.
-            </Typography>
-
-            {/* 카테고리 탭 */}
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-                <Tabs 
-                    value={selectedCategory} 
-                    onChange={handleCategoryChange}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                >
-                    <Tab 
-                        label={`전체 (${posts.length})`} 
-                        value="all" 
-                    />
-                    {categories.map((category) => (
-                        <Tab
-                            key={category.name}
-                            label={`${category.name} (${category.count})`}
-                            value={category.name}
-                        />
-                    ))}
-                </Tabs>
-            </Box>
-
-            {/* 포스트 목록 */}
-            {filteredPosts.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                    <Typography variant="h6" color="text.secondary">
-                        {selectedCategory === 'all' 
-                            ? '아직 포스트가 없습니다.' 
-                            : `'${selectedCategory}' 카테고리에 포스트가 없습니다.`
-                        }
-                    </Typography>
-                </Box>
-            ) : (
-                <Grid container spacing={3}>
-                    {filteredPosts.map((post) => (
-                        <Grid item xs={12} md={6} key={post.id}>
-                            <Card 
-                                sx={{ 
-                                    height: '100%', 
-                                    display: 'flex', 
-                                    flexDirection: 'column',
-                                    transition: 'transform 0.2s, box-shadow 0.2s',
-                                    '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: 3
-                                    }
-                                }}
-                            >
-                                <CardContent sx={{ flexGrow: 1 }}>
-                                    <Typography variant="h6" component="h2" gutterBottom>
-                                        <Link 
-                                            to={`/blog/${post.id}`}
-                                            style={{ 
-                                                textDecoration: 'none', 
-                                                color: 'inherit' 
-                                            }}
-                                        >
-                                            {post.title}
-                                        </Link>
-                                    </Typography>
-                                    
-                                    {post.category && (
-                                        <Chip 
-                                            label={post.category} 
-                                            size="small" 
-                                            color="primary" 
-                                            sx={{ mb: 1 }}
-                                        />
-                                    )}
-                                    
-                                    <Typography variant="body2" color="text.secondary">
-                                        {post.author?.email || '익명'} • {formatDate(post.createdAt)}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            )}
-        </Container>
-    );
+// 카테고리 설명 매핑
+const categoryDescriptions = {
+  '프론트': 'React, Vue, Angular 등 프론트엔드 개발 관련 포스트',
+  '백엔드': 'Node.js, Spring, Django 등 백엔드 개발 관련 포스트',
+  '데이터베이스': 'MySQL, PostgreSQL, MongoDB 등 데이터베이스 관련 포스트',
+  '보안': '웹 보안, 네트워크 보안 등 보안 관련 포스트',
+  '네트워크': '네트워크 프로토콜, 인프라 등 네트워크 관련 포스트',
+  '모의해킹': '모의해킹, 취약점 분석 등 해킹 관련 포스트',
+  '인공지능': 'AI, 머신러닝, 딥러닝 등 인공지능 관련 포스트',
+  '기타': '기타 개발 관련 포스트'
 };
+
+function Categories() {
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [filteredCategories, setFilteredCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [tabLabels, setTabLabels] = useState(['전체']);
+
+  useEffect(() => {
+    console.log(' Categories 페이지 데이터 로딩 시작');
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        console.log(' Categories 로딩 상태 설정');
+        
+        // 모든 포스트 가져오기
+        const allPosts = await getPosts();
+        console.log(' Categories 포스트 데이터 수신, 개수:', allPosts?.length || 0);
+        
+        // 카테고리별 포스트 수 계산 및 태그 수집
+        const categoryData = {};
+        allPosts.forEach(post => {
+          const categoryName = post.category || '기타';
+          
+          if (!categoryData[categoryName]) {
+            categoryData[categoryName] = {
+              name: categoryName,
+              postCount: 0,
+              tags: new Set(),
+              posts: []
+            };
+          }
+          
+          categoryData[categoryName].postCount++;
+          categoryData[categoryName].posts.push(post);
+          
+          // 태그가 있다면 추가 (임시로 카테고리 기반 태그 생성)
+          if (post.tags) {
+            post.tags.forEach(tag => categoryData[categoryName].tags.add(tag));
+          }
+        });
+        
+        // 카테고리 데이터 변환
+        const categoriesArray = Object.values(categoryData).map((cat, index) => ({
+          id: index + 1,
+          name: cat.name,
+          description: categoryDescriptions[cat.name] || `${cat.name} 관련 포스트`,
+          postCount: cat.postCount,
+          tags: Array.from(cat.tags).slice(0, 5), // 최대 5개 태그만 표시
+          posts: cat.posts
+        }));
+        
+        // 포스트 수 기준으로 정렬
+        categoriesArray.sort((a, b) => b.postCount - a.postCount);
+        
+        setCategories(categoriesArray);
+        setFilteredCategories(categoriesArray);
+        console.log(' Categories 카테고리 데이터 설정 완료, 개수:', categoriesArray.length);
+        
+        // 탭 라벨 설정
+        const labels = ['전체', ...categoriesArray.map(cat => cat.name)];
+        setTabLabels(labels);
+        console.log(' Categories 탭 라벨 설정 완료:', labels);
+        
+      } catch (error) {
+        console.error(' Categories 데이터 로딩 실패:', error);
+        setError('카테고리 데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+        console.log(' Categories 로딩 완료');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+    
+    if (newValue === 0) {
+      // 전체 탭
+      setFilteredCategories(categories);
+    } else {
+      // 특정 카테고리 탭
+      const selectedCategory = tabLabels[newValue];
+      setFilteredCategories(categories.filter(cat => cat.name === selectedCategory));
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          카테고리 데이터를 불러오는 중...
+        </Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          카테고리
+        </Typography>
+        <Typography variant="body1" color="text.secondary" paragraph>
+          관심 있는 주제별로 포스트를 찾아보세요
+        </Typography>
+      </Box>
+
+      {tabLabels.length > 1 && (
+        <Paper sx={{ mb: 4 }}>
+          <Tabs
+            value={selectedTab}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{ borderBottom: 1, borderColor: 'divider' }}
+          >
+            {tabLabels.map((label, index) => (
+              <Tab key={index} label={label} />
+            ))}
+          </Tabs>
+        </Paper>
+      )}
+
+      {filteredCategories.length > 0 ? (
+        <Grid container spacing={4}>
+          {filteredCategories.map((category) => (
+            <Grid item xs={12} md={6} key={category.id}>
+              <Card 
+                sx={{ 
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: 3
+                  }
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h5" component="h2">
+                      {category.name}
+                    </Typography>
+                    <Chip 
+                      label={`${category.postCount}개의 포스트`}
+                      color="primary"
+                      size="small"
+                    />
+                  </Box>
+                  <Typography variant="body1" color="text.secondary" paragraph>
+                    {category.description}
+                  </Typography>
+                  {category.tags.length > 0 && (
+                    <Box sx={{ mb: 2 }}>
+                      {category.tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={tag}
+                          size="small"
+                          sx={{ mr: 1, mb: 1 }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  <Button
+                    component={Link}
+                    to={`/blog?category=${encodeURIComponent(category.name)}`}
+                    variant="outlined"
+                    fullWidth
+                  >
+                    포스트 보기
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            아직 카테고리가 없습니다.
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+            첫 번째 포스트를 작성해보세요!
+          </Typography>
+          <Button
+            component={Link}
+            to="/create"
+            variant="contained"
+            sx={{ mt: 2 }}
+          >
+            포스트 작성하기
+          </Button>
+        </Box>
+      )}
+    </Container>
+  );
+}
 
 export default Categories; 

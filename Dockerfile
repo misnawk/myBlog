@@ -3,10 +3,6 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# 빌드 시점에 환경변수 받기
-ARG REACT_APP_CLOUD_NAME
-ARG REACT_APP_UPLOAD_PRESET
-
 # 서버 의존성만 설치 (이미 빌드된 상태)
 COPY src/server/package*.json ./src/server/
 RUN cd src/server && npm ci --only=production --prefer-offline --no-audit
