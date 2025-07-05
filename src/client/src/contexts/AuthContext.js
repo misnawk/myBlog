@@ -20,27 +20,34 @@ export const AuthProvider = ({children}) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        console.log(' AuthContext 초기화, 토큰 상태:', token ? '있음' : '없음');
         if(token){  
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            console.log(' axios 헤더에 토큰 설정 완료');
         } else{
             delete axios.defaults.headers.common['Authorization'];
+            console.log(' axios 헤더에서 토큰 제거 완료');
         }
         setIsLoading(false);
+        console.log(' AuthContext 로딩 완료');
     }, [token]);
 
     const login = async(email, password) => {
+        console.log(' 로그인 시도 시작:', email);
         try{
             const response = await axios.post('/api/auth/login', {email, password});
             const { access_token, user: userData } = response.data;
             
+            console.log(' 로그인 성공, 사용자:', userData?.email);
             localStorage.setItem('token', access_token);
             setToken(access_token);
             setUser(userData);
+            console.log(' 토큰 저장 및 상태 업데이트 완료');
             
             return { success: true, data: response.data };
         } catch (error) {
-            console.error('로그인 오류 상세:', error);
-            console.error('서버 응답:', error.response?.data);
+            console.error(' 로그인 오류 상세:', error);
+            console.error(' 서버 응답:', error.response?.data);
             
             const errorMessage = error.response?.data?.message || '로그인에 실패했습니다.';
             return { success: false, error: errorMessage };
@@ -48,10 +55,12 @@ export const AuthProvider = ({children}) => {
     };
 
     const logout = () => {
+        console.log(' 로그아웃 시작');
         localStorage.removeItem('token');
         setToken(null);
         setUser(null);
         delete axios.defaults.headers.common['Authorization'];
+        console.log(' 로그아웃 완료');
     };
 
     const isAuthenticated = () => {
