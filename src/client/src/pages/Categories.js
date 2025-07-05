@@ -37,12 +37,15 @@ function Categories() {
   const [tabLabels, setTabLabels] = useState(['전체']);
 
   useEffect(() => {
+    console.log(' Categories 페이지 데이터 로딩 시작');
     const fetchCategories = async () => {
       try {
         setLoading(true);
+        console.log(' Categories 로딩 상태 설정');
         
         // 모든 포스트 가져오기
         const allPosts = await getPosts();
+        console.log(' Categories 포스트 데이터 수신, 개수:', allPosts?.length || 0);
         
         // 카테고리별 포스트 수 계산 및 태그 수집
         const categoryData = {};
@@ -82,16 +85,19 @@ function Categories() {
         
         setCategories(categoriesArray);
         setFilteredCategories(categoriesArray);
+        console.log(' Categories 카테고리 데이터 설정 완료, 개수:', categoriesArray.length);
         
         // 탭 라벨 설정
         const labels = ['전체', ...categoriesArray.map(cat => cat.name)];
         setTabLabels(labels);
+        console.log(' Categories 탭 라벨 설정 완료:', labels);
         
       } catch (error) {
-        console.error('카테고리 데이터 로딩 실패:', error);
+        console.error(' Categories 데이터 로딩 실패:', error);
         setError('카테고리 데이터를 불러오는데 실패했습니다.');
       } finally {
         setLoading(false);
+        console.log(' Categories 로딩 완료');
       }
     };
 

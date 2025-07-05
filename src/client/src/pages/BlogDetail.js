@@ -50,21 +50,24 @@ export default function BlogDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log(' BlogDetail 페이지 로딩 시작, ID:', id);
     const fetchPost = async () => {
       try {
         setLoading(true);
+        console.log(' BlogDetail 로딩 상태 설정');
         
         // 개별 포스트 조회
         const postData = await getPost(id);
         setPost(postData);
         setLikeCount(postData.likes || 0);
+        console.log(' BlogDetail 포스트 데이터 설정 완료:', postData?.title);
         
         // 관련 포스트 기능은 현재 사용하지 않음
 
         // 임시 댓글 데이터 (실제로는 댓글 API에서 가져와야 함)
      
       } catch (error) {
-        console.error('포스트 조회 실패:', error);
+        console.error(' BlogDetail 포스트 조회 실패:', error);
         setSnackbar({
           open: true,
           message: '포스트를 불러오는데 실패했습니다.',
@@ -72,6 +75,7 @@ export default function BlogDetail() {
         });
       } finally {
         setLoading(false);
+        console.log(' BlogDetail 로딩 완료');
       }
     };
 
