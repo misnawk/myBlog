@@ -13,9 +13,6 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import CommentIcon from '@mui/icons-material/Comment';
 import { getPosts } from '../api/postGetApi';
 import { createPreview } from '../utils/htmlUtils';
 

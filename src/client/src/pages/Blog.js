@@ -37,7 +37,7 @@ const sortOptions = [
 function Blog() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [sortBy, setSortBy] = useState("latest");
