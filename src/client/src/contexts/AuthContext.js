@@ -12,6 +12,64 @@ export const useAuth = () => {
     return context;
 };
 
+// JWT 토큰에서 사용자 정보 추출 (한글 지원)
+const getUserFromToken = (token) => {
+    try {
+        if (!token) return null;
+        
+        // JWT 토큰 구조: header.payload.signature
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            console.error(' 잘못된 JWT 토큰 형식');
+            return null;
+        }
+        
+        // Base64 URL 디코딩
+        let payload = parts[1];
+        
+        // Base64 URL을 일반 Base64로 변환
+        payload = payload.replace(/-/g, '+').replace(/_/g, '/');
+        
+        // 패딩 추가
+        while (payload.length % 4) {
+            payload += '=';
+        }
+        
+        // 한글 지원을 위한 안전한 디코딩
+        const binaryString = atob(payload);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const decoded = new TextDecoder('utf-8').decode(bytes);
+        const payloadData = JSON.parse(decoded);
+        
+        console.log(' 토큰에서 사용자 정보 추출:', payloadData);
+        
+        return {
+            id: payloadData.id,
+            email: payloadData.email,
+            username: payloadData.username
+        };
+    } catch (error) {
+        console.error(' 토큰 파싱 실패:', error);
+        // 폴백: 간단한 방법으로 시도
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log(' 폴백 파싱 성공:', payload);
+            return {
+                id: payload.id,
+                email: payload.email,
+                username: payload.username
+            };
+        } catch (fallbackError) {
+            console.error(' 폴백 파싱도 실패:', fallbackError);
+            return null;
+        }
+    }
+};
+
 // 전역 인증 상태 관리
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
@@ -20,11 +78,20 @@ export const AuthProvider = ({children}) => {
 
     useEffect(() => {
         console.log(' AuthContext 초기화, 토큰 상태:', token ? '있음' : '없음');
+        
         if(token){  
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             console.log(' axios 헤더에 토큰 설정 완료');
+            
+            // 토큰에서 사용자 정보 복원
+            const userFromToken = getUserFromToken(token);
+            if (userFromToken) {
+                setUser(userFromToken);
+                console.log(' 토큰에서 사용자 정보 복원 완료:', userFromToken.email, userFromToken.username);
+            }
         } else{
             delete axios.defaults.headers.common['Authorization'];
+            setUser(null);
             console.log(' axios 헤더에서 토큰 제거 완료');
         }
         setIsLoading(false);
@@ -57,7 +124,7 @@ export const AuthProvider = ({children}) => {
             const response = await axios.post('/api/auth/login', {email, password});
             const { access_token, user: userData } = response.data;
             
-            console.log(' 로그인 성공, 사용자:', userData?.email);
+            console.log(' 로그인 성공, 사용자:', userData?.email, userData?.username);
             localStorage.setItem('token', access_token);
             setToken(access_token);
             setUser(userData);
