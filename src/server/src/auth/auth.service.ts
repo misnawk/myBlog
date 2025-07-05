@@ -55,39 +55,41 @@ export class AuthService{
 
     // 로그인 
     async login(loginDto: LoginDto){
+        console.log('로그인 시도:', loginDto.email);
+        
+        //DB에서 이메일로 사용자 정보 가져옴
+        const user = await this.userService.findByEmail(loginDto.email);
+        console.log('사용자 조회 결과:', user ? '찾음' : '없음');
 
-        try {
-            //DB에서 이메일로 사용자 정보 가져옴
-            const user = await this.userService.findByEmail(loginDto.email);
+        if(!user){
+            console.log('사용자 없음 - 회원가입 필요');
+            throw new UnauthorizedException('가입 되어있지 않은 사용자입니다.');
+        }
 
-            if(!user){
-                throw new ConflictException('가입 되어있지 않은 사용자입니다.');
-            }
+        //입력한 PW 와 DB에 있는 PW 대조
+        const isPasswordValid = await this.userService.validatePassword(
+            loginDto.password,
+            user.password
+        );
+        console.log('비밀번호 검증 결과:', isPasswordValid);
 
-            //입력한 PW 와 DB에 있는 PW 대조
-            const isPasswordValid = await this.userService.validatePassword(
-                loginDto.password,
-                user.password
-            );
+        if(!isPasswordValid){
+            console.log('비밀번호 불일치');
+            throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
+        }
 
-            if(!isPasswordValid){
-                throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
-            }
+        //JWT 토큰 생성
+        const payload = {email:user.email, id:user.id , username:user.username};
+        const access_token = this.jwtService.sign(payload);
+        console.log('로그인 성공, 토큰 생성 완료');
 
-            //JWT 토큰 생성
-            const payload = {email:user.email, id:user.id , username:user.username};
-            const access_token = this.jwtService.sign(payload);
-
-            return{
-                access_token: access_token,
-                user:{
-                    id:user.id,
-                    username:user.username,
-                    email:user.email
-                },
-            };
-        } catch (error) {
-            throw new UnauthorizedException('로그인에 실패했습니다.');
-        }   
+        return{
+            access_token: access_token,
+            user:{
+                id:user.id,
+                username:user.username,
+                email:user.email
+            },
+        };
     }
 }
