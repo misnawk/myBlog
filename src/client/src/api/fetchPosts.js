@@ -1,3 +1,4 @@
+// 게시글 가져올때 사용하는 API
 const getPosts = async () => {
 
     try{

@@ -17,6 +17,9 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_SYNCHRONIZE=${DB_SYNCHRONIZE:-false}
       - JWT_SECRET=${JWT_SECRET}
+      - REACT_APP_CLOUD_NAME=${REACT_APP_CLOUD_NAME}
+      - REACT_APP_UPLOAD_PRESET=${REACT_APP_UPLOAD_PRESET}
+
     networks:
       - app-network
 

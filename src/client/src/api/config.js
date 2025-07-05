@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// 모든 axios 요청에 대한 기본 URL 설정
 const baseURL = process.env.NODE_ENV === 'development' 
   ? 'http://localhost:7000' 
   : '';

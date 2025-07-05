@@ -1,3 +1,5 @@
+
+// 작성한 게시글을 서버로 보낼때 사용
 import axios from './config';
 
 // 작성한 글을 서버로 보내주는 API

@@ -18,7 +18,8 @@ import {
     Alert
 } from '@mui/material';
 import { Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
-import createPost from '../api/createPost';
+import createPost from '../api/post';
+import imageUploader from '../api/imgPost';
 
 export default function CreatePost() {
     const navigate = useNavigate();
@@ -45,6 +46,42 @@ export default function CreatePost() {
         setMounted(true);
     }, []);
 
+    // 붙여넣기 시 자동으로 이미지 업로드
+useEffect(() => {
+    if (!mounted || !quillRef.current) return;
+
+    const quill = quillRef.current.getEditor();
+    
+    const handleTextChange = async (delta, oldDelta, source) => {
+        if (source !== 'user') return;
+        
+        // 새로 추가된 이미지 찾기
+        const images = quill.container.querySelectorAll('img[src^="data:"]');
+        
+        for (const img of images) {
+            try {
+                const res = await fetch(img.src);
+                const blob = await res.blob();
+                const file = new File([blob], 'image.png', { type: blob.type });
+                
+                const imageUrl = await imageUploader(file);
+                img.src = imageUrl; // 직접 src 교체
+            } catch (error) {
+                console.error('이미지 업로드 실패:', error);
+            }
+        }
+    };
+    
+    quill.on('text-change', handleTextChange);
+    
+    return () => {
+        quill.off('text-change', handleTextChange);
+    };
+}, [mounted]);
+
+
+
+
     // 이미지 핸들러를 useCallback으로 메모이제이션
     const imageHandler = useCallback(() => {
         const input = document.createElement('input');
@@ -55,60 +92,21 @@ export default function CreatePost() {
         input.onchange = async () => {
             const file = input.files[0];
             
-            // 파일 크기 체크
             if (file.size > 5 * 1024 * 1024) {
                 alert('파일 크기는 5MB 이하여야 합니다.');
                 return;
             }
             
-            const formData = new FormData();
-            formData.append('image', file);
-            
             try {
-                // Quill 인스턴스 가져오기
-                const quill = quillRef.current?.getEditor();
-                if (!quill) return;
-                
-                const range = quill.getSelection();
+                const imageUrl = await imageUploader(file);
                
-                // 로딩 텍스트 삽입
-                quill.insertText(range.index, '이미지 업로드 중...');
-                
-                const response = await fetch(
-                    `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_IMGBB_API_KEY || '115376878bc76479b9c6775a72f120aa'}`, 
-                    {
-                        method: 'POST',
-                        body: formData
-                    }
-                );
-
-                if (!response.ok) throw new Error('업로드 실패');
-                
-                const data = await response.json();
-                const imageUrl = data.data.url;
-
-                console.log("imageUrl" + imageUrl);
-
-
-                
-                // 로딩 텍스트 제거
-                quill.deleteText(range.index, 16);
-                // 이미지 삽입
-                quill.insertEmbed(range.index, 'image', imageUrl);
-                
+                const editor = quillRef.current.getEditor();
+                const range = editor.getSelection();    
+                editor.insertEmbed(range.index, 'image', imageUrl);
+                editor.setSelection(range.index + 1);
             } catch (error) {
                 console.error('이미지 업로드 실패:', error);
-                alert('이미지 업로드에 실패했습니다.');
-                
-                // 에러 시 로딩 텍스트 제거
-                const quill = quillRef.current?.getEditor();
-                if (quill) {
-                    const text = quill.getText();
-                    const loadingIndex = text.indexOf('이미지 업로드 중...');
-                    if (loadingIndex !== -1) {
-                        quill.deleteText(loadingIndex, 16);
-                    }
-                }
+                alert('이미지 업로드 실패');
             }
         };
     }, []);
