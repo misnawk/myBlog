@@ -18,6 +18,10 @@ import {
   Pagination,
   Paper,
   Fab,
+  useTheme,
+  useMediaQuery,
+  Avatar,
+  Stack,
 } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
@@ -36,6 +40,9 @@ const sortOptions = [
 ];
 
 function Blog() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
@@ -142,14 +149,11 @@ function Blog() {
     navigate(`/blogDetail/${postId}`);
   };
 
-
-  
-
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4, px: { xs: 1, sm: 2 } }}>
       {/* 헤더 섹션 */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography variant={isMobile ? "h5" : "h4"} component="h1" gutterBottom>
           블로그 포스트
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -158,7 +162,7 @@ function Blog() {
       </Box>
 
       {/* 필터 섹션 */}
-      <Paper sx={{ p: 2, mb: 4 }}>
+      <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 4 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={4}>
             <TextField
@@ -166,6 +170,7 @@ function Blog() {
               placeholder="포스트 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              size={isMobile ? "small" : "medium"}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -176,7 +181,7 @@ function Blog() {
             />
           </Grid>
           <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size={isMobile ? "small" : "medium"}>
               <InputLabel>카테고리</InputLabel>
               <Select
                 value={selectedCategory}
@@ -192,7 +197,7 @@ function Blog() {
             </FormControl>
           </Grid>
           <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size={isMobile ? "small" : "medium"}>
               <InputLabel>정렬</InputLabel>
               <Select
                 value={sortBy}
@@ -211,7 +216,7 @@ function Blog() {
       </Paper>
 
       {/* 포스트 그리드 */}
-      <Grid container spacing={4}>
+      <Grid container spacing={isMobile ? 2 : 4}>
         {currentPosts.map((post) => (
           <Grid item xs={12} md={6} key={post.id}>
             <Card
@@ -226,47 +231,104 @@ function Blog() {
                 },
               }}
             >
-                              {post.image && (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={post.image}
-                    alt={post.title}
+              {post.image && (
+                <CardMedia
+                  component="img"
+                  height={isMobile ? "160" : "200"}
+                  image={post.image}
+                  alt={post.title}
+                  sx={{ objectFit: "cover" }}
+                />
+              )}
+              <CardContent sx={{ flexGrow: 1, p: isMobile ? 2 : 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    gap: { xs: 1, sm: 0 }
+                  }}
+                >
+                  <Chip 
+                    label={post.category || '기타'} 
+                    size={isMobile ? "small" : "medium"}
                   />
-                )}
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 1,
-                    }}
+                  <Typography 
+                    variant={isMobile ? "caption" : "body2"} 
+                    color="text.secondary"
                   >
-                    <Chip label={post.category || '기타'} size="small" />
-                    <Typography variant="body2" color="text.secondary">
-                      {new Date(post.createdAt).toLocaleDateString()}
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+                <Typography 
+                  variant={isMobile ? "h6" : "h5"} 
+                  component="h2" 
+                  gutterBottom
+                  sx={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {post.title}
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  paragraph
+                  sx={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: { xs: 2, sm: 3 },
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {createPreview(post.content, isMobile ? 80 : 150)}
+                </Typography>
+                <Box sx={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  alignItems: "center",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: { xs: 2, sm: 0 }
+                }}>
+                  <Box sx={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: 1,
+                    width: { xs: "100%", sm: "auto" }
+                  }}>
+                    <Avatar 
+                      sx={{ 
+                        width: isMobile ? 24 : 32, 
+                        height: isMobile ? 24 : 32,
+                        fontSize: isMobile ? "0.75rem" : "1rem"
+                      }}
+                    >
+                      {post.author?.username?.[0] || post.author?.email?.[0] || "?"}
+                    </Avatar>
+                    <Typography 
+                      variant={isMobile ? "caption" : "body2"} 
+                      color="text.secondary"
+                    >
+                      {post.author?.username || post.author?.email || "익명"}
                     </Typography>
                   </Box>
-                  <Typography variant="h5" component="h2" gutterBottom>
-                    {post.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    {createPreview(post.content, 150)}
-                  </Typography>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
-                        작성자: {post.author?.email || '익명'}
-                      </Typography>
-                    </Box>
                   <Button
                     onClick={() => handlePostClick(post.id)}
                     variant="contained"
                     color="primary"
-                    size="small"
+                    size={isMobile ? "small" : "medium"}
+                    sx={{ width: { xs: "100%", sm: "auto" } }}
                   >
-                     자세히 보기
+                    자세히 보기
                   </Button>
                 </Box>
               </CardContent>
@@ -283,7 +345,7 @@ function Blog() {
             page={page}
             onChange={handlePageChange}
             color="primary"
-            size="large"
+            size={isMobile ? "medium" : "large"}
           />
         </Box>
       )}
@@ -293,10 +355,11 @@ function Blog() {
         <Fab
           color="primary"
           onClick={() => navigate('/create')}
+          size={isMobile ? "medium" : "large"}
           sx={{
             position: 'fixed',
-            bottom: 32,
-            right: 32,
+            bottom: { xs: 16, sm: 32 },
+            right: { xs: 16, sm: 32 },
             boxShadow: 3,
             '&:hover': {
               transform: 'scale(1.1)',
