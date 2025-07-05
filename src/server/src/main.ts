@@ -29,7 +29,10 @@ async function bootstrap() {
   const port = 7000; 
 
   await app.listen(port);
+  console.log(`=== 서버 시작 완료 ===`);
   console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`시작 시간: ${new Date().toISOString()}`);
 }
 
 bootstrap();
