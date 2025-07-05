@@ -5,6 +5,8 @@ import{AuthModule} from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostModule } from './post/post.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 
 
@@ -14,6 +16,12 @@ import { PostModule } from './post/post.module';
     ConfigModule.forRoot({
       isGlobal: true,
       // envFilePath 제거 - 환경변수는 시스템에서 직접 로드
+    }),
+    // React 정적 파일 서빙 설정 추가
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'client', 'build'),
+      exclude: ['/api*'], // API 경로는 제외
+      serveRoot: '/', // 루트 경로에서 서빙
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
