@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config'; //환경변수와 설정값을 안전하게 관리하고 접근 할때 사용하는 함수
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import{AuthModule} from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -33,7 +32,6 @@ import { PostModule } from './post/post.module';
     UserModule,
     PostModule,
   ],
-  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

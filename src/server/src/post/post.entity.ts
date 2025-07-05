@@ -24,7 +24,10 @@ export class Post {
 
     // 여러개의 게시물은 하나의 유저에 속할 수 있음
     @ManyToOne(() => User,{nullable: false,onDelete:'CASCADE',})
-    @JoinColumn({ name: 'authorId' })
+    @JoinColumn({ 
+        name: 'authorId', // Post의 authorId
+        referencedColumnName: 'email', // User의 email과 조인
+     })
     author: User;
 
     // 생성일

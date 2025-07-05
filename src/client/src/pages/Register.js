@@ -20,10 +20,11 @@ import {
   Google as GoogleIcon,
   GitHub as GitHubIcon,
 } from "@mui/icons-material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import axios from '../api/config';
 
 function Register() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false); //비밀번호 show 상태저장
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); //비밀번호 확인 show 상태저장
   const [snackbar, setSnackbar] = useState({
@@ -81,7 +82,7 @@ function Register() {
       
       // 3초 후 로그인 페이지로 이동
       setTimeout(() => {
-        window.location.href = '/login';
+        navigate('/login');
       }, 3000);
       
     } catch (error) {

@@ -18,8 +18,8 @@ import {
     Alert
 } from '@mui/material';
 import { Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
-import createPost from '../api/post';
-import imageUploader from '../api/imgPost';
+import createPost from '../api/postApi';
+import imageUploader from '../api/imgPostApi';
 
 export default function CreatePost() {
     const navigate = useNavigate();
@@ -286,6 +286,7 @@ useEffect(() => {
                             <MenuItem value="네트워크">네트워크</MenuItem>         
                             <MenuItem value="모의해킹">모의해킹</MenuItem> 
                             <MenuItem value="인공지능">인공지능</MenuItem>
+                            <MenuItem value="주식">주식</MenuItem>
                         </Select>
                     </FormControl>
 

@@ -26,8 +26,9 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
 import CreateIcon from "@mui/icons-material/Create";
 import { useAuth } from "../contexts/AuthContext";
-import getPosts from "../api/fetchPosts"
+import getPosts from "../api/postGetApi"
 import { useEffect } from "react";
+import { createPreview } from "../utils/htmlUtils";
 
 const categories = ["전체", "프론트엔드", "백엔드", "DevOps", "알고리즘"];
 const sortOptions = [
@@ -53,9 +54,14 @@ function Blog() {
     const loadPosts = async () => {
       try {
         setLoading(true);
+        
         const data = await getPosts();
-        setPosts(data);
+        console.log(data);
+
+        
+        setPosts(Array.isArray(data) ? data : []);
         setError(null);
+
       } catch (error) {
         setError('게시글을 불러오는데 실패했습니다.');
         console.error('Posts loading error:', error);
@@ -86,11 +92,11 @@ function Blog() {
   }
 
   // 검색어, 카테고리, 정렬 기준에 따라 포스트 필터링
-  const filteredPosts = posts
+  const filteredPosts = Array.isArray(posts) ? posts
     .filter((post) => {
       const matchesSearch =
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+        (post.content && post.content.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory =
         selectedCategory === "전체" || post.category === selectedCategory;
       return matchesSearch && matchesCategory;
@@ -98,15 +104,15 @@ function Blog() {
     .sort((a, b) => {
       switch (sortBy) {
         case "latest":
-          return new Date(b.date) - new Date(a.date);
+          return new Date(b.createdAt) - new Date(a.createdAt);
         case "popular":
-          return b.likes - a.likes;
+          return 0; // 백엔드에 likes 필드가 없음
         case "comments":
-          return b.comments - a.comments;
+          return 0; // 백엔드에 comments 필드가 없음
         default:
           return 0;
       }
-    });
+    }) : [];
 
   // 페이지네이션
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
@@ -123,6 +129,9 @@ function Blog() {
   const handlePostClick = (postId) => {
     navigate(`/blogDetail/${postId}`);
   };
+
+
+  
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -205,57 +214,40 @@ function Blog() {
                 },
               }}
             >
-              <CardMedia
-                component="img"
-                height="200"
-                image={post.image}
-                alt={post.title}
-              />
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 1,
-                  }}
-                >
-                  <Chip label={post.category} size="small" />
-                  <Typography variant="body2" color="text.secondary">
-                    {post.date}
-                  </Typography>
-                </Box>
-                <Typography variant="h5" component="h2" gutterBottom>
-                  {post.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {post.excerpt}
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                  {post.tags.map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={tag}
-                      size="small"
-                      sx={{ mr: 0.5, mb: 0.5 }}
-                    />
-                  ))}
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
-                      <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                      {post.readTime}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
-                      <FavoriteIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                      {post.likes}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
-                      <CommentIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                      {post.comments}
+                              {post.image && (
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={post.image}
+                    alt={post.title}
+                  />
+                )}
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Chip label={post.category || '기타'} size="small" />
+                    <Typography variant="body2" color="text.secondary">
+                      {new Date(post.createdAt).toLocaleDateString()}
                     </Typography>
                   </Box>
+                  <Typography variant="h5" component="h2" gutterBottom>
+                    {post.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    {createPreview(post.content, 150)}
+                  </Typography>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
+                        작성자: {post.author?.email || '익명'}
+                      </Typography>
+                    </Box>
                   <Button
                     onClick={() => handlePostClick(post.id)}
                     variant="contained"

@@ -1,8 +1,15 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Box } from '@mui/material';
+import DOMPurify from 'dompurify';
+import { isHtmlContent } from '../utils/htmlUtils';
 
 const MarkdownRenderer = ({ content, sx = {} }) => {
+  // HTML인지 마크다운인지 감지
+  const isHTML = isHtmlContent(content);
+  
+  // HTML 콘텐츠를 안전하게 정제
+  const sanitizedHTML = isHTML ? DOMPurify.sanitize(content || '') : content || '';
+  
   return (
     <Box 
       sx={{ 
@@ -39,10 +46,24 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
           fontStyle: 'italic',
           color: '#666'
         },
+        '& img': {
+          maxWidth: '100%',
+          height: 'auto',
+          borderRadius: '8px',
+          mb: 2
+        },
+        // ReactQuill 스타일 추가
+        '& .ql-align-center': { textAlign: 'center' },
+        '& .ql-align-right': { textAlign: 'right' },
+        '& .ql-align-justify': { textAlign: 'justify' },
         ...sx 
       }}
     >
-      <ReactMarkdown>{content || ''}</ReactMarkdown>
+      {isHTML ? (
+        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+      ) : (
+        <div style={{ whiteSpace: 'pre-wrap' }}>{sanitizedHTML}</div>
+      )}
     </Box>
   );
 };

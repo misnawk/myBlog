@@ -29,4 +29,4 @@ const imageUploader = async (file) => {
     }
 };
 
-export default imageUploader; // 🔥 export 추가
+export default imageUploader; 
