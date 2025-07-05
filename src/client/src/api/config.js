@@ -3,7 +3,7 @@ import axios from 'axios';
 // 모든 axios 요청에 대한 기본 URL 설정
 const baseURL = process.env.NODE_ENV === 'development' 
   ? 'http://localhost:7000' 
-  : 'http://blig.minseok.life:7000';
+  : 'https://blog.minseok.life:7000';
 
 axios.defaults.baseURL = baseURL;
 
