@@ -1,227 +1,219 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Box,
-  Button,
-  Chip,
-  Paper,
-  CircularProgress
-} from '@mui/material';
 import { Link } from 'react-router-dom';
+import { Container, Typography, Box, Card, CardContent, Grid, Chip, Button } from '@mui/material';
 import { getPosts } from '../api/postGetApi';
-import { createPreview } from '../utils/htmlUtils';
 
+const Home = () => {
+    const [posts, setPosts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
+    console.log('🏠 [HOME PAGE] 홈 페이지 컴포넌트 렌더링');
 
-function Home() {
-  const [recentPosts, setRecentPosts] = useState([]);
-  const [popularCategories, setPopularCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    useEffect(() => {
+        console.log('🏠 [HOME PAGE] useEffect 실행 - 데이터 로딩 시작');
+        loadData();
+    }, []);
 
-  useEffect(() => {
-    console.log(' Home 페이지 데이터 로딩 시작');
-    const fetchData = async () => {
-      try {
+    const loadData = async () => {
+        console.log('📊 [HOME PAGE] 데이터 로딩 함수 시작');
         setLoading(true);
-        console.log(' 로딩 상태 설정 완료');
+        setError(null);
         
-        // 모든 포스트 가져오기
-        console.log(' 포스트 데이터 요청 시작');
-        const allPosts = await getPosts();
-        console.log(' 포스트 데이터 수신 완료, 총 개수:', allPosts?.length || 0);
-        
-        // 최근 포스트 3개 선택
-        const recent = allPosts.slice(0, 3);
-        setRecentPosts(recent);
-        console.log(' 최근 포스트 설정 완료:', recent.length);
-        
-        // 카테고리별 포스트 수 계산
-        console.log(' 카테고리 분석 시작');
-        const categoryCount = {};
-        allPosts.forEach(post => {
-          const category = post.category || '기타';
-          categoryCount[category] = (categoryCount[category] || 0) + 1;
-        });
-        console.log(' 카테고리 통계:', categoryCount);
-        
-        // 카테고리를 포스트 수 기준으로 정렬
-        const sortedCategories = Object.entries(categoryCount)
-          .map(([name, count]) => ({ name, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 8); // 최대 8개까지만 표시
-        
-        setPopularCategories(sortedCategories);
-        console.log(' 인기 카테고리 설정 완료:', sortedCategories.length);
-        
-      } catch (error) {
-        console.error(' 데이터 로딩 실패:', error);
-        console.error(' 에러 상세:', error.response?.data);
-        setError('데이터를 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-        console.log(' 데이터 로딩 완료 (로딩 상태 해제)');
-      }
+        try {
+            console.log('📚 [HOME PAGE] 포스트 데이터 요청');
+            const postsData = await getPosts();
+            
+            console.log('✅ [HOME PAGE] 포스트 데이터 로딩 성공');
+            console.log('📊 [HOME PAGE] 로딩된 포스트 수:', postsData?.length || 0);
+            
+            if (postsData && postsData.length > 0) {
+                console.log('📋 [HOME PAGE] 첫 번째 포스트 샘플:', {
+                    id: postsData[0].id,
+                    title: postsData[0].title,
+                    category: postsData[0].category
+                });
+            }
+            
+            setPosts(postsData || []);
+            
+            // 카테고리 추출
+            const uniqueCategories = [...new Set(postsData?.map(post => post.category).filter(Boolean))];
+            console.log('🏷️ [HOME PAGE] 추출된 카테고리:', uniqueCategories);
+            setCategories(uniqueCategories);
+            
+        } catch (error) {
+            console.error('❌ [HOME PAGE] 데이터 로딩 실패');
+            console.error('❌ [HOME PAGE] Error:', error.message);
+            setError('데이터를 불러오는데 실패했습니다.');
+        } finally {
+            setLoading(false);
+            console.log('🏠 [HOME PAGE] 데이터 로딩 완료');
+        }
     };
 
-    fetchData();
-  }, []);
+    const formatDate = (dateString) => {
+        if (!dateString) return '날짜 없음';
+        
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (error) {
+            console.error('❌ [HOME PAGE] 날짜 포맷팅 오류:', error);
+            return '날짜 오류';
+        }
+    };
 
-  if (loading) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          데이터를 불러오는 중...
-        </Typography>
-      </Container>
-    );
-  }
+    console.log('🏠 [HOME PAGE] 렌더링 상태:', {
+        loading,
+        error: !!error,
+        postsCount: posts.length,
+        categoriesCount: categories.length
+    });
 
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
-        <Typography variant="h6" color="error">
-          {error}
-        </Typography>
-      </Container>
-    );
-  }
+    if (loading) {
+        console.log('⏳ [HOME PAGE] 로딩 중 표시');
+        return (
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+                    <Typography variant="h6">데이터를 불러오는 중...</Typography>
+                </Box>
+            </Container>
+        );
+    }
 
-  return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* 히어로 섹션 */}
-      <Box sx={{ mb: 6, textAlign: 'center' }}>
-        <Typography variant="h2" component="h1" gutterBottom>
-          개발 블로그
-        </Typography>
-        <Typography variant="h5" color="text.secondary" paragraph>
-          배운것을 기록하기 위한 기술 블로그
-        </Typography>
-        <Button
-          component={Link}
-          to="/blog"
-          variant="contained"
-          size="large"
-          sx={{ mt: 2 }}
-        >
-          포스트 보기
-        </Button>
-      </Box>
-
-      {/* 최근 포스트 섹션 */}
-      <Box sx={{ mb: 6 }}>
-        <Typography variant="h4" component="h2" gutterBottom>
-          최근 포스트
-        </Typography>
-        {recentPosts.length > 0 ? (
-          <Grid container spacing={4}>
-            {recentPosts.map((post) => (
-              <Grid item xs={12} md={4} key={post.id}>
-                <Card 
-                  sx={{ 
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'transform 0.2s',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: 3
-                    }
-                  }}
-                >
-                  {post.image && (
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={post.image}
-                      alt={post.title}
-                    />
-                  )}
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Chip 
-                      label={post.category || '기타'}
-                      size="small"
-                      sx={{ mb: 1 }}
-                    />
-                    <Typography variant="h5" component="h3" gutterBottom>
-                      {post.title}
+    if (error) {
+        console.log('❌ [HOME PAGE] 오류 상태 표시:', error);
+        return (
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                <Box display="flex" flexDirection="column" alignItems="center" minHeight="50vh">
+                    <Typography variant="h6" color="error" gutterBottom>
+                        {error}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      {createPreview(post.content, 100)}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
-                        작성자: {post.author?.email || '익명'}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                      </Typography>
-                    </Box>
-                    <Button
-                      component={Link}
-                      to={`/blogDetail/${post.id}`}
-                      variant="outlined"
-                      fullWidth
+                    <Button 
+                        variant="contained" 
+                        onClick={loadData}
+                        sx={{ mt: 2 }}
                     >
-                      자세히 보기
+                        다시 시도
                     </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-            아직 작성된 포스트가 없습니다.
-          </Typography>
-        )}
-      </Box>
+                </Box>
+            </Container>
+        );
+    }
 
-      {/* 카테고리 섹션 */}
-      <Paper sx={{ p: 3, mb: 6 }}>
-        <Typography variant="h4" component="h2" gutterBottom>
-          인기 카테고리
-        </Typography>
-        {popularCategories.length > 0 ? (
-          <Grid container spacing={2}>
-            {popularCategories.map((category) => (
-              <Grid item xs={6} sm={3} key={category.name}>
-                <Button
-                  component={Link}
-                  to={`/blog?category=${encodeURIComponent(category.name)}`}
-                  variant="outlined"
-                  fullWidth
-                  sx={{ 
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    py: 2
-                  }}
-                >
-                  <Typography variant="h6" component="span">
-                    {category.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {category.count}개의 포스트
-                  </Typography>
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-            카테고리가 없습니다.
-          </Typography>
-        )}
-      </Paper>
-    </Container>
-  );
-}
+    return (
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h3" component="h1" gutterBottom>
+                    환영합니다!
+                </Typography>
+                <Typography variant="h6" color="text.secondary">
+                    개발에 대한 정보를 공유하는 공간입니다.
+                </Typography>
+            </Box>
+
+            {/* 카테고리 섹션 */}
+            {categories.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="h5" gutterBottom>
+                        카테고리
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {categories.map((category) => (
+                            <Chip
+                                key={category}
+                                label={category}
+                                component={Link}
+                                to={`/categories?category=${encodeURIComponent(category)}`}
+                                clickable
+                                color="primary"
+                                variant="outlined"
+                            />
+                        ))}
+                    </Box>
+                </Box>
+            )}
+
+            {/* 최근 포스트 섹션 */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h5" gutterBottom>
+                    최근 포스트
+                </Typography>
+                
+                {posts.length === 0 ? (
+                    <Typography variant="body1" color="text.secondary">
+                        아직 포스트가 없습니다.
+                    </Typography>
+                ) : (
+                    <Grid container spacing={3}>
+                        {posts.slice(0, 6).map((post) => (
+                            <Grid item xs={12} md={6} key={post.id}>
+                                <Card 
+                                    sx={{ 
+                                        height: '100%', 
+                                        display: 'flex', 
+                                        flexDirection: 'column',
+                                        transition: 'transform 0.2s',
+                                        '&:hover': {
+                                            transform: 'translateY(-4px)',
+                                            boxShadow: 3
+                                        }
+                                    }}
+                                >
+                                    <CardContent sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" component="h2" gutterBottom>
+                                            <Link 
+                                                to={`/blog/${post.id}`}
+                                                style={{ 
+                                                    textDecoration: 'none', 
+                                                    color: 'inherit',
+                                                    '&:hover': { color: 'primary.main' }
+                                                }}
+                                            >
+                                                {post.title}
+                                            </Link>
+                                        </Typography>
+                                        
+                                        {post.category && (
+                                            <Chip 
+                                                label={post.category} 
+                                                size="small" 
+                                                color="primary" 
+                                                sx={{ mb: 1 }}
+                                            />
+                                        )}
+                                        
+                                        <Typography variant="body2" color="text.secondary">
+                                            {post.author?.email || '익명'} • {formatDate(post.createdAt)}
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                )}
+                
+                {posts.length > 6 && (
+                    <Box sx={{ textAlign: 'center', mt: 3 }}>
+                        <Button 
+                            component={Link} 
+                            to="/blog" 
+                            variant="outlined" 
+                            size="large"
+                        >
+                            더 많은 포스트 보기
+                        </Button>
+                    </Box>
+                )}
+            </Box>
+        </Container>
+    );
+};
 
 export default Home; 
