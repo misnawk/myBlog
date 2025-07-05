@@ -19,7 +19,7 @@ import {
   Paper,
   Fab,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -40,6 +40,7 @@ const sortOptions = [
 function Blog() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [sortBy, setSortBy] = useState("latest");
@@ -49,6 +50,14 @@ function Blog() {
   const [error, setError] = useState(null); // 에러 상태
   const postsPerPage = 6;
 
+  // URL 쿼리 파라미터에서 카테고리 확인
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
+
   // API에서 게시글 목록 가져오기
   useEffect(() => {
     const loadPosts = async () => {
@@ -56,7 +65,6 @@ function Blog() {
         setLoading(true);
         
         const data = await getPosts();
-        console.log(data);
 
         
         setPosts(Array.isArray(data) ? data : []);
