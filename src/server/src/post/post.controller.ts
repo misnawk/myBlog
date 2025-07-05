@@ -17,16 +17,14 @@ export class PostController{
         return this.postService.createPost(postData, req.user.email);
     }
 
-    //모든 게시글 조회
+    //모든 게시글 조회 (공개 - 인증 불필요)
     @Get('postAll')
-    @UseGuards(JwtAuthGuard)
     async findAll() {
         return this.postService.findAll();
     }
 
-    //개별 게시글 조회
+    //개별 게시글 조회 (공개 - 인증 불필요)
     @Get(':id')
-    @UseGuards(JwtAuthGuard)
     async findOne(@Param('id') id: string) {
         return this.postService.findOne(+id);
     }
