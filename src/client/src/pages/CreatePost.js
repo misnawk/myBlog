@@ -197,6 +197,9 @@ useEffect(() => {
                     message: '저장이 취소되었습니다.',
                     severity: 'info'
                 });
+            } else if (error.response?.status === 401 || error.response?.status === 403) {
+                // 토큰 만료 또는 권한 오류 - config.js에서 이미 처리됨
+                console.log('인증 오류 발생 - 자동 로그아웃 처리됨');
             } else {
                 // 실제 에러
                 console.error('게시글 생성 실패:', error);

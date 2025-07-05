@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
 
-
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -31,6 +30,26 @@ export const AuthProvider = ({children}) => {
         setIsLoading(false);
         console.log(' AuthContext 로딩 완료');
     }, [token]);
+
+    // 토큰 만료 이벤트 처리
+    useEffect(() => {
+        const handleTokenExpired = () => {
+            console.log(' 토큰 만료 이벤트 감지 - 자동 로그아웃 처리');
+            logout();
+            // 3초 후 로그인 페이지로 이동 (프로덕션에서도 안전)
+            setTimeout(() => {
+                if (window.location.pathname !== '/login') {
+                    window.location.replace('/login');
+                }
+            }, 3000);
+        };
+
+        window.addEventListener('tokenExpired', handleTokenExpired);
+        
+        return () => {
+            window.removeEventListener('tokenExpired', handleTokenExpired);
+        };
+    }, []);
 
     const login = async(email, password) => {
         console.log(' 로그인 시도 시작:', email);
