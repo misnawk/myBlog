@@ -26,8 +26,9 @@ import { useAuth } from "../contexts/AuthContext";
 import getPosts from "../api/postGetApi"
 import { useEffect } from "react";
 import { createPreview } from "../utils/htmlUtils";
+import { CATEGORIES, CATEGORY_NAMES } from "../components/categories";
 
-const categories = ["전체", "프론트엔드", "백엔드", "DevOps", "알고리즘"];
+const categories = ["전체", ...CATEGORY_NAMES];
 const sortOptions = [
   { value: "latest", label: "최신순" },
   { value: "popular", label: "인기순" },

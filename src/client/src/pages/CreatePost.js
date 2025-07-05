@@ -20,6 +20,7 @@ import {
 import { Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
 import createPost from '../api/postApi';
 import imageUploader from '../api/imgPostApi';
+import { CATEGORIES } from '../components/categories';
 
 export default function CreatePost() {
     const navigate = useNavigate();
@@ -282,14 +283,11 @@ useEffect(() => {
                             <MenuItem value="">
                                 <em>카테고리를 선택하세요</em>
                             </MenuItem>
-                            <MenuItem value="프론트">프론트</MenuItem>
-                            <MenuItem value="백엔드">백엔드</MenuItem>
-                            <MenuItem value="데이터베이스">데이터베이스</MenuItem>
-                            <MenuItem value="보안">보안</MenuItem>
-                            <MenuItem value="네트워크">네트워크</MenuItem>         
-                            <MenuItem value="모의해킹">모의해킹</MenuItem> 
-                            <MenuItem value="인공지능">인공지능</MenuItem>
-                            <MenuItem value="주식">주식</MenuItem>
+                            {CATEGORIES.map((cat) => (
+                                <MenuItem key={cat.id} value={cat.name}>
+                                    {cat.name}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 

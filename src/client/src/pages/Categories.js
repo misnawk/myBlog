@@ -15,17 +15,12 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getPosts } from '../api/postGetApi';
+import { CATEGORIES, getCategoryByName } from '../components/categories';
 
-// 카테고리 설명 매핑
-const categoryDescriptions = {
-  '프론트': 'React, Vue, Angular 등 프론트엔드 개발 관련 포스트',
-  '백엔드': 'Node.js, Spring, Django 등 백엔드 개발 관련 포스트',
-  '데이터베이스': 'MySQL, PostgreSQL, MongoDB 등 데이터베이스 관련 포스트',
-  '보안': '웹 보안, 네트워크 보안 등 보안 관련 포스트',
-  '네트워크': '네트워크 프로토콜, 인프라 등 네트워크 관련 포스트',
-  '모의해킹': '모의해킹, 취약점 분석 등 해킹 관련 포스트',
-  '인공지능': 'AI, 머신러닝, 딥러닝 등 인공지능 관련 포스트',
-  '기타': '기타 개발 관련 포스트'
+// 카테고리 설명 가져오기 함수
+const getCategoryDescription = (categoryName) => {
+  const category = getCategoryByName(categoryName);
+  return category ? category.description : `${categoryName} 관련 포스트`;
 };
 
 function Categories() {
@@ -74,7 +69,7 @@ function Categories() {
         const categoriesArray = Object.values(categoryData).map((cat, index) => ({
           id: index + 1,
           name: cat.name,
-          description: categoryDescriptions[cat.name] || `${cat.name} 관련 포스트`,
+          description: getCategoryDescription(cat.name),
           postCount: cat.postCount,
           tags: Array.from(cat.tags).slice(0, 5), // 최대 5개 태그만 표시
           posts: cat.posts
