@@ -9,7 +9,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:7000', 'http://blig.minseok.life:7000'],
+    origin: [
+      'http://localhost:3000', 
+      'http://localhost:7000', 
+      'https://blog.minseok.life'
+    ],
     credentials: true,
   });
 
