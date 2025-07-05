@@ -8,6 +8,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // 요청 크기 제한 설정 (이미지 포함 콘텐츠 처리를 위해)
+  app.use(require('express').json({ limit: '50mb' }));
+  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
+
   app.enableCors({
     origin: [
       'http://localhost:3000', 
