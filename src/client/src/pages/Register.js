@@ -83,7 +83,7 @@ function Register() {
       // 3초 후 로그인 페이지로 이동
       setTimeout(() => {
         navigate('/login');
-      }, 3000);
+      }, 2000);
       
     } catch (error) {
       console.error("회원가입 실패:",error);

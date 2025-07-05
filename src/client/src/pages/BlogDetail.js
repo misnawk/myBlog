@@ -22,6 +22,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+import useTheme from '@mui/material/styles/useTheme';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -41,6 +44,10 @@ export default function BlogDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [post, setPost] = useState(null);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
@@ -217,29 +224,54 @@ export default function BlogDetail() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, md: 4 }, mb: 4, px: { xs: 1, sm: 2 } }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate('/blog')}
-        sx={{ mb: 3 }}
+        sx={{ mb: { xs: 2, md: 3 } }}
+        size={isMobile ? "small" : "medium"}
       >
         목록으로 돌아가기
       </Button>
 
-      <Paper sx={{ p: 4, mb: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+      <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: { xs: 2, md: 4 } }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start', 
+          mb: { xs: 2, md: 3 },
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 2, sm: 0 }
+        }}>
+          <Typography 
+            variant={isMobile ? "h5" : "h4"} 
+            component="h1" 
+            gutterBottom
+            sx={{ 
+              lineHeight: 1.2,
+              wordBreak: 'break-word'
+            }}
+          >
             {post.title}
           </Typography>
           
           {/* 작성자만 수정/삭제 버튼 표시 */}
           {isAuthor && (
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Stack 
+              direction="row" 
+              spacing={1}
+              sx={{ 
+                flexShrink: 0,
+                width: { xs: '100%', sm: 'auto' }
+              }}
+            >
               <Button
                 startIcon={<EditIcon />}
                 onClick={handleEditPost}
                 variant="outlined"
                 color="primary"
+                size={isMobile ? "small" : "medium"}
+                sx={{ flex: { xs: 1, sm: 'none' } }}
               >
                 수정
               </Button>
@@ -248,42 +280,75 @@ export default function BlogDetail() {
                 onClick={() => setDeleteDialogOpen(true)}
                 variant="outlined"
                 color="error"
+                size={isMobile ? "small" : "medium"}
+                sx={{ flex: { xs: 1, sm: 'none' } }}
               >
                 삭제
               </Button>
-            </Box>
+            </Stack>
           )}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Avatar src={post.author?.avatar || '/default-avatar.png'} sx={{ mr: 2 }} />
-          <Box>
-            <Typography variant="subtitle1">{post.author?.username || post.author?.email || '익명'}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-            </Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mb: { xs: 2, md: 3 },
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: { xs: 1, sm: 2 }
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar 
+              src={post.author?.avatar || '/default-avatar.png'} 
+              sx={{ 
+                width: isMobile ? 32 : 40, 
+                height: isMobile ? 32 : 40 
+              }} 
+            />
+            <Box>
+              <Typography variant={isMobile ? "body2" : "subtitle1"}>
+                {post.author?.username || post.author?.email || '익명'}
+              </Typography>
+              <Typography variant={isMobile ? "caption" : "body2"} color="text.secondary">
+                {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+              </Typography>
+            </Box>
           </Box>
         </Box>
 
         {post.image && (
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: { xs: 2, md: 3 } }}>
             <img
               src={post.image}
               alt={post.title}
-              style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
+              style={{ 
+                width: '100%', 
+                maxHeight: isMobile ? '250px' : '400px', 
+                objectFit: 'cover',
+                borderRadius: '8px'
+              }}
             />
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+        <Box sx={{ display: 'flex', gap: 1, mb: { xs: 2, md: 3 }, flexWrap: 'wrap' }}>
           {post.tags && post.tags.map((tag) => (
-            <Chip key={tag} label={tag} />
+            <Chip key={tag} label={tag} size={isMobile ? "small" : "medium"} />
           ))}
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 3, mb: 3, alignItems: 'center' }}>
+        <Stack 
+          direction={{ xs: 'column', sm: 'row' }} 
+          spacing={{ xs: 1, sm: 3 }} 
+          sx={{ mb: { xs: 2, md: 3 } }}
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+        >
           {post.readTime && (
-            <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography 
+              variant="body2" 
+              color="text.secondary" 
+              sx={{ display: 'flex', alignItems: 'center' }}
+            >
               <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
               {post.readTime}
             </Typography>
@@ -292,57 +357,103 @@ export default function BlogDetail() {
             startIcon={isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             onClick={handleLike}
             color={isLiked ? 'secondary' : 'primary'}
+            size={isMobile ? "small" : "medium"}
           >
             {likeCount}
           </Button>
-          <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ display: 'flex', alignItems: 'center' }}
+          >
             <CommentIcon sx={{ fontSize: 16, mr: 0.5 }} />
             {comments.length}
           </Typography>
           <Button
             startIcon={<ShareIcon />}
             onClick={handleShare}
+            size={isMobile ? "small" : "medium"}
           >
             공유하기
           </Button>
-        </Box>
+        </Stack>
 
-        <MarkdownRenderer content={post.content} sx={{ mt: 3 }} />
+        <Box sx={{ 
+          '& h1, & h2, & h3': { 
+            fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' } 
+          },
+          '& p': { 
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            lineHeight: { xs: 1.5, sm: 1.6 }
+          },
+          '& img': {
+            maxWidth: '100%',
+            height: 'auto',
+            borderRadius: '8px'
+          },
+          '& pre': {
+            overflow: 'auto',
+            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+          }
+        }}>
+          <MarkdownRenderer content={post.content} sx={{ mt: 3 }} />
+        </Box>
       </Paper>
 
       {/* 댓글 섹션 */}
-      <Paper sx={{ p: 4 }}>
-        <Typography variant="h6" gutterBottom>
+      <Paper sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+        <Typography variant={isMobile ? "h6" : "h6"} gutterBottom>
           댓글 ({comments.length})
         </Typography>
 
-        <Box component="form" onSubmit={handleCommentSubmit} sx={{ mb: 4 }}>
+        <Box component="form" onSubmit={handleCommentSubmit} sx={{ mb: { xs: 3, md: 4 } }}>
           <TextField
             fullWidth
             multiline
-            rows={3}
+            rows={isMobile ? 2 : 3}
             placeholder="댓글을 작성하세요..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             sx={{ mb: 2 }}
+            size={isMobile ? "small" : "medium"}
           />
-          <Button type="submit" variant="contained">
+          <Button 
+            type="submit" 
+            variant="contained"
+            size={isMobile ? "small" : "medium"}
+          >
             댓글 작성
           </Button>
         </Box>
 
-        <List>
+        <List sx={{ p: 0 }}>
           {comments.map((comment, index) => (
             <React.Fragment key={comment.id}>
-              <ListItem alignItems="flex-start">
+              <ListItem 
+                alignItems="flex-start"
+                sx={{ px: { xs: 0, sm: 2 } }}
+              >
                 <ListItemAvatar>
-                  <Avatar src={comment.avatar} />
+                  <Avatar 
+                    src={comment.avatar}
+                    sx={{ 
+                      width: isMobile ? 32 : 40, 
+                      height: isMobile ? 32 : 40 
+                    }}
+                  />
                 </ListItemAvatar>
                 <ListItemText
                   primary={
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography component="span" variant="subtitle2">
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      flexDirection: { xs: 'column', sm: 'row' },
+                      alignItems: { xs: 'flex-start', sm: 'center' },
+                      gap: { xs: 1, sm: 0 }
+                    }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+                        <Typography component="span" variant={isMobile ? "body2" : "subtitle2"}>
                           {comment.author}
                         </Typography>
                         {comment.isAuthor && (
@@ -350,12 +461,16 @@ export default function BlogDetail() {
                             label="작성자"
                             size="small"
                             color="primary"
-                            sx={{ ml: 1 }}
                           />
                         )}
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography component="span" variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                        <Typography 
+                          component="span" 
+                          variant={isMobile ? "caption" : "body2"} 
+                          color="text.secondary" 
+                          sx={{ mr: 1 }}
+                        >
                           {comment.date}
                         </Typography>
                         {comment.isAuthor && (
@@ -363,13 +478,20 @@ export default function BlogDetail() {
                             size="small"
                             onClick={(e) => handleCommentMenuOpen(e, comment)}
                           >
-                            <MoreVertIcon />
+                            <MoreVertIcon fontSize={isMobile ? "small" : "medium"} />
                           </IconButton>
                         )}
                       </Box>
                     </Box>
                   }
-                  secondary={comment.content}
+                  secondary={
+                    <Typography 
+                      variant={isMobile ? "body2" : "body1"}
+                      sx={{ mt: 1, wordBreak: 'break-word' }}
+                    >
+                      {comment.content}
+                    </Typography>
+                  }
                 />
               </ListItem>
               {index < comments.length - 1 && <Divider variant="inset" component="li" />}
@@ -393,16 +515,25 @@ export default function BlogDetail() {
       </Menu>
 
       {/* 댓글 수정 다이얼로그 */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
+      <Dialog 
+        open={editDialogOpen} 
+        onClose={() => setEditDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: { m: { xs: 1, sm: 3 } }
+        }}
+      >
         <DialogTitle>댓글 수정</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
             multiline
-            rows={3}
+            rows={isMobile ? 2 : 3}
             value={editComment}
             onChange={(e) => setEditComment(e.target.value)}
             sx={{ mt: 2 }}
+            size={isMobile ? "small" : "medium"}
           />
         </DialogContent>
         <DialogActions>
@@ -414,7 +545,15 @@ export default function BlogDetail() {
       </Dialog>
 
       {/* 게시글 삭제 확인 다이얼로그 */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <Dialog 
+        open={deleteDialogOpen} 
+        onClose={() => setDeleteDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: { m: { xs: 1, sm: 3 } }
+        }}
+      >
         <DialogTitle>게시글 삭제</DialogTitle>
         <DialogContent>
           <Typography>
