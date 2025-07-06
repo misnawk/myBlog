@@ -8,7 +8,7 @@ export class Post {
     id: number;
 
     // 제목
-    @Column({length:10,nullable:false})
+    @Column({length:30,nullable:false})
     title: string;  
 
     // 내용

@@ -78,8 +78,7 @@ function Header() {
   // 모바일 메뉴 아이템들
   const mobileMenuItems = [
     { text: '홈', icon: <HomeIcon />, path: '/' },
-    { text: '카테고리', icon: <CategoryIcon />, path: '/categories' },
-    { text: '소개', icon: <InfoIcon />, path: '/about' },
+    { text: '카테고리', icon: <CategoryIcon />, path: '/categories' }
   ];
 
   if (isMobile) {
@@ -291,9 +290,6 @@ function Header() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Button color="inherit" component={Link} to="/categories">
             카테고리
-          </Button>
-          <Button color="inherit" component={Link} to="/about">
-            소개
           </Button>
           {isAuthenticated() && (
             <Button 
