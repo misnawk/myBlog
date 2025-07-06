@@ -49,6 +49,12 @@ export const CATEGORIES = [
     color: '#48BB78'
   },
   {
+    id: '앱',
+    name: '앱',
+    description: '앱 개발, 앱 디자인',
+    color: '#4299E1'
+  },
+  {
     id: '주식',
     name: '주식',
     description: '투자, 시장 분석, 경제',
