@@ -43,6 +43,12 @@ export const CATEGORIES = [
     color: '#38B2AC'
   },
   {
+    id: '정보처리기사',
+    name: '정보처리기사',
+    description: '정보처리기사 필기/실기 공부',
+    color: '#48BB78'
+  },
+  {
     id: '주식',
     name: '주식',
     description: '투자, 시장 분석, 경제',
