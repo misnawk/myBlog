@@ -112,14 +112,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <AuthProvider>
           <AppContent />
-        </Router>
-      </ThemeProvider>
-    </AuthProvider>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 }
 

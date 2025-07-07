@@ -21,9 +21,11 @@ import { Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
 import createPost from '../api/postApi';
 import imageUploader from '../api/imgPostApi';
 import { CATEGORIES } from '../components/categories';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function CreatePost() {
     const navigate = useNavigate();
+    const { isTokenValid, user } = useAuth();
     
     // 상태 관리
     const [title, setTitle] = useState('');
@@ -42,46 +44,55 @@ export default function CreatePost() {
     const timeoutRef = useRef(null);
     const abortControllerRef = useRef(null);
 
-    // 컴포넌트 마운트 확인
+    // 페이지 로드 시 토큰 검증
     useEffect(() => {
+        console.log(' CreatePost 페이지 토큰 검증 시작');
+        
+        if (!isTokenValid()) {
+            console.log(' 토큰이 유효하지 않음 - 로그인 페이지로 이동');
+            navigate('/login', { 
+                replace: true,
+                state: { message: '글쓰기 권한이 없습니다. 로그인해주세요.' }
+            });
+            return;
+        }
+        
+        console.log(' 토큰 검증 완료 - 사용자:', user?.email);
         setMounted(true);
-    }, []);
+    }, [isTokenValid, navigate, user]);
 
     // 붙여넣기 시 자동으로 이미지 업로드
-useEffect(() => {
-    if (!mounted || !quillRef.current) return;
+    useEffect(() => {
+        if (!mounted || !quillRef.current) return;
 
-    const quill = quillRef.current.getEditor();
-    
-    const handleTextChange = async (delta, oldDelta, source) => {
-        if (source !== 'user') return;
+        const quill = quillRef.current.getEditor();
         
-        // 새로 추가된 이미지 찾기
-        const images = quill.container.querySelectorAll('img[src^="data:"]');
-        
-        for (const img of images) {
-            try {
-                const res = await fetch(img.src);
-                const blob = await res.blob();
-                const file = new File([blob], 'image.png', { type: blob.type });
-                
-                const imageUrl = await imageUploader(file);
-                img.src = imageUrl; // 직접 src 교체
-            } catch (error) {
-                console.error('이미지 업로드 실패:', error);
+        const handleTextChange = async (delta, oldDelta, source) => {
+            if (source !== 'user') return;
+            
+            // 새로 추가된 이미지 찾기
+            const images = quill.container.querySelectorAll('img[src^="data:"]');
+            
+            for (const img of images) {
+                try {
+                    const res = await fetch(img.src);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'image.png', { type: blob.type });
+                    
+                    const imageUrl = await imageUploader(file);
+                    img.src = imageUrl; // 직접 src 교체
+                } catch (error) {
+                    console.error('이미지 업로드 실패:', error);
+                }
             }
-        }
-    };
-    
-    quill.on('text-change', handleTextChange);
-    
-    return () => {
-        quill.off('text-change', handleTextChange);
-    };
-}, [mounted]);
-
-
-
+        };
+        
+        quill.on('text-change', handleTextChange);
+        
+        return () => {
+            quill.off('text-change', handleTextChange);
+        };
+    }, [mounted]);
 
     // 이미지 핸들러를 useCallback으로 메모이제이션
     const imageHandler = useCallback(() => {

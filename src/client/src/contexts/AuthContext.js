@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -50,7 +52,8 @@ const getUserFromToken = (token) => {
         return {
             id: payloadData.id,
             email: payloadData.email,
-            username: payloadData.username
+            username: payloadData.username,
+            exp: payloadData.exp // 만료 시간 추가
         };
     } catch (error) {
         console.error(' 토큰 파싱 실패:', error);
@@ -61,7 +64,8 @@ const getUserFromToken = (token) => {
             return {
                 id: payload.id,
                 email: payload.email,
-                username: payload.username
+                username: payload.username,
+                exp: payload.exp
             };
         } catch (fallbackError) {
             console.error(' 폴백 파싱도 실패:', fallbackError);
@@ -70,11 +74,37 @@ const getUserFromToken = (token) => {
     }
 };
 
+// 토큰 만료 체크 함수 추가
+const isTokenExpired = (token) => {
+    try {
+        if (!token) return true;
+        
+        const userInfo = getUserFromToken(token);
+        if (!userInfo || !userInfo.exp) return true;
+        
+        // exp는 초 단위, Date.now()는 밀리초 단위
+        const currentTime = Math.floor(Date.now() / 1000);
+        const isExpired = userInfo.exp < currentTime;
+        
+        console.log(' 토큰 만료 체크:', {
+            현재시간: currentTime,
+            만료시간: userInfo.exp,
+            만료여부: isExpired
+        });
+        
+        return isExpired;
+    } catch (error) {
+        console.error(' 토큰 만료 체크 실패:', error);
+        return true; // 에러 시 만료된 것으로 처리
+    }
+};
+
 // 전역 인증 상태 관리
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log(' AuthContext 초기화, 토큰 상태:', token ? '있음' : '없음');
@@ -102,11 +132,16 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         const handleTokenExpired = () => {
             console.log(' 토큰 만료 이벤트 감지 - 자동 로그아웃 처리');
+            
+            // 사용자에게 알럿 표시
+            toast.error('⚠️ 로그인 세션이 만료되었습니다.\n잠시 후 로그인 페이지로 이동합니다.');
+            
             logout();
-            // 3초 후 로그인 페이지로 이동 (프로덕션에서도 안전)
+            
+            // React Router navigate 사용
             setTimeout(() => {
                 if (window.location.pathname !== '/login') {
-                    window.location.replace('/login');
+                    navigate('/login', { replace: true });
                 }
             }, 3000);
         };
@@ -116,7 +151,7 @@ export const AuthProvider = ({children}) => {
         return () => {
             window.removeEventListener('tokenExpired', handleTokenExpired);
         };
-    }, []);
+    }, [navigate]);
 
     const login = async(email, password) => {
         console.log(' 로그인 시도 시작:', email);
@@ -150,8 +185,37 @@ export const AuthProvider = ({children}) => {
     };
 
     const isAuthenticated = () => {
-        return !!token;
+        return !!token && !isTokenExpired(token);
     }
+
+    // 토큰 유효성 체크 (만료 시간 포함)
+    const isTokenValid = () => {
+        if (!token) {
+            console.log(' 토큰이 없음');
+            return false;
+        }
+        
+        if (isTokenExpired(token)) {
+            console.log(' 토큰이 만료됨 - 사용자 알림 및 자동 로그아웃 처리');
+            
+            // 사용자에게 알럿 표시
+            toast.error('⚠️ 로그인 세션이 만료되었습니다.\n잠시 후 로그인 페이지로 이동합니다.');
+            
+            logout();
+            
+            // React Router navigate 사용
+            setTimeout(() => {
+                if (window.location.pathname !== '/login') {
+                    navigate('/login', { replace: true });
+                }
+            }, 3000);
+            
+            return false;
+        }
+        
+        console.log(' 토큰이 유효함');
+        return true;
+    };
 
     const value = {
         user,
@@ -160,6 +224,7 @@ export const AuthProvider = ({children}) => {
         login,
         logout,
         isAuthenticated,
+        isTokenValid,
     };
 
     return (
