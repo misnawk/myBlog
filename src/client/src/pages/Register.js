@@ -215,14 +215,14 @@ function Register() {
               </Grid>
             </Grid>
 
-            {/* <Button
+            <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
               회원가입
-            </Button> */}
+            </Button>
 
             <Divider sx={{ my: 2 }}>또는</Divider>
 
