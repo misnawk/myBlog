@@ -35,6 +35,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useAuth } from "../../contexts/AuthContext";
+import ChatIcon from "@mui/icons-material/Chat";
 
 function Header() {
   const navigate = useNavigate();
@@ -78,7 +79,8 @@ function Header() {
   // 모바일 메뉴 아이템들
   const mobileMenuItems = [
     { text: '홈', icon: <HomeIcon />, path: '/' },
-    { text: '카테고리', icon: <CategoryIcon />, path: '/categories' }
+    { text: '카테고리', icon: <CategoryIcon />, path: '/categories' },
+    { text: '실시간 채팅', icon: <ChatIcon />, path: '/chat' }
   ];
 
   if (isMobile) {
@@ -186,8 +188,8 @@ function Header() {
                 <ListItemIcon><CreateIcon /></ListItemIcon>
                 <ListItemText primary="글쓰기" />
               </ListItem>
-            )}
-            
+            )} 
+    
             <Divider sx={{ my: 1 }} />
             
             {isAuthenticated() ? (
@@ -288,9 +290,22 @@ function Header() {
 
         {/* 네비게이션 메뉴 */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button color="inherit" component={Link} to="/categories">
-            카테고리
+          <Button 
+            color="inherit" 
+            component={Link} 
+            to="/categories"
+            startIcon={<CategoryIcon />}
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.2)'
+              }
+            }}
+          >
+            카테고리  
           </Button>
+          
+
           {isAuthenticated() && (
             <Button 
             color="inherit" 
@@ -306,6 +321,23 @@ function Header() {
           >
             글쓰기
           </Button>
+          )}
+
+          {isAuthenticated() && (
+            <Button
+             color="inherit" 
+             component={Link}
+             to="/chat"
+             startIcon={<ChatIcon />}
+             sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.2)'
+              }
+            }}
+            >
+              실시간 채팅
+            </Button>
           )}
         </Box>
 
