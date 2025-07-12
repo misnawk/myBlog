@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { User } from "../user/user.entity";
 
 @Entity('posts')
@@ -29,6 +29,8 @@ export class Post {
         referencedColumnName: 'email', // User의 email과 조인
      })
     author: User;
+
+
 
     // 생성일
     @CreateDateColumn()

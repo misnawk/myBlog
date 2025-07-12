@@ -37,6 +37,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { getPost } from '../api/postGetApi';
 import { deletePost } from '../api/postApi';
+import { createComment, getCommentsByPost, updateComment, deleteComment } from '../api/commentApi';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 
@@ -62,36 +63,37 @@ export default function BlogDetail() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
-    console.log(' BlogDetail 페이지 로딩 시작, ID:', id);
-    const fetchPost = async () => {
+    console.log('📖 BlogDetail 페이지 로딩 시작, ID:', id);
+    const fetchData = async () => {
       try {
         setLoading(true);
-        console.log(' BlogDetail 로딩 상태 설정');
+        console.log('⏳ BlogDetail 로딩 상태 설정');
         
         // 개별 포스트 조회
         const postData = await getPost(id);
         setPost(postData);
         setLikeCount(postData.likes || 0);
-        console.log(' BlogDetail 포스트 데이터 설정 완료:', postData?.title);
+        console.log('✅ BlogDetail 포스트 데이터 설정 완료:', postData?.title);
         
-        // 관련 포스트 기능은 현재 사용하지 않음
-
-        // 임시 댓글 데이터 (실제로는 댓글 API에서 가져와야 함)
-     
+        // 댓글 데이터 조회
+        const commentsData = await getCommentsByPost(id);
+        setComments(commentsData || []);
+        console.log('✅ BlogDetail 댓글 데이터 설정 완료, 총 개수:', commentsData?.length || 0);
+        
       } catch (error) {
-        console.error(' BlogDetail 포스트 조회 실패:', error);
+        console.error('❌ BlogDetail 데이터 조회 실패:', error);
         setSnackbar({
           open: true,
-          message: '포스트를 불러오는데 실패했습니다.',
+          message: '데이터를 불러오는데 실패했습니다.',
           severity: 'error'
         });
       } finally {
         setLoading(false);
-        console.log(' BlogDetail 로딩 완료');
+        console.log('✅ BlogDetail 로딩 완료');
       }
     };
 
-    fetchPost();
+    fetchData();
   }, [id]);
 
   // 게시글 수정 핸들러
@@ -160,49 +162,93 @@ export default function BlogDetail() {
     handleCommentMenuClose();
   };
 
-  const handleDeleteClick = () => {
-    // 실제로는 API 호출로 대체
-    setComments(comments.filter(c => c.id !== selectedComment.id));
-    handleCommentMenuClose();
-    setSnackbar({
-      open: true,
-      message: '댓글이 삭제되었습니다.',
-      severity: 'success'
-    });
+  const handleDeleteClick = async () => {
+    try {
+      console.log('🗑️ 댓글 삭제 시작:', selectedComment.id);
+      await deleteComment(selectedComment.id);
+      
+      // 상태에서 댓글 제거
+      setComments(comments.filter(c => c.id !== selectedComment.id));
+      handleCommentMenuClose();
+      setSnackbar({
+        open: true,
+        message: '댓글이 삭제되었습니다.',
+        severity: 'success'
+      });
+      console.log('✅ 댓글 삭제 완료');
+    } catch (error) {
+      console.error('❌ 댓글 삭제 실패:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.status === 403 ? '댓글 삭제 권한이 없습니다.' : '댓글 삭제에 실패했습니다.',
+        severity: 'error'
+      });
+      handleCommentMenuClose();
+    }
   };
 
-  const handleEditSubmit = () => {
-    // 실제로는 API 호출로 대체
-    setComments(comments.map(c => 
-      c.id === selectedComment.id 
-        ? { ...c, content: editComment }
-        : c
-    ));
-    setEditDialogOpen(false);
-    setSnackbar({
-      open: true,
-      message: '댓글이 수정되었습니다.',
-      severity: 'success'
-    });
+  const handleEditSubmit = async () => {
+    try {
+      console.log('✏️ 댓글 수정 시작:', selectedComment.id);
+      const updatedComment = await updateComment(selectedComment.id, { content: editComment });
+      
+      // 상태에서 댓글 업데이트
+      setComments(comments.map(c => 
+        c.id === selectedComment.id 
+          ? { ...c, content: editComment, updatedAt: updatedComment.updatedAt }
+          : c
+      ));
+      setEditDialogOpen(false);
+      setSnackbar({
+        open: true,
+        message: '댓글이 수정되었습니다.',
+        severity: 'success'
+      });
+      console.log('✅ 댓글 수정 완료');
+    } catch (error) {
+      console.error('❌ 댓글 수정 실패:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.status === 403 ? '댓글 수정 권한이 없습니다.' : '댓글 수정에 실패했습니다.',
+        severity: 'error'
+      });
+    }
   };
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (comment.trim()) {
-      const newComment = {
-        id: comments.length + 1,
-        author: "현재 사용자",
-        avatar: "https://source.unsplash.com/random/100x100?portrait3",
-        content: comment,
-        date: new Date().toLocaleString(),
-        isAuthor: true,
-      };
+    
+    if (!comment.trim()) {
+      setSnackbar({
+        open: true,
+        message: '댓글 내용을 입력해주세요.',
+        severity: 'warning'
+      });
+      return;
+    }
+
+    try {
+      console.log('📝 댓글 작성 시작');
+      const newComment = await createComment({
+        content: comment.trim(),
+        postId: parseInt(id)
+      });
+      
+      // 새 댓글을 상태에 추가
       setComments([...comments, newComment]);
       setComment('');
       setSnackbar({
         open: true,
         message: '댓글이 작성되었습니다.',
         severity: 'success'
+      });
+      console.log('✅ 댓글 작성 완료');
+    } catch (error) {
+      console.error('❌ 댓글 작성 실패:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.status === 401 ? '로그인이 필요합니다.' : '댓글 작성에 실패했습니다.',
+        severity: 'error'
       });
     }
   };
@@ -435,12 +481,14 @@ export default function BlogDetail() {
               >
                 <ListItemAvatar>
                   <Avatar 
-                    src={comment.avatar}
+                    src={comment.author?.avatar || '/default-avatar.png'}
                     sx={{ 
                       width: isMobile ? 32 : 40, 
                       height: isMobile ? 32 : 40 
                     }}
-                  />
+                  >
+                    {comment.author?.username?.charAt(0) || comment.author?.email?.charAt(0) || '?'}
+                  </Avatar>
                 </ListItemAvatar>
                 <ListItemText
                   primary={
@@ -454,9 +502,9 @@ export default function BlogDetail() {
                     }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
                         <Typography component="span" variant={isMobile ? "body2" : "subtitle2"}>
-                          {comment.author}
+                          {comment.author?.username || comment.author?.email || '익명'}
                         </Typography>
-                        {comment.isAuthor && (
+                        {user && comment.author?.email === user.email && (
                           <Chip
                             label="작성자"
                             size="small"
@@ -471,9 +519,9 @@ export default function BlogDetail() {
                           color="text.secondary" 
                           sx={{ mr: 1 }}
                         >
-                          {comment.date}
+                          {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
                         </Typography>
-                        {comment.isAuthor && (
+                        {user && comment.author?.email === user.email && (
                           <IconButton
                             size="small"
                             onClick={(e) => handleCommentMenuOpen(e, comment)}
