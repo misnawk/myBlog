@@ -17,6 +17,8 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_SYNCHRONIZE=${DB_SYNCHRONIZE:-false}
       - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
 
     networks:
       - app-network

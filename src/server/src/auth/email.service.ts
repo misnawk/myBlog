@@ -10,15 +10,15 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'minsukkang13@gmail.com',
-        pass: process.env.EMAIL_PASSWORD || 'omzi bmei auoq usyn'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
       }
     });
   }
 
   async sendVerificationCode(email: string, code: string): Promise<void> {
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'your-email@gmail.com',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: '이메일 인증 코드',
       html: `
