@@ -32,6 +32,7 @@ import { join } from 'path';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         autoLoadEntities: true,
+        synchronize: false, 
       }),
       inject: [ConfigService],
     }),

@@ -42,8 +42,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 
 export default function BlogDetail() {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
   const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
