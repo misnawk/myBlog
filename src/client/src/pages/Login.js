@@ -28,13 +28,13 @@ function Login() {
   const navigate = useNavigate(); // 페이지 이동
   const location = useLocation(); // 현재 페이지 정보
   const { login, isAuthenticated } = useAuth(); // 로그인 상태 관리
-  
+
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 보임/숨김 상태
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'error'
+    message: "",
+    severity: "error",
   });
   const [formData, setFormData] = useState({
     email: "",
@@ -44,7 +44,7 @@ function Login() {
   // 이미 로그인되어 있으면 홈으로 리다이렉트
   useEffect(() => {
     if (isAuthenticated()) {
-      const from = location.state?.from?.pathname || '/';
+      const from = location.state?.from?.pathname || "/";
       navigate(from);
     }
   }, [isAuthenticated, navigate, location]);
@@ -62,16 +62,16 @@ function Login() {
 
     try {
       const result = await login(formData.email, formData.password);
-      
+
       if (result.success) {
         setSnackbar({
           open: true,
-          message: '로그인에 성공했습니다!',
-          severity: 'success'
+          message: "로그인에 성공했습니다!",
+          severity: "success",
         });
-        
+
         // 성공 시 이전 페이지 또는 홈페이지로 이동
-        const from = location.state?.from?.pathname || '/';
+        const from = location.state?.from?.pathname || "/";
         setTimeout(() => {
           navigate(from);
         }, 1500);
@@ -79,14 +79,14 @@ function Login() {
         setSnackbar({
           open: true,
           message: result.error,
-          severity: 'error'
+          severity: "error",
         });
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: '로그인 중 오류가 발생했습니다.',
-        severity: 'error'
+        message: "로그인 중 오류가 발생했습니다.",
+        severity: "error",
       });
     } finally {
       setLoading(false);
@@ -173,43 +173,23 @@ function Login() {
               {loading ? "로그인 중..." : "로그인"}
             </Button>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Link
-                component={RouterLink}
-                to="/forgot-email"
-                variant="body2"
-              >
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
+              <Link component={RouterLink} to="/forgot-email" variant="body2">
                 이메일을 잊으셨나요?
               </Link>
-           
+
               <Link
                 component={RouterLink}
                 to="/forgot-password"
-                variant="body2"  
+                variant="body2"
               >
                 비밀번호를 잊으셨나요?
               </Link>
             </Box>
 
             <Divider sx={{ my: 2 }}>또는</Divider>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              sx={{ mb: 1 }}
-              disabled={loading}
-            >
-              Google로 계속하기
-            </Button>
-            <Button 
-              fullWidth 
-              variant="outlined" 
-              startIcon={<GitHubIcon />}
-              disabled={loading}
-            >
-              GitHub로 계속하기
-            </Button>
 
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
@@ -228,13 +208,13 @@ function Login() {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>
