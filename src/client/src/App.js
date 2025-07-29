@@ -4,6 +4,8 @@ import { CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+// highlight.js 전역 설정을 먼저 로드
+import './utils/highlightSetup';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';

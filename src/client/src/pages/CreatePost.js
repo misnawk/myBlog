@@ -44,6 +44,11 @@ export default function CreatePost() {
     const timeoutRef = useRef(null);
     const abortControllerRef = useRef(null);
 
+    // 페이지 설정
+    useEffect(() => {
+        // highlight.js는 이미 전역적으로 설정됨
+    }, []);
+
     // 페이지 로드 시 토큰 검증
     useEffect(() => {
         console.log(' CreatePost 페이지 토큰 검증 시작');
@@ -131,13 +136,15 @@ export default function CreatePost() {
                 ['bold', 'italic', 'underline', 'strike', 'blockquote'],
                 [{ list: 'ordered' }, { list: 'bullet' }],
                 [{ script: 'sub' }, { script: 'super' }],
+                ['code-block', 'code'],  // 코드블록과 인라인 코드 추가
                 ['link', 'image'],
                 ['clean']
             ],
             handlers: {
                 image: imageHandler
             }
-        }
+        },
+        // syntax 모듈 대신 기본 코드블록만 사용
     }), [imageHandler]);
 
     // formats도 useMemo로 메모이제이션
@@ -145,6 +152,7 @@ export default function CreatePost() {
         'header',
         'bold', 'italic', 'underline', 'strike', 'blockquote',
         'list', 'bullet', 'script',
+        'code-block', 'code',  // 코드블록과 인라인 코드 포맷 추가
         'link', 'image'
     ], []);
 
@@ -324,6 +332,51 @@ export default function CreatePost() {
                         '& .ql-editor': {
                             minHeight: '400px',
                             fontSize: '16px'
+                        },
+                        // 코드블록 스타일 개선 - 더 생생한 색상
+                        '& .ql-syntax': {
+                            backgroundColor: '#282c34 !important',
+                            color: '#abb2bf !important',
+                            padding: '20px !important',
+                            borderRadius: '12px !important',
+                            fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, "Courier New", monospace !important',
+                            fontSize: '14px !important',
+                            lineHeight: '1.7 !important',
+                            overflow: 'auto !important',
+                            position: 'relative !important',
+                            margin: '20px 0 !important',
+                            border: '1px solid #3e4451 !important',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15) !important',
+                            // 더 선명한 문법 하이라이팅 색상
+                            '& .hljs-keyword, & .hljs-selector-tag': { color: '#c678dd !important' }, // 보라색 - 키워드
+                            '& .hljs-string, & .hljs-attr': { color: '#98c379 !important' }, // 초록색 - 문자열
+                            '& .hljs-number, & .hljs-literal': { color: '#d19a66 !important' }, // 주황색 - 숫자
+                            '& .hljs-function, & .hljs-title': { color: '#61dafb !important' }, // 하늘색 - 함수
+                            '& .hljs-comment': { color: '#5c6370 !important', fontStyle: 'italic' }, // 회색 - 주석
+                            '& .hljs-variable, & .hljs-name': { color: '#e06c75 !important' }, // 빨간색 - 변수
+                            '& .hljs-tag': { color: '#e06c75 !important' }, // 빨간색 - HTML 태그
+                            '& .hljs-attribute': { color: '#d19a66 !important' }, // 주황색 - 속성
+                            '& .hljs-built_in, & .hljs-type': { color: '#e5c07b !important' }, // 노란색 - 내장함수
+                            '& .hljs-params': { color: '#abb2bf !important' }, // 기본색 - 매개변수
+                            '& .hljs-meta': { color: '#56b6c2 !important' }, // 청록색 - 메타
+                            '& .hljs-doctag': { color: '#c678dd !important' }, // 보라색 - 문서 태그
+                            '& .hljs-operator': { color: '#56b6c2 !important' } // 청록색 - 연산자
+                        },
+                        '& .ql-code-block-container': {
+                            backgroundColor: '#1e1e1e !important',
+                            borderRadius: '8px !important',
+                            margin: '16px 0 !important'
+                        },
+                        // 인라인 코드 스타일 - 개선
+                        '& code:not(.ql-syntax)': {
+                            backgroundColor: '#383e49',
+                            color: '#e06c75',
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                            fontSize: '87%',
+                            fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, "Courier New", monospace',
+                            fontWeight: '500',
+                            border: '1px solid #4a5364'
                         }
                     }}>
                         {mounted && (
