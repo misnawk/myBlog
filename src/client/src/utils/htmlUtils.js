@@ -34,6 +34,11 @@ export const isHtmlContent = (content) => {
     content.includes('<strong>') ||
     content.includes('<em>') ||
     content.includes('<ul>') ||
-    content.includes('<ol>')
+    content.includes('<ol>') ||
+    content.includes('<pre>') ||  // 코드블록 추가
+    content.includes('<img>') ||  // 이미지 추가
+    content.includes('<br>') ||   // 줄바꿈 추가
+    content.includes('<blockquote>') || // 인용문 추가
+    content.includes('</') // 닫는 태그가 있으면 HTML로 간주
   );
 }; 
