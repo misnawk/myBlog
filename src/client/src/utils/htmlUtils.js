@@ -23,22 +23,20 @@ export const createPreview = (content, maxLength = 150) => {
     : plainText;
 };
 
-// HTML 콘텐츠인지 확인하는 함수
+// HTML 태그 목록 (유지보수성을 위해 분리)
+const HTML_TAGS = [
+  '<p>', '<div>', '<h1>', '<h2>', '<h3>', '<h4>', '<h5>', '<h6>',
+  '<strong>', '<em>', '<ul>', '<ol>', '<li>', '<pre>', '<code>',
+  '<img>', '<br>', '<blockquote>', '<a>', '<span>'
+];
+
+// HTML 콘텐츠인지 확인하는 함수 (성능 최적화)
 export const isHtmlContent = (content) => {
-  return content && (
-    content.includes('<p>') || 
-    content.includes('<div>') || 
-    content.includes('<h1>') || 
-    content.includes('<h2>') || 
-    content.includes('<h3>') ||
-    content.includes('<strong>') ||
-    content.includes('<em>') ||
-    content.includes('<ul>') ||
-    content.includes('<ol>') ||
-    content.includes('<pre>') ||  // 코드블록 추가
-    content.includes('<img>') ||  // 이미지 추가
-    content.includes('<br>') ||   // 줄바꿈 추가
-    content.includes('<blockquote>') || // 인용문 추가
-    content.includes('</') // 닫는 태그가 있으면 HTML로 간주
-  );
+  if (!content || typeof content !== 'string') return false;
+  
+  // 닫는 태그가 있으면 HTML로 간주 (가장 빠른 검사)
+  if (content.includes('</')) return true;
+  
+  // HTML 태그 검사 (some으로 최적화)
+  return HTML_TAGS.some(tag => content.includes(tag));
 }; 

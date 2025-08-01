@@ -18,7 +18,5 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "dependencies": {
-    "homeblog": "file:"
-  }
+  "dependencies": {}
 }

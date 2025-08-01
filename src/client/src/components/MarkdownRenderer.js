@@ -1,48 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Box } from '@mui/material';
 import DOMPurify from 'dompurify';
 import { isHtmlContent } from '../utils/htmlUtils';
 
 const MarkdownRenderer = ({ content, sx = {} }) => {
+  const containerRef = useRef(null);
+  
   // HTML인지 마크다운인지 감지
   const isHTML = isHtmlContent(content);
   
-  // HTML 감지 완료
-  
-  // HTML 콘텐츠를 안전하게 정제
+  // HTML 콘텐츠를 안전하게 정제 (보안 강화)
   const sanitizedHTML = isHTML ? DOMPurify.sanitize(content || '', {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
                    'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'div', 'span'],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'style', 'target', 'rel', 'spellcheck']
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel'], // 'style' 제거로 보안 강화
+    ALLOW_DATA_ATTR: false // 데이터 속성 비허용
   }) : content || '';
   
-  // 코드 하이라이팅 적용
+  // 코드 하이라이팅 적용 (성능 최적화)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // 전역 hljs 사용
-      if (window.hljs) {
-        // highlight.js로 모든 코드블록 하이라이팅
-        document.querySelectorAll('pre code').forEach((block) => {
-          // 이미 하이라이팅된 것은 스킵
-          if (!block.classList.contains('hljs')) {
-            window.hljs.highlightElement(block);
-          }
-        });
-        
-        // ReactQuill 코드블록도 처리
-        document.querySelectorAll('.ql-syntax').forEach((block) => {
-          if (!block.classList.contains('hljs')) {
-            window.hljs.highlightElement(block);
-          }
-        });
-      }
-    }, 100); // 약간의 딜레이로 DOM 렌더링 완료 후 실행
-
-    return () => clearTimeout(timer);
+    if (!containerRef.current || !window.hljs) return;
+    
+    // 컨테이너 내부의 코드블록만 검색하여 성능 향상
+    const codeBlocks = containerRef.current.querySelectorAll('pre code:not(.hljs)');
+    const reactQuillBlocks = containerRef.current.querySelectorAll('.ql-syntax:not(.hljs)');
+    
+    // 하이라이팅 적용
+    [...codeBlocks, ...reactQuillBlocks].forEach((block) => {
+      window.hljs.highlightElement(block);
+    });
   }, [content]);
   
   return (
     <Box 
+      ref={containerRef}
       sx={{ 
         '& h1': { fontSize: '2rem', fontWeight: 'bold', mb: 2, mt: 3 },
         '& h2': { fontSize: '1.5rem', fontWeight: 'bold', mb: 2, mt: 2 },
