@@ -465,7 +465,7 @@ export default function EditPost() {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
             <Button
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(`/blogDetail/${id}`)}
@@ -474,7 +474,7 @@ export default function EditPost() {
                 게시글로 돌아가기
             </Button>
 
-            <Paper elevation={3} sx={{ p: 4 }}>
+            <Paper elevation={3} sx={{ p: 6 }}>
                 <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
                     게시글 수정
                 </Typography>
@@ -530,7 +530,7 @@ export default function EditPost() {
                             '& .quill': {
                                 backgroundColor: '#fff',
                                 borderRadius: 1,
-                                height: '600px',
+                                height: '700px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 border: '1px solid rgba(0, 0, 0, 0.23)',
@@ -550,8 +550,8 @@ export default function EditPost() {
                             '& .ql-container': {
                                 borderRadius: '0 0 4px 4px',
                                 borderColor: 'rgba(0, 0, 0, 0.23)',
-                                minHeight: '400px',
-                                maxHeight: '600px',
+                                minHeight: '500px',
+                                maxHeight: '700px',
                                 overflowY: 'auto',     // 세로 스크롤만
                                 overflowX: 'hidden',   // 가로 스크롤 제거
                                 position: 'relative',
@@ -559,10 +559,10 @@ export default function EditPost() {
                                 backgroundColor: '#fff'
                             },
                             '& .ql-editor': {
-                                minHeight: '400px',
+                                minHeight: '500px',
                                 fontSize: '16px',
                                 lineHeight: '1.8',
-                                padding: '20px',
+                                padding: '24px',
                                 // 에디터는 스크롤하지 않음
                                 overflow: 'visible',
                                 fontFamily: '"Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
