@@ -488,6 +488,9 @@ export default function EditPost() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="제목을 입력하세요"
+                        error={title.length > 30}
+                        helperText={`${title.length}/30`}
+                        inputProps={{ maxLength: 30 }}
                         sx={{ 
                             '& .MuiInputBase-input': { 
                                 fontSize: '1.5rem',
