@@ -12,8 +12,8 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
   // HTML 콘텐츠를 안전하게 정제 (보안 강화)
   const sanitizedHTML = isHTML ? DOMPurify.sanitize(content || '', {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
-                   'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'div', 'span'],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel'], // 'style' 제거로 보안 강화
+                   'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'video', 'iframe', 'div', 'span'],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'width', 'height', 'controls', 'autoplay', 'muted', 'loop', 'poster', 'frameborder', 'allowfullscreen'], // 비디오 관련 속성 추가
     ALLOW_DATA_ATTR: false // 데이터 속성 비허용
   }) : content || '';
   
@@ -125,6 +125,19 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
           height: 'auto',
           borderRadius: '8px',
           mb: 2
+        },
+        '& video': {
+          maxWidth: '100%',
+          height: 'auto',
+          borderRadius: '8px',
+          mb: 2,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+        },
+        '& iframe': {
+          maxWidth: '100%',
+          borderRadius: '8px',
+          mb: 2,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
         },
         // ReactQuill 스타일 추가
         '& .ql-align-center': { textAlign: 'center' },
