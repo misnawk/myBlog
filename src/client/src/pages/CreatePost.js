@@ -515,13 +515,13 @@ export default function CreatePost() {
     }, []);
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
-            <Paper elevation={3} sx={{ p: 6 }}>
+        <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, sm: 4, md: 6, lg: 8 } }}>
+            <Paper elevation={3} sx={{ p: { xs: 3, sm: 4, md: 6 } }}>
                 <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
                     새 글 작성
                 </Typography>
 
-                <Stack spacing={3}>
+                <Stack spacing={3} sx={{ maxWidth: '100%' }}>
                     {/* 제목 입력 */}
                     <Box>
                         <TextField
@@ -547,7 +547,7 @@ export default function CreatePost() {
                     </Box>
 
                     {/* 카테고리 선택 */}
-                    <FormControl sx={{ minWidth: 250 }}>
+                    <FormControl sx={{ minWidth: 300, maxWidth: 400 }}>
                         <InputLabel>카테고리</InputLabel>
                         <Select
                             value={category}
@@ -713,14 +713,14 @@ export default function CreatePost() {
                    {/* 메모이제이션: 동일한 계산의 반복을 방지하기 위해 이전 결과를 메모리에 저장하는 최적화 기법*/}
 
                     {/* 버튼들 */}
-                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
+                    <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 4, flexWrap: 'wrap' }}>
                         <Button
                             variant="contained"
                             size="large"
                             startIcon={<SaveIcon />}
                             onClick={handleSave}
                             disabled={isLoading || !hasUnsavedChanges}
-                            sx={{ px: 4 }}
+                            sx={{ px: 6, py: 1.5, fontSize: '1.1rem' }}
                         >
                             {isLoading ? '저장 중...' : '저장'}
                         </Button>
@@ -729,7 +729,7 @@ export default function CreatePost() {
                             size="large"
                             startIcon={<CancelIcon />}
                             onClick={handleCancel}
-                            sx={{ px: 4 }}
+                            sx={{ px: 6, py: 1.5, fontSize: '1.1rem' }}
                             color="secondary"
                         >
                             취소

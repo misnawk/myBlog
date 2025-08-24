@@ -465,7 +465,7 @@ export default function EditPost() {
     }
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, sm: 4, md: 6, lg: 8 } }}>
             <Button
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(`/blogDetail/${id}`)}
@@ -474,12 +474,12 @@ export default function EditPost() {
                 게시글로 돌아가기
             </Button>
 
-            <Paper elevation={3} sx={{ p: 6 }}>
+            <Paper elevation={3} sx={{ p: { xs: 3, sm: 4, md: 6 } }}>
                 <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
                     게시글 수정
                 </Typography>
 
-                <Stack spacing={3}>
+                <Stack spacing={3} sx={{ maxWidth: '100%' }}>
                     {/* 제목 입력 */}
                     <TextField
                         fullWidth
@@ -500,7 +500,7 @@ export default function EditPost() {
                     />
 
                     {/* 카테고리 선택 */}
-                    <FormControl sx={{ minWidth: 250 }}>
+                    <FormControl sx={{ minWidth: 300, maxWidth: 400 }}>
                         <InputLabel>카테고리</InputLabel>
                         <Select
                             value={category}
@@ -646,14 +646,14 @@ export default function EditPost() {
                     </Box>
 
                     {/* 버튼들 */}
-                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
+                    <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 4, flexWrap: 'wrap' }}>
                         <Button
                             variant="contained"
                             size="large"
                             startIcon={<SaveIcon />}
                             onClick={handleSave}
                             disabled={isLoading}
-                            sx={{ px: 4 }}
+                            sx={{ px: 6, py: 1.5, fontSize: '1.1rem' }}
                         >
                             {isLoading ? '수정 중...' : '수정 완료'}
                         </Button>
@@ -662,7 +662,7 @@ export default function EditPost() {
                             size="large"
                             startIcon={<CancelIcon />}
                             onClick={handleCancel}
-                            sx={{ px: 4 }}
+                            sx={{ px: 6, py: 1.5, fontSize: '1.1rem' }}
                             color="secondary"
                         >
                             취소
