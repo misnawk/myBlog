@@ -479,7 +479,7 @@ export default function EditPost() {
                     게시글 수정
                 </Typography>
 
-                <Stack spacing={3} sx={{ maxWidth: '100%' }}>
+                <Stack spacing={5} sx={{ maxWidth: '100%' }}>
                     {/* 제목 입력 */}
                     <TextField
                         fullWidth
@@ -530,7 +530,7 @@ export default function EditPost() {
                             '& .quill': {
                                 backgroundColor: '#fff',
                                 borderRadius: 1,
-                                height: '700px',
+                                height: '1200px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 border: '1px solid rgba(0, 0, 0, 0.23)',
@@ -550,8 +550,8 @@ export default function EditPost() {
                             '& .ql-container': {
                                 borderRadius: '0 0 4px 4px',
                                 borderColor: 'rgba(0, 0, 0, 0.23)',
-                                minHeight: '500px',
-                                maxHeight: '700px',
+                                minHeight: '1000px',
+                                maxHeight: '1200px',
                                 overflowY: 'auto',     // 세로 스크롤만
                                 overflowX: 'hidden',   // 가로 스크롤 제거
                                 position: 'relative',
@@ -559,10 +559,10 @@ export default function EditPost() {
                                 backgroundColor: '#fff'
                             },
                             '& .ql-editor': {
-                                minHeight: '500px',
+                                minHeight: '1000px',
                                 fontSize: '16px',
                                 lineHeight: '1.8',
-                                padding: '24px',
+                                padding: '40px',
                                 // 에디터는 스크롤하지 않음
                                 overflow: 'visible',
                                 fontFamily: '"Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -646,7 +646,7 @@ export default function EditPost() {
                     </Box>
 
                     {/* 버튼들 */}
-                    <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 4, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 8, flexWrap: 'wrap' }}>
                         <Button
                             variant="contained"
                             size="large"
