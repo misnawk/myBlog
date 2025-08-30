@@ -126,6 +126,15 @@ export default function BlogDetail() {
   const isAuthor = user && post && user.email === post.author?.email;
 
   const handleLike = () => {
+    if (!user) {
+      setSnackbar({
+        open: true,
+        message: '좋아요를 누르려면 로그인이 필요합니다.',
+        severity: 'warning'
+      });
+      return;
+    }
+    
     // 실제로는 API 호출로 대체
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
@@ -222,6 +231,16 @@ export default function BlogDetail() {
       setSnackbar({
         open: true,
         message: '댓글 내용을 입력해주세요.',
+        severity: 'warning'
+      });
+      return;
+    }
+
+    // 로그인 체크
+    if (!user) {
+      setSnackbar({
+        open: true,
+        message: '댓글을 작성하려면 로그인이 필요합니다.',
         severity: 'warning'
       });
       return;
@@ -404,6 +423,8 @@ export default function BlogDetail() {
             onClick={handleLike}
             color={isLiked ? 'secondary' : 'primary'}
             size={isMobile ? "small" : "medium"}
+            disabled={!user}
+            title={!user ? '좋아요를 누르려면 로그인이 필요합니다' : ''}
           >
             {likeCount}
           </Button>
@@ -452,25 +473,46 @@ export default function BlogDetail() {
           댓글 ({comments.length})
         </Typography>
 
-        <Box component="form" onSubmit={handleCommentSubmit} sx={{ mb: { xs: 3, md: 4 } }}>
-          <TextField
-            fullWidth
-            multiline
-            rows={isMobile ? 2 : 3}
-            placeholder="댓글을 작성하세요..."
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            sx={{ mb: 2 }}
-            size={isMobile ? "small" : "medium"}
-          />
-          <Button 
-            type="submit" 
-            variant="contained"
-            size={isMobile ? "small" : "medium"}
-          >
-            댓글 작성
-          </Button>
-        </Box>
+        {user ? (
+          <Box component="form" onSubmit={handleCommentSubmit} sx={{ mb: { xs: 3, md: 4 } }}>
+            <TextField
+              fullWidth
+              multiline
+              rows={isMobile ? 2 : 3}
+              placeholder="댓글을 작성하세요..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              sx={{ mb: 2 }}
+              size={isMobile ? "small" : "medium"}
+            />
+            <Button 
+              type="submit" 
+              variant="contained"
+              size={isMobile ? "small" : "medium"}
+            >
+              댓글 작성
+            </Button>
+          </Box>
+        ) : (
+          <Box sx={{ 
+            mb: { xs: 3, md: 4 }, 
+            p: 2, 
+            bgcolor: 'grey.50', 
+            borderRadius: 1,
+            textAlign: 'center'
+          }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              댓글을 작성하려면 로그인이 필요합니다.
+            </Typography>
+            <Button 
+              variant="outlined" 
+              size="small"
+              onClick={() => navigate('/login')}
+            >
+              로그인하기
+            </Button>
+          </Box>
+        )}
 
         <List sx={{ p: 0 }}>
           {comments.map((comment, index) => (

@@ -63,8 +63,8 @@ function AppContent() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  // 보호된 경로 목록
-  const protectedRoutes = ['/category', '/blog', '/blogDetail','/tag','/about','/categories', '/create', '/edit'];
+  // 보호된 경로 목록 (글쓰기, 수정만 보호)
+  const protectedRoutes = ['/category', '/tag','/about','/categories', '/create', '/edit'];
   const isProtectedRoute = protectedRoutes.some(route => 
     location.pathname.startsWith(route.replace('/:id', ''))
   );
