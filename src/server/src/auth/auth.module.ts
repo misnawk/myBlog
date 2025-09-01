@@ -10,8 +10,6 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt-auth.strategy';
 import { EmailVerification } from './email-verification.entity';
 
-
-
 @Module({
   imports: [
     UserModule,
@@ -21,7 +19,7 @@ import { EmailVerification } from './email-verification.entity';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '24h' },
       }),
       inject: [ConfigService],
     }),
