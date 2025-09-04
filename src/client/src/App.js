@@ -22,6 +22,7 @@ import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
+import Chating from "./pages/Chating";
 
 const theme = createTheme({
   palette: {
@@ -106,6 +107,7 @@ function AppContent() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:id" element={<EditPost />} />
+          <Route path="/chat" element={<Chating />} />
         </Routes>
       </Box>
       <Footer />
