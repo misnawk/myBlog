@@ -335,8 +335,8 @@ export default function CreatePost() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 4 }}>
         <Typography variant="h5" component="h1" align="center" sx={{ mb: 3 }}>
           새 글 작성
         </Typography>
@@ -384,7 +384,7 @@ export default function CreatePost() {
               onChange={setContent}
               modules={modules}
               formats={formats}
-              style={{ height: 400 }}
+              style={{ height: 600 }}
             />
           </Box>
 

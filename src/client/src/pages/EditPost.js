@@ -414,7 +414,7 @@ export default function EditPost() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(`/blogDetail/${id}`)}
@@ -423,7 +423,7 @@ export default function EditPost() {
         게시글로 돌아가기
       </Button>
 
-      <Paper elevation={2} sx={{ p: 3 }}>
+      <Paper elevation={2} sx={{ p: 4 }}>
         <Typography variant="h5" component="h1" align="center" sx={{ mb: 3 }}>
           게시글 수정
         </Typography>
@@ -471,7 +471,7 @@ export default function EditPost() {
               onChange={setContent}
               modules={modules}
               formats={formats}
-              style={{ height: 400 }}
+              style={{ height: 600 }}
               preserveWhitespace
             />
           </Box>
