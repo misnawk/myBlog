@@ -12,10 +12,11 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 // 프로토콜
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 
-// 포트 번호
-const port = 7777;
-// 호스트 이름
+// 운영환경에서는 nginx 프록시를 통해 연결, 개발환경에서는 직접 연결
+const isProduction = process.env.NODE_ENV === 'production';
 const host = window.location.hostname;
+const port = isProduction ? '' : 7777; // 운영환경에서는 포트 없이 nginx 프록시 사용
+const wsPath = isProduction ? '/ws' : ''; // nginx 프록시 경로
 
 const Chating = () => {
   const [messages, setMessages] = useState([]);
@@ -23,7 +24,11 @@ const Chating = () => {
 
   useEffect(() => {
     // 인스턴스 생성과 동시에 연결요청
-    const socket = new WebSocket(`${protocol}//${host}:${port}`);
+    const wsUrl = isProduction 
+      ? `${protocol}//${host}${wsPath}` 
+      : `${protocol}//${host}:${port}`;
+    console.log('WebSocket 연결 시도:', wsUrl);
+    const socket = new WebSocket(wsUrl);
     setSocket(socket);
 
     //소켓연결이 되었다면 소켓에 메시지를 보낼 수 있게 해준다.
