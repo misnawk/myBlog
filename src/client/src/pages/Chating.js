@@ -25,9 +25,9 @@ const Chating = () => {
 
   useEffect(() => {
     // 인스턴스 생성과 동시에 연결요청
-    const wsUrl = `${protocol}//${host}:${port}`;
-    console.log('WebSocket 연결 시도:', wsUrl);
-    const socket = new WebSocket(wsUrl);
+    const socket = new WebSocket('ws://localhost:7777/');
+//    const wsUrl = `${protocol}//${host}:${port}`;
+    // const socket = new WebSocket(wsUrl);
     setSocket(socket);
 
     //소켓연결이 되었다면 소켓에 메시지를 보낼 수 있게 해준다.
@@ -38,7 +38,6 @@ const Chating = () => {
     // 연결 실패 시 에러 처리
     socket.onerror = (error) => {
       console.error("WebSocket 연결 오류:", error);
-      console.log("연결 시도한 URL:", wsUrl);
     };
 
     socket.onclose = (event) => {
