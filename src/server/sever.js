@@ -13,7 +13,7 @@ const wss = new WebSocketServer({ server });
 
 // 사용자 관리
 let userCount = 0;
-const users = new Map(); // WebSocket -> 사용자 정보
+const users = new Map();
 
 // 하나의 서버로 포트 열기
 server.listen(PORT, () => {

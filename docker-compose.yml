@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # NestJS 메인 API 서버
   app:
     build:
       context: .
@@ -19,9 +20,25 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-
     networks:
       - app-network
+    restart: unless-stopped
+
+  # WebSocket 채팅 서버
+  websocket-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.websocket
+    ports:
+      - "7777:7777"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=7777
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - app
 
 networks:
   app-network:
