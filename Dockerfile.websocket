@@ -7,7 +7,7 @@ WORKDIR /app
 RUN npm init -y && npm install express ws
 
 # WebSocket 서버 파일 복사
-COPY src/server/sever.js ./sever.js
+COPY src/server/server.js ./server.js
 
 # 환경 변수 설정
 ENV NODE_ENV=production
@@ -17,4 +17,4 @@ ENV PORT=7777
 EXPOSE 7777
 
 # WebSocket 서버 시작
-CMD ["node", "sever.js"]
+CMD ["node", "server.js"]
