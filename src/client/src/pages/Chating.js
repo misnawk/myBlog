@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
 import {
   MainContainer,
   ChatContainer,
@@ -9,80 +8,83 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 
-// 프로토콜
-const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+// 환경/도메인 기반 WS URL 생성
+function resolveWsUrl() {
+  // 1) 환경변수 우선
+  const vite = typeof import.meta !== "undefined" ? import.meta.env?.VITE_WS_URL : null;
+  const cra  = typeof process !== "undefined" ? process.env?.REACT_APP_WS_URL : null;
+  if (vite) return vite;
+  if (cra)  return cra;
 
-// 운영환경에서는 직접 WebSocket 서버에 연결
-// 실제 도메인으로 운영환경 판단
-const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-const host = window.location.hostname;
-const port = 7777; // WebSocket 서버 포트
-const wsPath = ''; // 직접 연결
+  // 2) 기본값 (로컬: localhost:7777/ws, 운영: 같은 도메인 /ws)
+  const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  return isLocal ? "ws://localhost:7777/ws" : `${scheme}://${window.location.host}/ws`;
+}
 
 const Chating = () => {
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
+  const [mySid, setMySid] = useState(null);
 
   useEffect(() => {
-    // 인스턴스 생성과 동시에 연결요청
-    const socket = new WebSocket('ws://localhost:7777/');
-//    const wsUrl = `${protocol}//${host}:${port}`;
-    // const socket = new WebSocket(wsUrl);
-    setSocket(socket);
+    const ws = new WebSocket(resolveWsUrl());
+    setSocket(ws);
 
-    //소켓연결이 되었다면 소켓에 메시지를 보낼 수 있게 해준다.
-    socket.onopen = () => {
-      console.log("웹소켓이 연결되었습니다.");
-    };
+    ws.onopen = () => console.log("웹소켓 연결됨");
+    ws.onerror = (err) => console.error("웹소켓 오류:", err);
+    ws.onclose = (e) => console.log("웹소켓 종료:", e.code, e.reason);
 
-    // 연결 실패 시 에러 처리
-    socket.onerror = (error) => {
-      console.error("WebSocket 연결 오류:", error);
-    };
-
-    socket.onclose = (event) => {
-      console.log("WebSocket 연결이 종료되었습니다:", event.code, event.reason);
-    };
-
-    if (socket) {
-      // 메세지 수신 이벤트
-      socket.onmessage = (event) => {
+    ws.onmessage = (event) => {
+      try {
         const data = JSON.parse(event.data);
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            message: data.message,
-            direction: data.type === "user" ? "outgoing" : "incoming",
-            position: "first",
-          },
-        ]);
-      };
-    }
-    // 클린업 함수
-    return () => {
-      socket.close();
-    };
-  }, []);
+        // 서버가 내 sid를 알려주는 메타 이벤트
+        if (data.type === "meta") {
+          setMySid(data.sid);
+          return;
+        }
 
-  // 메세지 전송 이벤트
-  const sendMessage = (message) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "message", message: message }));
-    }
+        // 시스템 메시지
+        if (data.type === "system") {
+          setMessages((prev) => [
+            ...prev,
+            { message: data.message, direction: "incoming", position: "first" },
+          ]);
+          return;
+        }
+
+        // 채팅 메시지
+        if (data.type === "user") {
+          const direction = data.senderSid && mySid && data.senderSid === mySid
+            ? "outgoing"
+            : "incoming";
+          setMessages((prev) => [
+            ...prev,
+            { message: `${data.user}: ${data.message}`, direction, position: "first" },
+          ]);
+          return;
+        }
+      } catch (e) {
+        console.error("수신 파싱 에러:", e);
+      }
+    };
+
+    return () => ws.close();
+  }, []); // mount 시 1회
+
+  // 메시지 전송
+  const sendMessage = (text) => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    socket.send(JSON.stringify({ type: "message", message: text }));
   };
+
   return (
-    <MainContainer
-      style={{
-        margin: "auto",
-        height: "80vh",
-        width: "100%",
-      }}
-    >
+    <MainContainer style={{ margin: "auto", height: "80vh", width: "100%" }}>
       <ChatContainer>
         <MessageList>
-          {messages.map((message, index) => (
-            <Message key={index} model={message} />
+          {messages.map((m, i) => (
+            <Message key={i} model={m} />
           ))}
         </MessageList>
         <MessageInput placeholder="메세지 작성" onSend={sendMessage} />
@@ -90,4 +92,5 @@ const Chating = () => {
     </MainContainer>
   );
 };
+
 export default Chating;

@@ -1,115 +1,142 @@
+'use strict';
+
 const http = require('http');
 const express = require('express');
 const { WebSocketServer } = require('ws');
-const PORT = 7777;
+const { randomUUID } = require('crypto');
+
+const PORT = process.env.PORT || 7777;
+// 쉼표로 여러 개 허용 가능: "https://app.example.com,https://admin.example.com"
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
 const app = express();
+
+// 헬스체크
+app.get('/healthz', (_, res) => res.status(200).send('ok'));
+
 const server = http.createServer(app);
+// WebSocket 업그레이드 경로를 /ws 로 고정
+const wss = new WebSocketServer({ server, path: '/ws' });
 
-// WebSocket 서버이므로 정적 파일 서빙 제거
-// 프론트엔드는 별도 nginx 컨테이너에서 서빙
-
-// WebSocket 서버를 HTTP 서버에 연결
-const wss = new WebSocketServer({ server });
-
-// 사용자 관리
-let userCount = 0;
+// 연결된 사용자 저장: ws -> { sid, id, nickname }
+let userSeq = 0;
 const users = new Map();
 
-// 하나의 서버로 포트 열기
-server.listen(PORT, () => {
-  console.log(`HTTP/WebSocket 서버가 포트 ${PORT}에서 실행 중입니다.`);
-});
+function isOriginAllowed(origin) {
+  if (ALLOWED_ORIGINS.length === 0) return true; // 미설정 시 모두 허용
+  try {
+    const o = new URL(origin).origin;
+    return ALLOWED_ORIGINS.includes(o);
+  } catch {
+    return false;
+  }
+}
+
+function broadcast(obj) {
+  const payload = JSON.stringify(obj);
+  wss.clients.forEach(client => {
+    if (client.readyState === 1) client.send(payload);
+  });
+}
+
+// ping/pong keepalive
+function heartbeat() { this.isAlive = true; }
+const interval = setInterval(() => {
+  wss.clients.forEach(ws => {
+    if (ws.isAlive === false) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
 
 wss.on('connection', (ws, req) => {
-  userCount++;
-  const userId = `사용자${userCount}`;
+  // Origin 제한 (원하면 사용)
+  const origin = req.headers.origin || '';
+  if (!isOriginAllowed(origin)) {
+    ws.close(1008, 'Origin not allowed');
+    return;
+  }
 
-  // 사용자 정보 저장
-  users.set(ws, {
-    id: userId,
-    nickname: userId,
-  });
+  ws.isAlive = true;
+  ws.on('pong', heartbeat);
 
-  console.log(`새로운 클라이언트가 연결되었습니다: ${userId}`);
+  const sid = randomUUID();
+  const id = `사용자${++userSeq}`;
+  const user = { sid, id, nickname: id };
+  users.set(ws, user);
 
-  // 연결 알림 메시지 전송
-  const connectMessage = {
-    type: 'system',
-    message: `${userId}님이 입장했습니다.`,
+  // 클라이언트에게 자신의 sid 전달
+  ws.send(JSON.stringify({
+    type: 'meta',
+    sid,
+    nickname: user.nickname,
     timestamp: new Date().toISOString(),
-  };
+  }));
 
-  wss.clients.forEach((client) => {
-    if (client.readyState === 1) {
-      client.send(JSON.stringify(connectMessage));
-    }
+  // 입장 알림
+  broadcast({
+    type: 'system',
+    message: `${user.nickname}님이 입장했습니다.`,
+    timestamp: new Date().toISOString(),
   });
 
-  ws.on('message', (msg) => {
+  ws.on('message', (buf) => {
     try {
-      const data = JSON.parse(msg.toString());
-      const user = users.get(ws);
+      const data = JSON.parse(buf.toString());
 
       if (data.type === 'nickname') {
-        // 닉네임 변경
-        const oldNickname = user.nickname;
-        user.nickname = data.nickname || user.id;
-
-        const nicknameMessage = {
+        const old = user.nickname;
+        user.nickname = (data.nickname || user.id).trim();
+        broadcast({
           type: 'system',
-          message: `${oldNickname}님이 ${user.nickname}으로 닉네임을 변경했습니다.`,
+          message: `${old}님이 ${user.nickname}으로 닉네임을 변경했습니다.`,
           timestamp: new Date().toISOString(),
-        };
-
-        wss.clients.forEach((client) => {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify(nicknameMessage));
-          }
-        });
-      } else if (data.type === 'message') {
-        // 일반 메시지
-        const message = {
-          type: 'user',
-          user: user.nickname,
-          message: data.message,
-          timestamp: new Date().toISOString(),
-        };
-
-        console.log(`${user.nickname}: ${data.message}`);
-
-        // 모든 연결된 클라이언트에게 메시지 브로드캐스트
-        wss.clients.forEach((client) => {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify(message));
-          }
         });
       }
-    } catch (error) {
-      console.error('메시지 파싱 에러:', error);
+
+      if (data.type === 'message') {
+        const msg = {
+          type: 'user',
+          user: user.nickname,
+          message: String(data.message ?? ''),
+          senderSid: sid,
+          timestamp: new Date().toISOString(),
+        };
+        broadcast(msg);
+      }
+    } catch (e) {
+      console.error('메시지 파싱 에러:', e);
+      ws.send(JSON.stringify({
+        type: 'system',
+        message: '메시지 파싱 에러',
+        timestamp: new Date().toISOString(),
+      }));
     }
   });
 
   ws.on('close', () => {
-    const user = users.get(ws);
-    console.log(`클라이언트 연결이 해제되었습니다: ${user.nickname}`);
-
-    // 퇴장 알림 메시지 전송
-    const disconnectMessage = {
-      type: 'system',
-      message: `${user.nickname}님이 퇴장했습니다.`,
-      timestamp: new Date().toISOString(),
-    };
-
-    wss.clients.forEach((client) => {
-      if (client.readyState === 1) {
-        client.send(JSON.stringify(disconnectMessage));
-      }
-    });
-
-    users.delete(ws);
+    const u = users.get(ws);
+    if (u) {
+      broadcast({
+        type: 'system',
+        message: `${u.nickname}님이 퇴장했습니다.`,
+        timestamp: new Date().toISOString(),
+      });
+      users.delete(ws);
+    }
   });
 
-  ws.on('error', (error) => {
-    console.log('WebSocket 에러:', error);
-  });
+  ws.on('error', (err) => console.error('WebSocket 에러:', err));
+});
+
+server.listen(PORT, () => {
+  console.log(`HTTP/WebSocket 서버가 포트 ${PORT}에서 실행 중입니다.`);
+});
+
+process.on('SIGTERM', () => {
+  clearInterval(interval);
+  server.close(() => process.exit(0));
 });
