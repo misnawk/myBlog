@@ -71,7 +71,12 @@ const Chating = () => {
         if (data.type === "system") {
           setMessages((prev) => [
             ...prev,
-            { message: data.message, direction: "incoming", position: "first" },
+            { 
+              message: data.message, 
+              direction: "incoming", 
+              position: "first",
+              timestamp: data.timestamp 
+            },
           ]);
           return;
         }
@@ -81,7 +86,12 @@ const Chating = () => {
           const direction = data.senderSid === currentMySid ? "outgoing" : "incoming";
           setMessages((prev) => [
             ...prev,
-            { message: `${data.user}: ${data.message}`, direction, position: "first" },
+            { 
+              message: `${data.user}: ${data.message}`, 
+              direction, 
+              position: "first",
+              timestamp: data.timestamp 
+            },
           ]);
           return;
         }

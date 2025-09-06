@@ -25,6 +25,10 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 let userSeq = 0;
 const users = new Map();
 
+// 채팅 히스토리 저장 (메모리 기반, 실제 운영에서는 DB 사용 권장)
+const chatHistory = [];
+const MAX_HISTORY = 100; // 최대 100개 메시지 저장
+
 function isOriginAllowed(origin) {
   if (ALLOWED_ORIGINS.length === 0) return true; // 미설정 시 모두 허용
   try {
@@ -39,6 +43,30 @@ function broadcast(obj) {
   const payload = JSON.stringify(obj);
   wss.clients.forEach(client => {
     if (client.readyState === 1) client.send(payload);
+  });
+}
+
+// 메시지를 히스토리에 저장
+function saveToHistory(message) {
+  chatHistory.push(message);
+  
+  // 히스토리 크기 제한
+  if (chatHistory.length > MAX_HISTORY) {
+    chatHistory.shift(); // 가장 오래된 메시지 제거
+  }
+  
+  console.log(`메시지 히스토리 저장: ${message.type} - ${message.message || message.user}`);
+}
+
+// 히스토리를 클라이언트에게 전송
+function sendHistory(ws) {
+  if (chatHistory.length === 0) return;
+  
+  console.log(`히스토리 전송: ${chatHistory.length}개 메시지`);
+  
+  // 히스토리를 개별 메시지로 전송
+  chatHistory.forEach(msg => {
+    ws.send(JSON.stringify(msg));
   });
 }
 
@@ -77,6 +105,9 @@ wss.on('connection', (ws, req) => {
 
   // 입장 알림은 닉네임이 설정된 후에 보냄
   console.log(`새로운 클라이언트 연결: ${sid} (닉네임 대기 중)`);
+  
+  // 히스토리 전송 (닉네임 설정 전에 전송)
+  sendHistory(ws);
 
   ws.on('message', (buf) => {
     try {
@@ -94,19 +125,23 @@ wss.on('connection', (ws, req) => {
         
         if (isFirstNickname) {
           // 첫 번째 닉네임 설정 시 입장 알림
-          broadcast({
+          const entryMessage = {
             type: 'system',
             message: `${user.nickname}님이 입장했습니다.`,
             timestamp: new Date().toISOString(),
-          });
+          };
+          broadcast(entryMessage);
+          saveToHistory(entryMessage); // 히스토리에 저장
           console.log(`✅ 사용자 입장: ${user.nickname} (${sid})`);
         } else {
           // 닉네임 변경 시 변경 알림
-          broadcast({
+          const changeMessage = {
             type: 'system',
             message: `${old}님이 ${user.nickname}으로 닉네임을 변경했습니다.`,
             timestamp: new Date().toISOString(),
-          });
+          };
+          broadcast(changeMessage);
+          saveToHistory(changeMessage); // 히스토리에 저장
           console.log(`🔄 닉네임 변경: ${old} → ${user.nickname} (${sid})`);
         }
       }
@@ -120,6 +155,7 @@ wss.on('connection', (ws, req) => {
           timestamp: new Date().toISOString(),
         };
         broadcast(msg);
+        saveToHistory(msg); // 히스토리에 저장
       }
     } catch (e) {
       console.error('메시지 파싱 에러:', e);
@@ -134,11 +170,19 @@ wss.on('connection', (ws, req) => {
   ws.on('close', () => {
     const u = users.get(ws);
     if (u) {
-      broadcast({
-        type: 'system',
-        message: `${u.nickname}님이 퇴장했습니다.`,
-        timestamp: new Date().toISOString(),
-      });
+      // 닉네임이 설정된 경우에만 퇴장 메시지 전송
+      if (u.nickname && u.nickname !== null) {
+        const exitMessage = {
+          type: 'system',
+          message: `${u.nickname}님이 퇴장했습니다.`,
+          timestamp: new Date().toISOString(),
+        };
+        broadcast(exitMessage);
+        saveToHistory(exitMessage); // 히스토리에 저장
+        console.log(`사용자 퇴장: ${u.nickname} (${u.sid})`);
+      } else {
+        console.log(`미인증 사용자 연결 종료: ${u.sid} (닉네임 미설정)`);
+      }
       users.delete(ws);
     }
   });
