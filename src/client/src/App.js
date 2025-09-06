@@ -23,6 +23,7 @@ import BlogDetail from "./pages/BlogDetail";
 import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
 import Chating from "./pages/Chating";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const theme = createTheme({
   palette: {
@@ -70,7 +71,7 @@ function AppContent() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  // 보호된 경로 목록 (글쓰기, 수정만 보호)
+  // 보호된 경로 목록 (글쓰기, 수정, 채팅 보호)
   const protectedRoutes = [
     "/category",
     "/tag",
@@ -78,6 +79,7 @@ function AppContent() {
     "/categories",
     "/create",
     "/edit",
+    "/chat",
   ];
   const isProtectedRoute = protectedRoutes.some((route) =>
     location.pathname.startsWith(route.replace("/:id", ""))
@@ -107,7 +109,11 @@ function AppContent() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:id" element={<EditPost />} />
-          <Route path="/chat" element={<Chating />} />
+          <Route path="/chat" element={
+            <ProtectedRoute>
+              <Chating />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Box>
       <Footer />

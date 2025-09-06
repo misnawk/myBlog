@@ -7,6 +7,7 @@ import {
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import { useAuth } from "../contexts/AuthContext";
 
 // 환경/도메인 기반 WS URL 생성
 function resolveWsUrl() {
@@ -23,6 +24,7 @@ function resolveWsUrl() {
 }
 
 const Chating = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
   const [mySid, setMySid] = useState(null);
@@ -30,8 +32,27 @@ const Chating = () => {
   useEffect(() => {
     const ws = new WebSocket(resolveWsUrl());
     setSocket(ws);
+    let currentMySid = null; // 로컬 변수로 현재 sid 추적
 
-    ws.onopen = () => console.log("웹소켓 연결됨");
+    ws.onopen = () => {
+      console.log("웹소켓 연결됨");
+      // 연결 시 사용자 정보 전송 (닉네임 설정)
+      if (user && user.username) {
+        ws.send(JSON.stringify({ 
+          type: "nickname", 
+          nickname: user.username 
+        }));
+        console.log("사용자 닉네임 설정:", user.username);
+      } else {
+        // 사용자 정보가 없으면 기본 닉네임 사용
+        const defaultNickname = `게스트${Math.floor(Math.random() * 1000)}`;
+        ws.send(JSON.stringify({ 
+          type: "nickname", 
+          nickname: defaultNickname 
+        }));
+        console.log("기본 닉네임 설정:", defaultNickname);
+      }
+    };
     ws.onerror = (err) => console.error("웹소켓 오류:", err);
     ws.onclose = (e) => console.log("웹소켓 종료:", e.code, e.reason);
 
@@ -41,6 +62,7 @@ const Chating = () => {
 
         // 서버가 내 sid를 알려주는 메타 이벤트
         if (data.type === "meta") {
+          currentMySid = data.sid; // 로컬 변수 업데이트
           setMySid(data.sid);
           return;
         }
@@ -56,9 +78,7 @@ const Chating = () => {
 
         // 채팅 메시지
         if (data.type === "user") {
-          const direction = data.senderSid && mySid && data.senderSid === mySid
-            ? "outgoing"
-            : "incoming";
+          const direction = data.senderSid === currentMySid ? "outgoing" : "incoming";
           setMessages((prev) => [
             ...prev,
             { message: `${data.user}: ${data.message}`, direction, position: "first" },
@@ -71,7 +91,7 @@ const Chating = () => {
     };
 
     return () => ws.close();
-  }, []); // mount 시 1회
+  }, [user]); // user 정보가 변경될 때마다 재연결
 
   // 메시지 전송
   const sendMessage = (text) => {

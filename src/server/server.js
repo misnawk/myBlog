@@ -65,23 +65,18 @@ wss.on('connection', (ws, req) => {
 
   const sid = randomUUID();
   const id = `사용자${++userSeq}`;
-  const user = { sid, id, nickname: id };
+  const user = { sid, id, nickname: null }; // 초기 닉네임을 null로 설정
   users.set(ws, user);
 
-  // 클라이언트에게 자신의 sid 전달
+  // 클라이언트에게 자신의 sid 전달 (닉네임은 아직 설정되지 않음)
   ws.send(JSON.stringify({
     type: 'meta',
     sid,
-    nickname: user.nickname,
     timestamp: new Date().toISOString(),
   }));
 
-  // 입장 알림
-  broadcast({
-    type: 'system',
-    message: `${user.nickname}님이 입장했습니다.`,
-    timestamp: new Date().toISOString(),
-  });
+  // 입장 알림은 닉네임이 설정된 후에 보냄
+  console.log(`새로운 클라이언트 연결: ${sid} (닉네임 대기 중)`);
 
   ws.on('message', (buf) => {
     try {
@@ -90,11 +85,30 @@ wss.on('connection', (ws, req) => {
       if (data.type === 'nickname') {
         const old = user.nickname;
         user.nickname = (data.nickname || user.id).trim();
-        broadcast({
-          type: 'system',
-          message: `${old}님이 ${user.nickname}으로 닉네임을 변경했습니다.`,
-          timestamp: new Date().toISOString(),
-        });
+        
+        // 디버깅 로그
+        console.log(`닉네임 처리 - 이전: ${old}, 새로운: ${user.nickname}, 첫 설정: ${old === null}`);
+        
+        // 첫 번째 닉네임 설정인지 확인 (null에서 설정되는 경우)
+        const isFirstNickname = old === null;
+        
+        if (isFirstNickname) {
+          // 첫 번째 닉네임 설정 시 입장 알림
+          broadcast({
+            type: 'system',
+            message: `${user.nickname}님이 입장했습니다.`,
+            timestamp: new Date().toISOString(),
+          });
+          console.log(`✅ 사용자 입장: ${user.nickname} (${sid})`);
+        } else {
+          // 닉네임 변경 시 변경 알림
+          broadcast({
+            type: 'system',
+            message: `${old}님이 ${user.nickname}으로 닉네임을 변경했습니다.`,
+            timestamp: new Date().toISOString(),
+          });
+          console.log(`🔄 닉네임 변경: ${old} → ${user.nickname} (${sid})`);
+        }
       }
 
       if (data.type === 'message') {
