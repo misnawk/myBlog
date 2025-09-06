@@ -19,6 +19,12 @@ export const CATEGORIES = [
     color: '#9F7AEA'
   },
   {
+    id: '트러블슈팅',
+    name: '트러블슈팅',
+    description: '문제 해결, 디버깅, 오류 처리',
+    color: '#F56565'
+  },
+  {
     id: '보안',
     name: '보안',
     description: '웹 보안, 인증, 암호화',
