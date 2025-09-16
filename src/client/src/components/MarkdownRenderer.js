@@ -9,13 +9,39 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
   // HTML인지 마크다운인지 감지
   const isHTML = isHtmlContent(content);
   
-  // HTML 콘텐츠를 안전하게 정제 (보안 강화)
-  const sanitizedHTML = isHTML ? DOMPurify.sanitize(content || '', {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
-                   'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'video', 'iframe', 'div', 'span'],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'width', 'height', 'controls', 'autoplay', 'muted', 'loop', 'poster', 'frameborder', 'allowfullscreen'], // 비디오 관련 속성 추가
-    ALLOW_DATA_ATTR: false // 데이터 속성 비허용
-  }) : content || '';
+  // 줄바꿈 처리 개선: 더 정교한 처리
+  let processedContent = content || '';
+  
+  if (isHTML) {
+    // HTML 콘텐츠를 안전하게 정제 (보안 강화)
+    processedContent = DOMPurify.sanitize(processedContent, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
+                     'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'video', 'iframe', 'div', 'span'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'width', 'height', 'controls', 'autoplay', 'muted', 'loop', 'poster', 'frameborder', 'allowfullscreen'],
+      ALLOW_DATA_ATTR: false
+    });
+    
+     // HTML 구조 내부의 줄바꿈은 건드리지 않고, 실제 텍스트 콘텐츠의 줄바꿈만 처리
+     // 이미 ReactQuill에서 적절히 구조화된 HTML이므로 추가 줄바꿈 변환을 하지 않음
+     // (ReactQuill은 줄바꿈을 <p> 태그나 <br> 태그로 이미 처리함)
+  } else {
+    // 일반 텍스트의 경우 HTML 특수문자 이스케이프 후 줄바꿈 변환
+    processedContent = processedContent
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\r\n/g, '<br>')
+      .replace(/\r/g, '<br>')
+      .replace(/\n/g, '<br>');
+    
+    // 이미 이스케이프되었으므로 DOMPurify 없이 처리
+    // (하지만 보안을 위해 간단한 검증은 유지)
+    if (processedContent.includes('<script') || processedContent.includes('javascript:')) {
+      processedContent = '⚠️ 보안상 위험한 콘텐츠가 감지되어 표시할 수 없습니다.';
+    }
+  }
   
   // 코드 하이라이팅 적용 (성능 최적화)
   useEffect(() => {
@@ -146,11 +172,8 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
         ...sx 
       }}
     >
-      {isHTML ? (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-      ) : (
-        <div style={{ whiteSpace: 'pre-wrap' }}>{sanitizedHTML}</div>
-      )}
+      {/* 모든 콘텐츠를 HTML로 렌더링 (줄바꿈 처리 개선) */}
+      <div dangerouslySetInnerHTML={{ __html: processedContent }} />
     </Box>
   );
 };

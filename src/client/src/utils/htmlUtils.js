@@ -37,6 +37,12 @@ export const isHtmlContent = (content) => {
   // 닫는 태그가 있으면 HTML로 간주 (가장 빠른 검사)
   if (content.includes('</')) return true;
   
+  // ReactQuill에서 생성되는 특별한 클래스들 검사
+  if (content.includes('ql-') || content.includes('class=')) return true;
+  
+  // 속성이 있는 태그들 검사 (더 포괄적)
+  if (content.match(/<[a-zA-Z][^>]*>/)) return true;
+  
   // HTML 태그 검사 (some으로 최적화)
   return HTML_TAGS.some(tag => content.includes(tag));
 }; 
