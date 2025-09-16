@@ -43,7 +43,30 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
     }
   }
   
-  // 코드 하이라이팅 적용 (성능 최적화)
+  // 줄 번호 추가 함수 (하이라이팅 후 적용)
+  const addLineNumbers = (codeElement) => {
+    // 이미 줄 번호가 있으면 건너뛰기
+    if (codeElement.querySelector('.line-number')) return;
+    
+    const htmlContent = codeElement.innerHTML;
+    const lines = htmlContent.split('\n');
+    
+    if (lines.length <= 1) return; // 한 줄이면 줄 번호 불필요
+    
+    // 빈 마지막 줄 제거
+    if (lines[lines.length - 1].trim() === '') {
+      lines.pop();
+    }
+    
+    const numberedLines = lines.map((line, index) => {
+      const lineNumber = (index + 1).toString().padStart(2, ' ');
+      return `<span class="line-number">${lineNumber}</span>${line}`;
+    });
+    
+    codeElement.innerHTML = numberedLines.join('\n');
+  };
+  
+  // 코드 하이라이팅 및 줄 번호 적용 (성능 최적화)
   useEffect(() => {
     if (!containerRef.current || !window.hljs) return;
     
@@ -51,9 +74,15 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
     const codeBlocks = containerRef.current.querySelectorAll('pre code:not(.hljs)');
     const reactQuillBlocks = containerRef.current.querySelectorAll('.ql-syntax:not(.hljs)');
     
-    // 하이라이팅 적용
+    // 하이라이팅 및 줄 번호 적용
     [...codeBlocks, ...reactQuillBlocks].forEach((block) => {
+      // 먼저 하이라이팅 적용
       window.hljs.highlightElement(block);
+      
+      // 하이라이팅 완료 후 줄 번호 추가 (약간의 지연)
+      setTimeout(() => {
+        addLineNumbers(block);
+      }, 10);
     });
   }, [content]);
   
@@ -92,6 +121,18 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
             backgroundColor: 'transparent',
             padding: 0,
             color: '#abb2bf'
+          },
+          // 줄 번호 스타일
+          '& .line-number': {
+            color: '#5c6370',
+            marginRight: '16px',
+            userSelect: 'none',
+            display: 'inline-block',
+            minWidth: '24px',
+            textAlign: 'right',
+            borderRight: '1px solid #3e4451',
+            paddingRight: '8px',
+            marginRight: '12px'
           }
         },
         // ReactQuill 코드블록 스타일 - 개선된 색상
@@ -107,7 +148,19 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
           margin: '20px 0 !important',
           display: 'block !important',
           border: '1px solid #3e4451 !important',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15) !important'
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15) !important',
+          // 줄 번호 스타일
+          '& .line-number': {
+            color: '#5c6370 !important',
+            marginRight: '16px !important',
+            userSelect: 'none !important',
+            display: 'inline-block !important',
+            minWidth: '24px !important',
+            textAlign: 'right !important',
+            borderRight: '1px solid #3e4451 !important',
+            paddingRight: '8px !important',
+            marginRight: '12px !important'
+          }
         },
         // highlight.js 스타일 - 개선된 색상
         '& .hljs': {
@@ -117,7 +170,19 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
           borderRadius: '12px !important',
           overflow: 'auto !important',
           border: '1px solid #3e4451 !important',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15) !important'
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15) !important',
+          // 줄 번호 스타일
+          '& .line-number': {
+            color: '#5c6370 !important',
+            marginRight: '16px !important',
+            userSelect: 'none !important',
+            display: 'inline-block !important',
+            minWidth: '24px !important',
+            textAlign: 'right !important',
+            borderRight: '1px solid #3e4451 !important',
+            paddingRight: '8px !important',
+            marginRight: '12px !important'
+          }
         },
         // 더 생생한 문법 하이라이팅 색상 (Atom One Dark 테마)
         '& .hljs-keyword, & .ql-syntax .hljs-keyword': { color: '#c678dd !important' }, // 보라색 - 키워드
