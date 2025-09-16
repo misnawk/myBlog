@@ -95,7 +95,36 @@ export default function EditPost() {
 
         setTitle(post.title || "");
         setCategory(post.category || "");
-        setContent(post.content || ""); // HTML이 그대로 에디터에 들어감
+        
+        // 디버깅: DB에서 가져온 원본 콘텐츠 확인
+        console.log('📥 DB에서 가져온 원본 콘텐츠:', JSON.stringify(post.content));
+        
+        // ReactQuill에 설정하기 전에 미리 정리
+        let cleanContent = post.content || "";
+        
+        // 태그 사이의 불필요한 공백 제거 (ReactQuill 로드 전에 미리 처리)
+        const protectedBlocks = [];
+        
+        // 1. 코드 블록 보호
+        cleanContent = cleanContent.replace(/(<pre[^>]*>[\s\S]*?<\/pre>|<code[^>]*>[\s\S]*?<\/code>)/gi, (match, block) => {
+          const placeholder = `__PROTECTED_BLOCK_${protectedBlocks.length}__`;
+          protectedBlocks.push(block);
+          return placeholder;
+        });
+        
+        // 2. 태그 사이 공백 제거
+        cleanContent = cleanContent
+          .replace(/>\s+</g, '><')
+          .trim();
+        
+        // 3. 코드 블록 복원
+        protectedBlocks.forEach((block, index) => {
+          cleanContent = cleanContent.replace(`__PROTECTED_BLOCK_${index}__`, block);
+        });
+        
+        console.log('🧹 정리된 콘텐츠:', JSON.stringify(cleanContent));
+        
+        setContent(cleanContent); // 정리된 HTML을 에디터에 설정
       } catch (e) {
         console.error(e);
         setSnackbar({
@@ -377,7 +406,42 @@ export default function EditPost() {
       await replaceDataUrisInEditor();
 
       const quill = quillRef.current?.getEditor();
-      const html = quill ? quill.root.innerHTML : content;
+      let html = quill ? quill.root.innerHTML : content;
+      
+      // 디버깅: 처리 전 HTML 확인
+      console.log('🔍 처리 전 HTML:', JSON.stringify(html));
+      
+      // ReactQuill에서 생성되는 불필요한 줄바꿈 제거 (더 강력한 방법)
+      const originalHtml = html;
+      
+      // 코드 블록을 보호하면서 태그 사이 공백 제거
+      const protectedBlocks = [];
+      
+      // 1. 코드 블록들을 임시로 저장
+      html = html.replace(/(<pre[^>]*>[\s\S]*?<\/pre>|<code[^>]*>[\s\S]*?<\/code>)/gi, (match, block) => {
+        const placeholder = `__PROTECTED_BLOCK_${protectedBlocks.length}__`;
+        protectedBlocks.push(block);
+        return placeholder;
+      });
+      
+      // 2. 일반 태그 사이의 공백 제거 + ReactQuill 자동 생성 태그 제거
+      html = html
+        .replace(/>\s+</g, '><') // 태그 사이의 모든 공백 제거
+        .replace(/<p><br\s*\/?><\/p>/g, '') // ReactQuill이 자동 생성하는 빈 p 태그 제거 (<br> 또는 <br/>)
+        .replace(/<p>(\s|&nbsp;)*<\/p>/g, '') // 공백이나 &nbsp;만 있는 빈 p 태그 제거
+        .replace(/<div>(\s|&nbsp;)*<\/div>/g, '') // 빈 div 태그도 제거
+        .replace(/^\s+/, '') // 시작 공백 제거  
+        .replace(/\s+$/, '') // 끝 공백 제거
+        .trim();
+      
+      // 3. 코드 블록 복원
+      protectedBlocks.forEach((block, index) => {
+        html = html.replace(`__PROTECTED_BLOCK_${index}__`, block);
+      });
+      
+      // 디버깅: 처리 후 HTML 확인
+      console.log('✅ 처리 후 HTML:', JSON.stringify(html));
+      console.log('🔄 변경 여부:', originalHtml !== html ? '변경됨' : '변경 안됨');
 
       if (html.includes('src="data:')) {
         setIsLoading(false);
