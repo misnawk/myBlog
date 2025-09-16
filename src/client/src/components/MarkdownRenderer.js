@@ -67,16 +67,17 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
         '& p': { mb: 2, lineHeight: 1.6 },
         '& strong': { fontWeight: 'bold' },
         '& em': { fontStyle: 'italic' },
-        // 인라인 코드 스타일 - 개선
+        // 인라인 코드 스타일 - 가독성 개선 (GitHub 스타일)
         '& code:not(.hljs)': { 
-          backgroundColor: '#383e49', 
-          color: '#e06c75',
-          padding: '3px 8px', 
+          backgroundColor: '#f6f8fa', 
+          color: '#24292f',
+          padding: '2px 4px', 
           borderRadius: '6px',
-          fontSize: '87%',
-          fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, "Courier New", monospace',
-          fontWeight: '500',
-          border: '1px solid #4a5364'
+          fontSize: '85%',
+          fontFamily: '"ui-monospace", "SFMono-Regular", "SF Mono", "Consolas", "Liberation Mono", "Menlo", monospace',
+          fontWeight: '400',
+          border: '1px solid #d0d7de',
+          boxShadow: 'inset 0 1px 0 rgba(208, 215, 222, 0.2)'
         },
         // 일반 pre 태그 스타일
         '& pre': { 
@@ -140,11 +141,35 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
         '& ol': { pl: 2, mb: 2 },
         '& li': { mb: 0.5 },
         '& blockquote': { 
-          borderLeft: '4px solid #ddd', 
-          pl: 2, 
-          ml: 0, 
+          borderLeft: '4px solid #3b82f6',
+          backgroundColor: '#f8fafc',
+          margin: '16px 0',
+          padding: '12px 18px 12px 22px',
+          borderRadius: '0 6px 6px 0',
           fontStyle: 'italic',
-          color: '#666'
+          color: '#475569',
+          fontSize: '1.05em',
+          lineHeight: 1.5,
+          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #e2e8f0',
+          borderLeft: '4px solid #3b82f6',
+          position: 'relative',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+          '& p': {
+            margin: '0 !important',
+            fontWeight: '400',
+            letterSpacing: '0.01em'
+          },
+          '&:before': {
+            content: '""',
+            position: 'absolute',
+            left: '-4px',
+            top: '0',
+            bottom: '0',
+            width: '4px',
+            background: 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)',
+            borderRadius: '0 2px 2px 0'
+          }
         },
         '& img': {
           maxWidth: '100%',
