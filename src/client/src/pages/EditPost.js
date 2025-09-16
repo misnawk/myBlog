@@ -536,7 +536,12 @@ export default function EditPost() {
               border: "1px solid",
               borderColor: "divider",
               borderRadius: 1,
-              overflow: "hidden",
+              overflow: "visible",
+              "& .ql-toolbar": {
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                backgroundColor: "#fafafa"
+              },
               "& .ql-editor": {
                 "& .ql-code-block": {
                   backgroundColor: "#f8f9fa",

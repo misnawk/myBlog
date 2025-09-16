@@ -417,8 +417,14 @@ export default function CreatePost() {
             sx={{
               border: "1px solid",
               borderColor: "divider",
-              borderRadius: 1,
+              borderRadius: 2,
               overflow: "hidden",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              "& .ql-toolbar": {
+                borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
+                backgroundColor: "#f8f9fa",
+                borderRadius: "8px 8px 0 0"
+              },
               "& .ql-editor": {
                 "& .ql-code-block": {
                   backgroundColor: "#f8f9fa",
@@ -458,7 +464,7 @@ export default function CreatePost() {
             />
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", mt: 4 }}>
             <Button
               variant="contained"
               size="large"
