@@ -10,9 +10,13 @@ import {
   Button,
   Chip,
   Paper,
-  CircularProgress
+  CircularProgress,
+  Alert,
+  AlertTitle,
+  IconButton
 } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { AssignmentTurnedIn, Close } from '@mui/icons-material';
 import { getPosts } from '../api/postGetApi';
 import { createPreview } from '../utils/htmlUtils';
 
@@ -23,6 +27,7 @@ function Home() {
   const [popularCategories, setPopularCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [todoAlert, setTodoAlert] = useState(null);
 
   useEffect(() => {
     console.log(' Home 페이지 데이터 로딩 시작');
@@ -58,6 +63,16 @@ function Home() {
         
         setPopularCategories(sortedCategories);
         console.log(' 인기 카테고리 설정 완료:', sortedCategories.length);
+        
+        // 할일 카테고리 알림 체크
+        const todoPosts = allPosts.filter(post => post.category === '할일');
+        if (todoPosts.length > 0) {
+          setTodoAlert({
+            count: todoPosts.length,
+            latestPost: todoPosts[0] // 가장 최근 할일 포스트
+          });
+          console.log(` 할일 알림 설정: ${todoPosts.length}개의 할일이 있습니다.`);
+        }
         
       } catch (error) {
         console.error(' 데이터 로딩 실패:', error);
@@ -113,6 +128,47 @@ function Home() {
           포스트 보기
         </Button>
       </Box>
+
+      {/* 할일 알림 섹션 */}
+      {todoAlert && (
+        <Box sx={{ mb: 4 }}>
+          <Alert 
+            severity="warning" 
+            icon={<AssignmentTurnedIn />}
+            action={
+              <IconButton
+                color="inherit"
+                size="small"
+                onClick={() => setTodoAlert(null)}
+              >
+                <Close fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{
+              backgroundColor: '#fff3cd',
+              borderLeft: '4px solid #ffc107',
+              '& .MuiAlert-icon': {
+                color: '#856404'
+              }
+            }}
+          >
+            <AlertTitle sx={{ color: '#856404', fontWeight: 'bold' }}>
+              📝 할일이 {todoAlert.count}개 있습니다!
+            </AlertTitle>
+            <Typography sx={{ color: '#856404' }}>
+              가장 최근 할일: "{todoAlert.latestPost?.title}" - 
+              <Button 
+                component={Link} 
+                to="/blog?category=할일"
+                size="small" 
+                sx={{ ml: 1, color: '#856404', textDecoration: 'underline' }}
+              >
+                확인하기
+              </Button>
+            </Typography>
+          </Alert>
+        </Box>
+      )}
 
       {/* 최근 포스트 섹션 */}
       <Box sx={{ mb: 6 }}>
