@@ -89,6 +89,12 @@ export const CATEGORIES = [
     name: '블록체인/Web3',
     description: '스마트 컨트랙트, DeFi, NFT',
     color: '#319795'
+  },
+  {
+    id: '할일',
+    name: '할일',
+    description: '할일을 정리해두는 곳',
+    color: '#E53E3E'
   }
 
   
