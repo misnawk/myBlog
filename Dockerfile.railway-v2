@@ -1,0 +1,41 @@
+# Railway 배포를 위한 개선된 다단계 빌드 Dockerfile
+
+# Stage 1: 베이스 이미지에서 전체 빌드
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# 전체 소스 복사
+COPY . .
+
+# 서버 의존성 설치 및 빌드
+WORKDIR /app/src/server
+RUN npm ci
+RUN npm run build
+
+# 클라이언트 의존성 설치 및 빌드
+WORKDIR /app/src/client
+RUN npm ci
+ENV DISABLE_ESLINT_PLUGIN=true
+ENV CI=false
+RUN npm run build
+
+# Stage 2: 프로덕션 이미지
+FROM node:20-alpine
+WORKDIR /app
+
+# 프로덕션 서버 의존성만 설치
+COPY src/server/package*.json ./src/server/
+RUN cd src/server && npm ci --only=production --no-audit
+
+# 빌드된 파일들만 복사
+COPY --from=builder /app/src/server/dist ./src/server/dist
+COPY --from=builder /app/src/client/build ./src/client/build
+
+# 환경 변수 설정
+ENV NODE_ENV=production
+
+# 포트 노출
+EXPOSE 7000
+
+# 서버 시작
+CMD ["node", "src/server/dist/main"]

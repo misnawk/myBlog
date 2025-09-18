@@ -2,18 +2,21 @@
 
 # Stage 1: 서버 빌드
 FROM node:20-alpine AS server-builder
-WORKDIR /app
+WORKDIR /app/server
 COPY src/server/package*.json ./
 RUN npm ci
-COPY src/server ./
+COPY src/server/ ./
 RUN npm run build
 
 # Stage 2: 클라이언트 빌드
 FROM node:20-alpine AS client-builder
-WORKDIR /app
+WORKDIR /app/client
 COPY src/client/package*.json ./
 RUN npm ci
-COPY src/client ./
+COPY src/client/ ./
+# Linux 환경에서 빌드하므로 환경 변수를 직접 설정
+ENV DISABLE_ESLINT_PLUGIN=true
+ENV CI=false
 RUN npm run build
 
 # Stage 3: 프로덕션 이미지
@@ -25,8 +28,8 @@ COPY src/server/package*.json ./src/server/
 RUN cd src/server && npm ci --only=production --no-audit
 
 # 빌드된 파일들 복사
-COPY --from=server-builder /app/dist ./src/server/dist
-COPY --from=client-builder /app/build ./src/client/build
+COPY --from=server-builder /app/server/dist ./src/server/dist
+COPY --from=client-builder /app/client/build ./src/client/build
 
 # 환경 변수 설정
 ENV NODE_ENV=production
