@@ -308,35 +308,23 @@ export default function CreatePost() {
       
       // 디버깅: 처리 전 HTML 확인
       console.log('🔍 처리 전 HTML:', JSON.stringify(html));
+      console.log('🔍 처리 전 HTML (가독성):', html);
       
-      // ReactQuill에서 생성되는 불필요한 줄바꿈 제거 (코드 블록 보호)
       const originalHtml = html;
-      const protectedBlocks = [];
       
-      // 1. 코드 블록들을 임시로 저장
-      html = html.replace(/(<pre[^>]*>[\s\S]*?<\/pre>|<code[^>]*>[\s\S]*?<\/code>)/gi, (match, block) => {
-        const placeholder = `__PROTECTED_BLOCK_${protectedBlocks.length}__`;
-        protectedBlocks.push(block);
-        return placeholder;
-      });
+      // 줄바꿈을 보존하면서 진짜 빈 태그만 제거
+      // 1. 완전히 빈 p 태그만 제거 (공백이나 &nbsp;만 있는 경우)
+      html = html.replace(/<p>(\s|&nbsp;)*<\/p>/g, '');
       
-      // 2. 일반 태그 사이의 공백 제거 + ReactQuill 자동 생성 태그 제거
-      html = html
-        .replace(/>\s+</g, '><') // 태그 사이의 모든 공백 제거
-        .replace(/<p><br\s*\/?><\/p>/g, '') // ReactQuill이 자동 생성하는 빈 p 태그 제거 (<br> 또는 <br/>)
-        .replace(/<p>(\s|&nbsp;)*<\/p>/g, '') // 공백이나 &nbsp;만 있는 빈 p 태그 제거
-        .replace(/<div>(\s|&nbsp;)*<\/div>/g, '') // 빈 div 태그도 제거
-        .replace(/^\s+/, '') // 시작 공백 제거  
-        .replace(/\s+$/, '') // 끝 공백 제거
-        .trim();
+      // 2. 연속된 빈 줄바꿈만 제거 (3개 이상 연속된 경우만)
+      html = html.replace(/(<p><br\s*\/?><\/p>){3,}/g, '<p><br></p><p><br></p>');
       
-      // 3. 코드 블록 복원
-      protectedBlocks.forEach((block, index) => {
-        html = html.replace(`__PROTECTED_BLOCK_${index}__`, block);
-      });
+      // 3. 문서 끝의 불필요한 빈 줄 하나만 제거
+      html = html.replace(/<p><br\s*\/?><\/p>$/, '');
       
       // 디버깅: 처리 후 HTML 확인
       console.log('✅ 처리 후 HTML:', JSON.stringify(html));
+      console.log('✅ 처리 후 HTML (가독성):', html);
       console.log('🔄 변경 여부:', originalHtml !== html ? '변경됨' : '변경 안됨');
 
       // 3) data:가 남아 있으면 저장 중단

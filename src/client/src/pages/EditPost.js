@@ -112,9 +112,11 @@ export default function EditPost() {
           return placeholder;
         });
         
-        // 2. 태그 사이 공백 제거
+        // 2. 줄바꿈을 보존하면서 처리
+        // 완전히 빈 태그만 제거 (줄바꿈은 유지)
         cleanContent = cleanContent
-          .replace(/>\s+</g, '><')
+          .replace(/<p>(\s|&nbsp;)*<\/p>/g, '') // 공백만 있는 p 태그
+          .replace(/(<p><br\s*\/?><\/p>){3,}/g, '<p><br></p><p><br></p>') // 3개 이상 연속된 빈 줄만 제한
           .trim();
         
         // 3. 코드 블록 복원
@@ -424,14 +426,12 @@ export default function EditPost() {
         return placeholder;
       });
       
-      // 2. 일반 태그 사이의 공백 제거 + ReactQuill 자동 생성 태그 제거
+      // 2. 줄바꿈을 보존하면서 진짜 빈 태그만 제거
       html = html
-        .replace(/>\s+</g, '><') // 태그 사이의 모든 공백 제거
-        .replace(/<p><br\s*\/?><\/p>/g, '') // ReactQuill이 자동 생성하는 빈 p 태그 제거 (<br> 또는 <br/>)
-        .replace(/<p>(\s|&nbsp;)*<\/p>/g, '') // 공백이나 &nbsp;만 있는 빈 p 태그 제거
-        .replace(/<div>(\s|&nbsp;)*<\/div>/g, '') // 빈 div 태그도 제거
-        .replace(/^\s+/, '') // 시작 공백 제거  
-        .replace(/\s+$/, '') // 끝 공백 제거
+        .replace(/<p>(\s|&nbsp;)*<\/p>/g, '') // 공백만 있는 빈 p 태그 제거
+        .replace(/<div>(\s|&nbsp;)*<\/div>/g, '') // 공백만 있는 빈 div 태그 제거
+        .replace(/(<p><br\s*\/?><\/p>){3,}/g, '<p><br></p><p><br></p>') // 3개 이상 연속된 빈 줄만 제한
+        .replace(/<p><br\s*\/?><\/p>$/, '') // 문서 마지막의 빈 줄 하나만 제거
         .trim();
       
       // 3. 코드 블록 복원
