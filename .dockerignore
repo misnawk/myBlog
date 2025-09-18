@@ -4,11 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Source files (빌드된 결과물만 사용)
-src/client/src
-src/server/src
-src/server/test
-
 # Git
 .git
 .gitignore
@@ -33,7 +28,9 @@ logs
 # Coverage
 coverage
 
-# Build artifacts (소스는 제외, 빌드 결과물만 포함)
+# Build artifacts - Railway에서는 빌드를 직접 하므로 제외
+src/client/build
+src/server/dist
 src/client/node_modules
 src/server/node_modules
 
@@ -46,4 +43,10 @@ README.md
 Jenkinsfile*
 
 # Docker
-Dockerfile.cached 
+Dockerfile.cached
+
+# Test files
+*.test.js
+*.spec.ts
+test/
+__tests__/
