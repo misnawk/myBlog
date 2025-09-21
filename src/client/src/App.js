@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme, Box } from "@mui/material";
 import { ToastContainer } from "react-toastify";
+import Lab from "./pages/Lab";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 // highlight.js 전역 설정을 먼저 로드
@@ -77,6 +78,7 @@ function AppContent() {
     "/tag",
     "/about",
     "/category-admin",
+    "/lab",
     "/create",
     "/edit",
     "/chat",
@@ -105,6 +107,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/category-admin" element={<CategoryAdmin />} />
+          <Route path="/lab" element={<Lab />} />
           <Route path="/blogDetail/:id" element={<BlogDetail />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/create" element={<CreatePost />} />

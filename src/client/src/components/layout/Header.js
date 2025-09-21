@@ -29,6 +29,7 @@ import CreateIcon from "@mui/icons-material/Create";
 import MenuIcon from "@mui/icons-material/Menu";
 import CategoryIcon from "@mui/icons-material/Category";
 import SettingsIcon from "@mui/icons-material/Settings";
+import ScienceIcon from "@mui/icons-material/Science";
 import InfoIcon from "@mui/icons-material/Info";
 import HomeIcon from "@mui/icons-material/Home";
 import LoginIcon from "@mui/icons-material/Login";
@@ -80,7 +81,7 @@ function Header() {
   // 모바일 메뉴 아이템들
   const mobileMenuItems = [
     { text: "홈", icon: <HomeIcon />, path: "/" },
-    { text: "실시간 채팅", icon: <ChatIcon />, path: "/chat" },
+    { text: "실험실", icon: <ScienceIcon />, path: "/lab" },
   ];
 
   if (isMobile) {
@@ -380,8 +381,8 @@ function Header() {
             <Button
               color="inherit"
               component={Link}
-              to="/chat"
-              startIcon={<ChatIcon />}
+              to="/lab"
+              startIcon={<ScienceIcon />}
               sx={{
                 bgcolor: "rgba(255, 255, 255, 0.1)",
                 "&:hover": {
@@ -389,7 +390,7 @@ function Header() {
                 },
               }}
             >
-              실시간 채팅
+              실험실
             </Button>
           )}
         </Box>
