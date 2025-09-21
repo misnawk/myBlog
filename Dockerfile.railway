@@ -1,0 +1,41 @@
+# Railway 배포를 위한 단순화된 Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# 전체 소스 복사
+COPY . .
+
+# 서버 의존성 설치 및 빌드
+WORKDIR /app/src/server
+RUN npm ci
+RUN npm run build
+
+# 클라이언트 의존성 설치 및 빌드
+WORKDIR /app/src/client
+RUN npm ci
+ENV DISABLE_ESLINT_PLUGIN=true
+ENV CI=false
+# Railway 환경 변수를 빌드 시점에 전달
+ARG REACT_APP_CLOUD_NAME
+ARG REACT_APP_UPLOAD_PRESET
+ENV REACT_APP_CLOUD_NAME=${REACT_APP_CLOUD_NAME}
+ENV REACT_APP_UPLOAD_PRESET=${REACT_APP_UPLOAD_PRESET}
+RUN npm run build
+
+# 서버 프로덕션 의존성만 다시 설치
+WORKDIR /app/src/server
+RUN rm -rf node_modules
+RUN npm ci --only=production
+
+# 환경 변수 설정
+ENV NODE_ENV=production
+
+# 포트 노출
+EXPOSE 7000
+
+# 앱 루트로 이동
+WORKDIR /app
+
+# 서버 시작
+CMD ["node", "src/server/dist/main"]

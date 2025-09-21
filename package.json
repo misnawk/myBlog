@@ -6,7 +6,11 @@
     "start:client": "cd src/client && npm start",
     "start:server": "cd src/server && npm run start:dev",
     "dev": "concurrently \"npm run start:client\" \"npm run start:server\"",
-    "install:all": "npm install && cd src/client && npm install && cd ../server && npm install"
+    "install:all": "npm install && cd src/client && npm install && cd ../server && npm install",
+    "build:client": "cd src/client && npm run build",
+    "build:server": "cd src/server && npm run build",
+    "build:all": "npm run build:client && npm run build:server",
+    "start:prod": "cd src/server && npm run start:prod"
   },
   "keywords": [
     "blog",
