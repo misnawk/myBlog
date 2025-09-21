@@ -17,7 +17,7 @@ import Footer from "./components/layout/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Categories from "./pages/Categories";
+import CategoryAdmin from "./pages/CategoryAdmin";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import CreatePost from "./pages/CreatePost";
@@ -76,7 +76,7 @@ function AppContent() {
     "/category",
     "/tag",
     "/about",
-    "/categories",
+    "/category-admin",
     "/create",
     "/edit",
     "/chat",
@@ -104,16 +104,19 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/categories" element={<Categories />} />
+          <Route path="/category-admin" element={<CategoryAdmin />} />
           <Route path="/blogDetail/:id" element={<BlogDetail />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:id" element={<EditPost />} />
-          <Route path="/chat" element={
-            <ProtectedRoute>
-              <Chating />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chating />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Box>
       <Footer />

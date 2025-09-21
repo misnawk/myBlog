@@ -28,6 +28,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import CreateIcon from "@mui/icons-material/Create";
 import MenuIcon from "@mui/icons-material/Menu";
 import CategoryIcon from "@mui/icons-material/Category";
+import SettingsIcon from "@mui/icons-material/Settings";
 import InfoIcon from "@mui/icons-material/Info";
 import HomeIcon from "@mui/icons-material/Home";
 import LoginIcon from "@mui/icons-material/Login";
@@ -79,7 +80,6 @@ function Header() {
   // 모바일 메뉴 아이템들
   const mobileMenuItems = [
     { text: "홈", icon: <HomeIcon />, path: "/" },
-    { text: "카테고리", icon: <CategoryIcon />, path: "/categories" },
     { text: "실시간 채팅", icon: <ChatIcon />, path: "/chat" },
   ];
 
@@ -184,12 +184,23 @@ function Header() {
             ))}
 
             {isAuthenticated() && (
-              <ListItem button onClick={() => handleNavigation("/create")}>
-                <ListItemIcon>
-                  <CreateIcon />
-                </ListItemIcon>
-                <ListItemText primary="글쓰기" />
-              </ListItem>
+              <>
+                <ListItem button onClick={() => handleNavigation("/create")}>
+                  <ListItemIcon>
+                    <CreateIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="글쓰기" />
+                </ListItem>
+                <ListItem
+                  button
+                  onClick={() => handleNavigation("/category-admin")}
+                >
+                  <ListItemIcon>
+                    <SettingsIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="카테고리 관리" />
+                </ListItem>
+              </>
             )}
 
             <Divider sx={{ my: 1 }} />
@@ -245,6 +256,16 @@ function Header() {
                 >
                   <CreateIcon sx={{ mr: 1 }} />
                   글쓰기
+                </MenuItem>,
+                <MenuItem
+                  key="category-admin"
+                  onClick={() => {
+                    handleNavigation("/category-admin");
+                    handleClose();
+                  }}
+                >
+                  <SettingsIcon sx={{ mr: 1 }} />
+                  카테고리 관리
                 </MenuItem>,
                 <MenuItem
                   key="profile"
@@ -321,21 +342,6 @@ function Header() {
 
         {/* 네비게이션 메뉴 */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/categories"
-            startIcon={<CategoryIcon />}
-            sx={{
-              bgcolor: "rgba(255, 255, 255, 0.1)",
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.2)",
-              },
-            }}
-          >
-            카테고리
-          </Button>
-
           {isAuthenticated() && (
             <Button
               color="inherit"
@@ -350,6 +356,23 @@ function Header() {
               }}
             >
               글쓰기
+            </Button>
+          )}
+
+          {isAuthenticated() && (
+            <Button
+              color="inherit"
+              component={Link}
+              to="/category-admin"
+              startIcon={<SettingsIcon />}
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.1)",
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.2)",
+                },
+              }}
+            >
+              카테고리 관리
             </Button>
           )}
 
@@ -405,6 +428,15 @@ function Header() {
                   >
                     <CreateIcon sx={{ mr: 1 }} />
                     글쓰기
+                  </MenuItem>,
+                  <MenuItem
+                    key="category-admin"
+                    component={Link}
+                    to="/category-admin"
+                    onClick={handleClose}
+                  >
+                    <SettingsIcon sx={{ mr: 1 }} />
+                    카테고리 관리
                   </MenuItem>,
                   <MenuItem
                     key="profile"
