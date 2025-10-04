@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Container,
   Typography,
   Box,
   Paper,
@@ -23,7 +22,6 @@ import {
   Grid,
   Card,
   CardContent,
-  Divider,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -31,9 +29,8 @@ import {
   Delete as DeleteIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-  Palette as PaletteIcon,
 } from "@mui/icons-material";
-import { CATEGORIES } from "../components/categories";
+import { CATEGORIES } from "./categories";
 
 // 기본 색상 팔레트
 const COLOR_PALETTE = [
@@ -54,7 +51,7 @@ const COLOR_PALETTE = [
   "#E53E3E",
 ];
 
-function CategoryAdmin() {
+function CategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -184,17 +181,17 @@ function CategoryAdmin() {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: "center" }}>
+      <Box sx={{ textAlign: "center", py: 4 }}>
         <CircularProgress />
         <Typography variant="h6" sx={{ mt: 2 }}>
           카테고리 데이터를 불러오는 중...
         </Typography>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Box>
       {/* 알림 */}
       {alert.show && (
         <Alert severity={alert.severity} sx={{ mb: 2 }}>
@@ -208,14 +205,14 @@ function CategoryAdmin() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 4,
+          mb: 3,
         }}
       >
         <Box>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant="h5" component="h2" gutterBottom>
             카테고리 관리
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             블로그 카테고리를 추가, 수정, 삭제할 수 있습니다.
           </Typography>
         </Box>
@@ -239,7 +236,7 @@ function CategoryAdmin() {
       </Box>
 
       {/* 통계 */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={4}>
           <Card>
             <CardContent>
@@ -456,8 +453,8 @@ function CategoryAdmin() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 }
 
-export default CategoryAdmin;
+export default CategoryManagement;

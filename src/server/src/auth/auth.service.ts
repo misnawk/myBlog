@@ -169,7 +169,7 @@ export class AuthService{
         }
 
         //JWT 토큰 생성
-        const payload = {email:user.email, id:user.id , username:user.username};
+        const payload = {email:user.email, id:user.id , username:user.username, role:user.role};
         const access_token = this.jwtService.sign(payload);
         console.log('로그인 성공, 토큰 생성 완료');
 
@@ -178,7 +178,8 @@ export class AuthService{
             user:{
                 id:user.id,
                 username:user.username,
-                email:user.email
+                email:user.email,
+                role:user.role
             },
         };
     }

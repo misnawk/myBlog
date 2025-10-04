@@ -18,7 +18,7 @@ import Footer from "./components/layout/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import CategoryAdmin from "./pages/CategoryAdmin";
+import AdminPage from "./pages/AdminPage";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import CreatePost from "./pages/CreatePost";
@@ -77,7 +77,7 @@ function AppContent() {
     "/category",
     "/tag",
     "/about",
-    "/category-admin",
+    "/admin",
     "/lab",
     "/create",
     "/edit",
@@ -106,7 +106,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/category-admin" element={<CategoryAdmin />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/lab" element={<Lab />} />
           <Route path="/blogDetail/:id" element={<BlogDetail />} />
           <Route path="/blog" element={<Blog />} />

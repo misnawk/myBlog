@@ -36,12 +36,13 @@ import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useAuth } from "../../contexts/AuthContext";
 import ChatIcon from "@mui/icons-material/Chat";
 
 function Header() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -192,15 +193,17 @@ function Header() {
                   </ListItemIcon>
                   <ListItemText primary="글쓰기" />
                 </ListItem>
-                <ListItem
-                  button
-                  onClick={() => handleNavigation("/category-admin")}
-                >
-                  <ListItemIcon>
-                    <SettingsIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="카테고리 관리" />
-                </ListItem>
+                {isAdmin() && (
+                  <ListItem
+                    button
+                    onClick={() => handleNavigation("/admin")}
+                  >
+                    <ListItemIcon>
+                      <AdminPanelSettingsIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="관리자 페이지" />
+                  </ListItem>
+                )}
               </>
             )}
 
@@ -258,16 +261,18 @@ function Header() {
                   <CreateIcon sx={{ mr: 1 }} />
                   글쓰기
                 </MenuItem>,
-                <MenuItem
-                  key="category-admin"
-                  onClick={() => {
-                    handleNavigation("/category-admin");
-                    handleClose();
-                  }}
-                >
-                  <SettingsIcon sx={{ mr: 1 }} />
-                  카테고리 관리
-                </MenuItem>,
+                ...(isAdmin() ? [
+                  <MenuItem
+                    key="admin"
+                    onClick={() => {
+                      handleNavigation("/admin");
+                      handleClose();
+                    }}
+                  >
+                    <AdminPanelSettingsIcon sx={{ mr: 1 }} />
+                    관리자 페이지
+                  </MenuItem>
+                ] : []),
                 <MenuItem
                   key="profile"
                   onClick={() => {
@@ -360,12 +365,12 @@ function Header() {
             </Button>
           )}
 
-          {isAuthenticated() && (
+          {isAuthenticated() && isAdmin() && (
             <Button
               color="inherit"
               component={Link}
-              to="/category-admin"
-              startIcon={<SettingsIcon />}
+              to="/admin"
+              startIcon={<AdminPanelSettingsIcon />}
               sx={{
                 bgcolor: "rgba(255, 255, 255, 0.1)",
                 "&:hover": {
@@ -373,7 +378,7 @@ function Header() {
                 },
               }}
             >
-              카테고리 관리
+              관리자 페이지
             </Button>
           )}
 
@@ -430,15 +435,17 @@ function Header() {
                     <CreateIcon sx={{ mr: 1 }} />
                     글쓰기
                   </MenuItem>,
-                  <MenuItem
-                    key="category-admin"
-                    component={Link}
-                    to="/category-admin"
-                    onClick={handleClose}
-                  >
-                    <SettingsIcon sx={{ mr: 1 }} />
-                    카테고리 관리
-                  </MenuItem>,
+                  ...(isAdmin() ? [
+                    <MenuItem
+                      key="admin"
+                      component={Link}
+                      to="/admin"
+                      onClick={handleClose}
+                    >
+                      <AdminPanelSettingsIcon sx={{ mr: 1 }} />
+                      관리자 페이지
+                    </MenuItem>
+                  ] : []),
                   <MenuItem
                     key="profile"
                     component={Link}

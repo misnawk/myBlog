@@ -53,6 +53,7 @@ const getUserFromToken = (token) => {
             id: payloadData.id,
             email: payloadData.email,
             username: payloadData.username,
+            role: payloadData.role,
             exp: payloadData.exp // 만료 시간 추가
         };
     } catch (error) {
@@ -65,6 +66,7 @@ const getUserFromToken = (token) => {
                 id: payload.id,
                 email: payload.email,
                 username: payload.username,
+                role: payload.role,
                 exp: payload.exp
             };
         } catch (fallbackError) {
@@ -188,6 +190,18 @@ export const AuthProvider = ({children}) => {
         return !!token && !isTokenExpired(token);
     }
 
+    // 관리자 권한 확인 함수 추가
+    const isAdmin = () => {
+        if (!isAuthenticated()) return false;
+        return user?.role === 'admin';
+    }
+
+    // 모더레이터 이상 권한 확인 함수 추가
+    const isModerator = () => {
+        if (!isAuthenticated()) return false;
+        return user?.role === 'admin' || user?.role === 'moderator';
+    }
+
     // 토큰 유효성 체크 (만료 시간 포함)
     const isTokenValid = () => {
         if (!token) {
@@ -225,6 +239,8 @@ export const AuthProvider = ({children}) => {
         logout,
         isAuthenticated,
         isTokenValid,
+        isAdmin,
+        isModerator,
     };
 
     return (

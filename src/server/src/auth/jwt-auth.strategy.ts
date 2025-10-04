@@ -19,11 +19,12 @@ export class JwtStrategy extends PassportStrategy(Strategy){
             id: payload.id,
             email: payload.email,
             username: payload.username,
+            role: payload.role,
             iat: payload.iat ? new Date(payload.iat * 1000).toISOString() : '없음',
             exp: payload.exp ? new Date(payload.exp * 1000).toISOString() : '없음'
         });
         
-        const user = {id: payload.id, email: payload.email, username: payload.username};
+        const user = {id: payload.id, email: payload.email, username: payload.username, role: payload.role};
         console.log("검증된 사용자:", user);
         console.log("=== JWT 토큰 검증 완료 ===");
         
