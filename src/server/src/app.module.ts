@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
+import { CategoryModule } from './category/category.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -17,11 +18,11 @@ import { join } from 'path';
       // envFilePath 제거 - 환경변수는 시스템에서 직접 로드
     }),
     // React 정적 파일 서빙 설정 추가
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'client', 'build'),
-      exclude: ['/api*'], // API 경로는 제외
-      serveRoot: '/', // 루트 경로에서 서빙
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', '..', 'client', 'build'),
+    //   exclude: ['/api*'], // API 경로는 제외
+    //   serveRoot: '/', // 루트 경로에서 서빙
+    // }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -40,6 +41,7 @@ import { join } from 'path';
     UserModule,
     PostModule,
     CommentModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
