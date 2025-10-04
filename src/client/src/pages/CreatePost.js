@@ -1,297 +1,43 @@
-// src/pages/CreatePost.js
-import { useState, useRef, useMemo, useCallback, useEffect } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import {
-  Container,
-  Paper,
-  TextField,
-  Typography,
-  Button,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stack,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-import { Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-
-import createPost from "../api/postApi";
-import imageUploader from "../api/imgPostApi";
-import { CATEGORIES } from "../components/categories";
+import { Container, Paper, Typography, Stack, Snackbar, Alert } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
-
-// dataURL -> File (붙여넣기 안전망)
-function dataURLtoFile(dataUrl, filename = "paste.png") {
-  const arr = dataUrl.split(",");
-  const mime = arr[0].match(/:(.*?);/)[1];
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8 = new Uint8Array(n);
-  while (n--) u8[n] = bstr.charCodeAt(n);
-  return new File([u8], filename, { type: mime });
-}
+import createPost from "../api/postApi";
+import PostFormFields from "../components/post/PostFormFields";
+import PostEditor from "../components/post/PostEditor";
+import PostFormActions from "../components/post/PostFormActions";
+import { usePostForm } from "../components/post/usePostForm";
+import { useImageUpload } from "../components/post/useImageUpload";
+import { useEditorHandlers } from "../components/post/useEditorHandlers";
 
 export default function CreatePost() {
   const navigate = useNavigate();
   const { isTokenValid } = useAuth();
 
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const {
+    title,
+    setTitle,
+    category,
+    setCategory,
+    content,
+    setContent,
+    isLoading,
+    setIsLoading,
+    snackbar,
+    setSnackbar,
+    quillRef,
+    timerRef,
+    validate,
+    handleCancel
+  } = usePostForm(isTokenValid);
 
-  const quillRef = useRef(null);
-  const timerRef = useRef(null);
+  const {
+    imageHandler,
+    replaceDataUrisInEditor
+  } = useImageUpload(quillRef);
 
-  // 인증 확인
-  useEffect(() => {
-    if (!isTokenValid()) {
-      navigate("/login", {
-        replace: true,
-        state: { message: "글쓰기 권한이 없습니다. 로그인해주세요." },
-      });
-    }
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [isTokenValid, navigate]);
-
-  // 툴바 이미지 업로드 핸들러 (스크롤 복원 포함)
-  const imageHandler = useCallback(() => {
-    const currentScrollY = window.scrollY;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-
-    input.onchange = async () => {
-      const file = input.files && input.files[0];
-      if (!file) {
-        setTimeout(() => window.scrollTo(0, currentScrollY), 0);
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert("파일 크기는 5MB 이하여야 합니다.");
-        setTimeout(() => window.scrollTo(0, currentScrollY), 0);
-        return;
-      }
-
-      try {
-        const url = await imageUploader(file);
-        const editor = quillRef.current && quillRef.current.getEditor();
-        if (!editor) {
-          setTimeout(() => window.scrollTo(0, currentScrollY), 0);
-          return;
-        }
-        const range = editor.getSelection(true) || {
-          index: editor.getLength(),
-        };
-        editor.insertEmbed(range.index, "image", url, "user");
-
-        setTimeout(() => {
-          window.scrollTo(0, currentScrollY);
-          editor.setSelection(range.index + 1, 0, "silent");
-        }, 100);
-      } catch (e) {
-        console.error(e);
-        alert("이미지 업로드 실패");
-        setTimeout(() => window.scrollTo(0, currentScrollY), 0);
-      }
-    };
-
-    input.click();
-  }, []);
-
-  // Delta 내부 data: 이미지들을 업로드 URL로 치환
-  const replaceDataUrisInEditor = useCallback(async () => {
-    const quill = quillRef.current && quillRef.current.getEditor();
-    if (!quill) return;
-
-    const contents = quill.getContents();
-    const ops = contents.ops || [];
-    const cache = {}; // 같은 base64 중복 업로드 방지
-    let changed = false;
-
-    for (const op of ops) {
-      const img = op && op.insert && op.insert.image;
-      if (img && typeof img === "string" && img.startsWith("data:")) {
-        const dataUrl = img;
-        let url = cache[dataUrl];
-        if (!url) {
-          const file = dataURLtoFile(dataUrl);
-          url = await imageUploader(file);
-          cache[dataUrl] = url;
-        }
-        op.insert.image = url;
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      const sel = quill.getSelection();
-      quill.setContents(contents, "silent");
-      if (sel) quill.setSelection(sel);
-      // React state 동기화
-      setContent(quill.root.innerHTML);
-    }
-  }, []);
-
-  // 붙여넣기/드롭 가로채기 + base64 안전망
-  useEffect(() => {
-    const quill = quillRef.current && quillRef.current.getEditor();
-    if (!quill) return;
-    const editorEl = quill.container.querySelector(".ql-editor");
-    if (!editorEl) return;
-
-    // 붙여넣기: 이미지가 있으면 기본 동작 막고 업로드→URL 삽입 (+텍스트도 같이 붙여넣기)
-    const onPaste = async (e) => {
-      const items = Array.from(e.clipboardData?.items || []);
-      const images = items.filter((i) => i.type && i.type.startsWith("image/"));
-      if (images.length === 0) return;
-
-      e.preventDefault();
-      const range = quill.getSelection(true) || { index: quill.getLength() };
-
-      // 이미지 처리
-      for (const it of images) {
-        const file = it.getAsFile();
-        if (!file) continue;
-        try {
-          const url = await imageUploader(file);
-          quill.insertEmbed(range.index, "image", url, "user");
-          quill.setSelection(range.index + 1);
-        } catch (err) {
-          console.error(err);
-          alert("이미지 업로드 실패");
-        }
-      }
-
-      // 이미지 이외의 텍스트가 있으면 함께 삽입
-      const text = e.clipboardData.getData("text/plain");
-      if (text) {
-        const insertAt = quill.getSelection(true)?.index ?? quill.getLength();
-        quill.insertText(insertAt, (images.length ? "\n" : "") + text, "user");
-        quill.setSelection(insertAt + text.length + (images.length ? 1 : 0));
-      }
-    };
-
-    // 드래그앤드롭: 이미지만 처리 (텍스트 DnD는 기본 동작 유지)
-    const onDrop = async (e) => {
-      const files = Array.from(e.dataTransfer?.files || []);
-      const images = files.filter((f) => f.type && f.type.startsWith("image/"));
-      if (images.length === 0) return;
-
-      e.preventDefault();
-      let range = quill.getSelection(true) || { index: quill.getLength() };
-
-      for (const file of images) {
-        try {
-          const url = await imageUploader(file);
-          quill.insertEmbed(range.index, "image", url, "user");
-          range.index += 1;
-          quill.setSelection(range.index);
-        } catch (err) {
-          console.error(err);
-          alert("이미지 업로드 실패");
-        }
-      }
-    };
-
-    // 혹시 data:가 들어오면 즉시 업로드/치환
-    const onTextChange = async (delta, _oldDelta, source) => {
-      if (source !== "user") return;
-      const hasDataUri = (delta.ops || []).some(
-        (op) =>
-          op.insert &&
-          op.insert.image &&
-          typeof op.insert.image === "string" &&
-          op.insert.image.startsWith("data:")
-      );
-      if (hasDataUri) {
-        await replaceDataUrisInEditor();
-      }
-    };
-
-    editorEl.addEventListener("paste", onPaste);
-    editorEl.addEventListener("drop", onDrop);
-    quill.on("text-change", onTextChange);
-
-    return () => {
-      editorEl.removeEventListener("paste", onPaste);
-      editorEl.removeEventListener("drop", onDrop);
-      quill.off("text-change", onTextChange);
-    };
-  }, [replaceDataUrisInEditor]);
-
-  // Quill 설정 (미니멀)
-  const modules = useMemo(
-    () => ({
-      toolbar: {
-        container: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          [{ script: "sub" }, { script: "super" }],
-          ["blockquote", "code-block", "code"],
-          [{ color: [] }, { background: [] }],
-          [{ align: [] }],
-          ["link", "image"],
-          ["clean"],
-        ],
-        handlers: { image: imageHandler },
-      },
-    }),
-    [imageHandler]
-  );
-
-  const formats = useMemo(
-    () => [
-      "header",
-      "bold",
-      "italic",
-      "underline",
-      "strike",
-      "list",
-      "bullet",
-      "script",
-      "blockquote",
-      "code-block",
-      "code",
-      "color",
-      "background",
-      "align",
-      "link",
-      "image",
-    ],
-    []
-  );
-
-  // 검증
-  const validate = () => {
-    if (!title.trim()) {
-      alert("제목을 입력해주세요");
-      return false;
-    }
-    if (!category) {
-      alert("카테고리를 선택해주세요");
-      return false;
-    }
-    const plain = content.replace(/<[^>]*>/g, "").trim();
-    if (!plain) {
-      alert("내용을 입력해주세요");
-      return false;
-    }
-    return true;
-  };
+  // 에디터 이벤트 핸들러 설정
+  useEditorHandlers(quillRef, replaceDataUrisInEditor);
 
   // 저장
   const handleSave = async () => {
@@ -305,23 +51,23 @@ export default function CreatePost() {
       // 2) 최종 HTML
       const quill = quillRef.current && quillRef.current.getEditor();
       let html = quill ? quill.root.innerHTML : content;
-      
+
       // 디버깅: 처리 전 HTML 확인
       console.log('🔍 처리 전 HTML:', JSON.stringify(html));
       console.log('🔍 처리 전 HTML (가독성):', html);
-      
+
       const originalHtml = html;
-      
+
       // 줄바꿈을 보존하면서 진짜 빈 태그만 제거
       // 1. 완전히 빈 p 태그만 제거 (공백이나 &nbsp;만 있는 경우)
       html = html.replace(/<p>(\s|&nbsp;)*<\/p>/g, '');
-      
+
       // 2. 연속된 빈 줄바꿈만 제거 (3개 이상 연속된 경우만)
       html = html.replace(/(<p><br\s*\/?><\/p>){3,}/g, '<p><br></p><p><br></p>');
-      
+
       // 3. 문서 끝의 불필요한 빈 줄 하나만 제거
       html = html.replace(/<p><br\s*\/?><\/p>$/, '');
-      
+
       // 디버깅: 처리 후 HTML 확인
       console.log('✅ 처리 후 HTML:', JSON.stringify(html));
       console.log('✅ 처리 후 HTML (가독성):', html);
@@ -352,20 +98,6 @@ export default function CreatePost() {
     }
   };
 
-  // 취소
-  const handleCancel = () => {
-    const hasContent =
-      title || category || content.replace(/<[^>]*>/g, "").trim().length > 0;
-
-    if (
-      hasContent &&
-      !window.confirm("작성 중인 내용이 있습니다. 취소할까요?")
-    ) {
-      return;
-    }
-    navigate("/");
-  };
-
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 4 }}>
@@ -374,104 +106,25 @@ export default function CreatePost() {
         </Typography>
 
         <Stack spacing={3}>
-          <TextField
-            label="제목"
-            fullWidth
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            inputProps={{ maxLength: 30 }}
-            helperText={`${title.length}/30`}
+          <PostFormFields
+            title={title}
+            setTitle={setTitle}
+            category={category}
+            setCategory={setCategory}
           />
 
-          <FormControl fullWidth>
-            <InputLabel>카테고리</InputLabel>
-            <Select
-              label="카테고리"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <MenuItem value="">
-                <em>카테고리를 선택하세요</em>
-              </MenuItem>
-              {CATEGORIES.map((c) => (
-                <MenuItem key={c.id} value={c.name}>
-                  {c.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <PostEditor
+            value={content}
+            onChange={setContent}
+            quillRef={quillRef}
+            imageHandler={imageHandler}
+          />
 
-          <Box
-            sx={{
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-              overflow: "hidden",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              "& .ql-toolbar": {
-                borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
-                backgroundColor: "#f8f9fa",
-                borderRadius: "8px 8px 0 0"
-              },
-              "& .ql-editor": {
-                "& .ql-code-block": {
-                  backgroundColor: "#f8f9fa",
-                  border: "1px solid #e9ecef",
-                  borderRadius: "4px",
-                  padding: "16px",
-                  fontFamily: '"Courier New", monospace',
-                  fontSize: "14px",
-                  lineHeight: "1.5",
-                  margin: "16px 0",
-                },
-                "& code": {
-                  backgroundColor: "#f1f3f4",
-                  padding: "2px 4px",
-                  borderRadius: "3px",
-                  fontFamily: '"Courier New", monospace',
-                  fontSize: "13px",
-                },
-                "& blockquote": {
-                  borderLeft: "4px solid #007bff",
-                  paddingLeft: "16px",
-                  margin: "16px 0",
-                  fontStyle: "italic",
-                  color: "#6c757d",
-                },
-              },
-            }}
-          >
-            <ReactQuill
-              ref={quillRef}
-              theme="snow"
-              value={content}
-              onChange={setContent}
-              modules={modules}
-              formats={formats}
-              style={{ height: 600 }}
-            />
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", mt: 4 }}>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<SaveIcon />}
-              onClick={handleSave}
-              disabled={isLoading}
-            >
-              {isLoading ? "저장 중..." : "저장"}
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              color="secondary"
-              startIcon={<CancelIcon />}
-              onClick={handleCancel}
-            >
-              취소
-            </Button>
-          </Box>
+          <PostFormActions
+            onSave={handleSave}
+            onCancel={handleCancel}
+            isLoading={isLoading}
+          />
         </Stack>
       </Paper>
 
