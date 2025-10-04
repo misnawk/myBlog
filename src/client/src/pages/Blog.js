@@ -2,7 +2,7 @@ import React from "react";
 import { Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { CATEGORY_NAMES } from "../components/categories";
+import { CATEGORY_NAMES } from "../components/Categories";
 import BlogHeader from "../components/blog/BlogHeader";
 import BlogFilters from "../components/blog/BlogFilters";
 import BlogGrid from "../components/blog/BlogGrid";

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { CATEGORIES } from "../categories";
+import { CATEGORIES } from "../Categories";
+import axios from "../../api/config";
 
 export function useCategoryManagement() {
   const [categories, setCategories] = useState([]);
@@ -21,12 +22,17 @@ export function useCategoryManagement() {
     loadCategories();
   }, []);
 
-  const loadCategories = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setCategories([...CATEGORIES]);
+  const loadCategories = async () => {
+  
+    try{
+      const response = await axios.get('/api/category/admin');
+      console.log("카테고리 로드 성공", response.data);
+      setCategories(response.data);
       setLoading(false);
-    }, 500);
+    } catch (error) {
+      console.error("카테고리 로드 실패", error);
+    }
+   
   };
 
   const handleOpenDialog = (category = null) => {

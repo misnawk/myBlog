@@ -7,7 +7,7 @@ import {
   MenuItem,
   Stack
 } from "@mui/material";
-import { CATEGORIES } from "../categories";
+import { CATEGORIES } from "../Categories";
 
 export default function PostFormFields({
   title,
