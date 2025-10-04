@@ -95,6 +95,12 @@ export const CATEGORIES = [
     name: '할일',
     description: '할일을 정리해두는 곳',
     color: '#E53E3E'
+  },  
+  {
+    id: '독서',
+    name: '독서',
+    description: '독서를 정리해두는 곳',
+    color: '#4299E1'
   }
 
   
