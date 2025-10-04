@@ -44,12 +44,10 @@ function CategoryManagement() {
 
       <CategoryHeader
         onAddClick={() => handleOpenDialog()}
-        onSaveClick={handleSaveToFile}
       />
 
       <CategoryStats
         totalCount={categories.length}
-        activeCount={categories.length}
       />
 
       <CategoryTable

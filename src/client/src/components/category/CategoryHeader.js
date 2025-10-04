@@ -1,8 +1,8 @@
 import React from "react";
 import { Typography, Box, Button } from "@mui/material";
-import { Add as AddIcon, Save as SaveIcon } from "@mui/icons-material";
+import { Add as AddIcon } from "@mui/icons-material";
 
-function CategoryHeader({ onAddClick, onSaveClick }) {
+function CategoryHeader({ onAddClick }) {
   return (
     <Box
       sx={{
@@ -20,23 +20,13 @@ function CategoryHeader({ onAddClick, onSaveClick }) {
           블로그 카테고리를 추가, 수정, 삭제할 수 있습니다.
         </Typography>
       </Box>
-      <Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={onAddClick}
-          sx={{ mr: 2 }}
-        >
-          카테고리 추가
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<SaveIcon />}
-          onClick={onSaveClick}
-        >
-          설정 저장
-        </Button>
-      </Box>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={onAddClick}
+      >
+        카테고리 추가
+      </Button>
     </Box>
   );
 }

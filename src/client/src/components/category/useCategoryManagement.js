@@ -23,7 +23,7 @@ export function useCategoryManagement() {
   }, []);
 
   const loadCategories = async () => {
-  
+
     try{
       const response = await axios.get('/api/category/admin');
       console.log("카테고리 로드 성공", response.data);
@@ -32,7 +32,7 @@ export function useCategoryManagement() {
     } catch (error) {
       console.error("카테고리 로드 실패", error);
     }
-   
+
   };
 
   const handleOpenDialog = (category = null) => {
