@@ -1,0 +1,134 @@
+import { useState, useEffect } from "react";
+import { CATEGORIES } from "../categories";
+
+export function useCategoryManagement() {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [formData, setFormData] = useState({
+    id: "",
+    name: "",
+    description: "",
+  });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "success",
+  });
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setCategories([...CATEGORIES]);
+      setLoading(false);
+    }, 500);
+  };
+
+  const handleOpenDialog = (category = null) => {
+    if (category) {
+      setEditingCategory(category);
+      setFormData({ ...category });
+    } else {
+      setEditingCategory(null);
+      setFormData({
+        id: "",
+        name: "",
+        description: "",
+      });
+    }
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setEditingCategory(null);
+    setFormData({
+      id: "",
+      name: "",
+      description: "",
+    });
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSave = () => {
+    if (!formData.name.trim()) {
+      showAlert("카테고리 이름을 입력해주세요.", "error");
+      return;
+    }
+
+    const isDuplicate = categories.some(
+      (cat) =>
+        cat.name === formData.name.trim() &&
+        (!editingCategory || cat.id !== editingCategory.id)
+    );
+
+    if (isDuplicate) {
+      showAlert("이미 존재하는 카테고리 이름입니다.", "error");
+      return;
+    }
+
+    const categoryData = {
+      ...formData,
+      id: formData.id || formData.name.trim(),
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+    };
+
+    if (editingCategory) {
+      setCategories((prev) =>
+        prev.map((cat) => (cat.id === editingCategory.id ? categoryData : cat))
+      );
+      showAlert("카테고리가 수정되었습니다.", "success");
+    } else {
+      setCategories((prev) => [...prev, categoryData]);
+      showAlert("카테고리가 추가되었습니다.", "success");
+    }
+
+    handleCloseDialog();
+  };
+
+  const handleDelete = (category) => {
+    if (window.confirm(`"${category.name}" 카테고리를 삭제하시겠습니까?`)) {
+      setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
+      showAlert("카테고리가 삭제되었습니다.", "success");
+    }
+  };
+
+  const showAlert = (message, severity) => {
+    setAlert({ show: true, message, severity });
+    setTimeout(() => {
+      setAlert({ show: false, message: "", severity: "success" });
+    }, 3000);
+  };
+
+  const handleSaveToFile = () => {
+    console.log("저장될 카테고리 데이터:", categories);
+    showAlert("카테고리 설정이 저장되었습니다.", "success");
+  };
+
+  return {
+    categories,
+    loading,
+    openDialog,
+    editingCategory,
+    formData,
+    alert,
+    handleOpenDialog,
+    handleCloseDialog,
+    handleInputChange,
+    handleSave,
+    handleDelete,
+    handleSaveToFile,
+  };
+}
