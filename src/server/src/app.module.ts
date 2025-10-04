@@ -7,8 +7,7 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
-import { CategoryModule } from './category/category.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
+
 import { join } from 'path';
 
 @Module({
@@ -41,7 +40,6 @@ import { join } from 'path';
     UserModule,
     PostModule,
     CommentModule,
-    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
