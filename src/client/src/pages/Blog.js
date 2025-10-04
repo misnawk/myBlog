@@ -2,7 +2,6 @@ import React from "react";
 import { Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { CATEGORY_NAMES } from "../components/Categories";
 import BlogHeader from "../components/blog/BlogHeader";
 import BlogFilters from "../components/blog/BlogFilters";
 import BlogGrid from "../components/blog/BlogGrid";
@@ -13,7 +12,6 @@ import ErrorState from "../components/common/ErrorState";
 import { useBlogData } from "../components/blog/useBlogData";
 import { useBlogFilters } from "../components/blog/useBlogFilters";
 
-const categories = ["전체", ...CATEGORY_NAMES];
 const sortOptions = [
   { value: "latest", label: "최신순" },
   { value: "popular", label: "인기순" },
@@ -56,7 +54,6 @@ function Blog() {
         setSelectedCategory={setSelectedCategory}
         sortBy={sortBy}
         setSortBy={setSortBy}
-        categories={categories}
         sortOptions={sortOptions}
       />
 

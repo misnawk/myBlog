@@ -2,6 +2,7 @@ import React from "react";
 import { Grid, Button, Typography, Paper } from "@mui/material";
 import { Link } from "react-router-dom";
 
+
 export default function PopularCategories({ categories }) {
   return (
     <Paper sx={{ p: 3, mb: 6 }}>

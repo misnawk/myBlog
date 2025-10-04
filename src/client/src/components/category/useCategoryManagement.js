@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { CATEGORIES } from "../Categories";
 import axios from "../../api/config";
 
 export function useCategoryManagement() {
@@ -67,7 +66,7 @@ export function useCategoryManagement() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name.trim()) {
       showAlert("카테고리 이름을 입력해주세요.", "error");
       return;
@@ -85,29 +84,47 @@ export function useCategoryManagement() {
     }
 
     const categoryData = {
-      ...formData,
-      id: formData.id || formData.name.trim(),
       name: formData.name.trim(),
       description: formData.description.trim(),
     };
 
-    if (editingCategory) {
-      setCategories((prev) =>
-        prev.map((cat) => (cat.id === editingCategory.id ? categoryData : cat))
-      );
-      showAlert("카테고리가 수정되었습니다.", "success");
-    } else {
-      setCategories((prev) => [...prev, categoryData]);
-      showAlert("카테고리가 추가되었습니다.", "success");
-    }
+    try {
+      if (editingCategory) {
+        // 수정
+        await axios.put('/api/category/update', {
+          id: editingCategory.id,
+          ...categoryData
+        });
+        showAlert("카테고리가 수정되었습니다.", "success");
+      } else {
+        // 생성
+        await axios.post('/api/category/create', categoryData);
+        showAlert("카테고리가 추가되었습니다.", "success");
+      }
 
-    handleCloseDialog();
+      // 목록 새로고침
+      await loadCategories();
+      handleCloseDialog();
+    } catch (error) {
+      console.error("카테고리 저장 실패:", error);
+      showAlert("카테고리 저장에 실패했습니다.", "error");
+    }
   };
 
-  const handleDelete = (category) => {
+  const handleDelete = async (category) => {
     if (window.confirm(`"${category.name}" 카테고리를 삭제하시겠습니까?`)) {
-      setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
-      showAlert("카테고리가 삭제되었습니다.", "success");
+      try {
+        await axios.delete('/api/category/delete', {
+          data: { id: category.id }
+        });
+        showAlert("카테고리가 삭제되었습니다.", "success");
+
+        // 목록 새로고침
+        await loadCategories();
+      } catch (error) {
+        console.error("카테고리 삭제 실패:", error);
+        showAlert("카테고리 삭제에 실패했습니다.", "error");
+      }
     }
   };
 
