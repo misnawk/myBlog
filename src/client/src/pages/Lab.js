@@ -112,16 +112,14 @@ function Lab() {
           새로운 기능들을 실험하고 테스트해보는 공간입니다
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          혁신적인 아이디어들을 구현하고 사용자들과 함께 발전시켜 나가는
-          곳이에요
+          그 동안 만들었던 프로젝트들을 모아놓은 곳입니다.
         </Typography>
       </Box>
 
       {/* 안내 메시지 */}
       <Alert severity="info" sx={{ mb: 4 }}>
         <Typography variant="body2">
-          실험실의 기능들은 테스트 단계에 있을 수 있습니다. 피드백이나 개선
-          아이디어가 있으시면 언제든 알려주세요! 🚀
+          부족한 부분이 있다면 알려주시면 감사하겠습니다.
         </Typography>
       </Alert>
 
@@ -238,11 +236,11 @@ function Lab() {
       <Paper sx={{ mt: 6, p: 4, textAlign: "center", bgcolor: "grey.50" }}>
         <ExperimentIcon sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
         <Typography variant="h6" gutterBottom>
-          더 많은 실험이 진행 중이에요!
+          프로젝트는 계속 진행중입니다.
         </Typography>
         <Typography variant="body1" color="text.secondary">
           새로운 기능에 대한 아이디어나 요청사항이 있으시다면 언제든지 피드백을
-          보내주세요. 함께 만들어가는 플랫폼입니다.
+          보내주세요.
         </Typography>
       </Paper>
     </Container>
