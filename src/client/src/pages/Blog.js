@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -11,6 +11,7 @@ import LoadingState from "../components/common/LoadingState";
 import ErrorState from "../components/common/ErrorState";
 import { useBlogData } from "../components/blog/useBlogData";
 import { useBlogFilters } from "../components/blog/useBlogFilters";
+import axios from "../api/config";
 
 const sortOptions = [
   { value: "latest", label: "최신순" },
@@ -22,6 +23,8 @@ function Blog() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { posts, loading, error } = useBlogData();
+  const [categories, setCategories] = useState(["전체"]);
+
   const {
     searchQuery,
     setSearchQuery,
@@ -34,6 +37,21 @@ function Blog() {
     totalPages,
     handlePageChange,
   } = useBlogFilters(posts);
+
+  // 카테고리 목록 가져오기
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/category/admin');
+        const categoryNames = response.data.map(cat => cat.name);
+        setCategories(["전체", ...categoryNames]);
+      } catch (error) {
+        console.error("카테고리 로드 실패:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handlePostClick = (postId) => {
     console.log(' Blog 포스트 클릭, ID:', postId);
@@ -54,6 +72,7 @@ function Blog() {
         setSelectedCategory={setSelectedCategory}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        categories={categories}
         sortOptions={sortOptions}
       />
 

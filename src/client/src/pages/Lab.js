@@ -37,14 +37,14 @@ const labFeatures = [
     features: ["실시간 메시징", "온라인 사용자 표시", "메시지 기록"],
   },
   {
-    id: "ai-assistant",
-    title: "AI 어시스턴트",
-    description: "AI가 도와주는 코딩 어시스턴트 기능입니다.",
+    id: "blogBox",
+    title: "블로그 박스",
+    description: "AI가 블로그를 작성해주는 서비스입니다.",
     icon: <PsychologyIcon sx={{ fontSize: 40 }} />,
     color: "#FF9800",
-    status: "coming-soon",
-    link: null,
-    features: ["코드 리뷰", "버그 찾기", "최적화 제안"],
+    status: "active",
+    externalUrl: "https://naver.com", 
+    features: ["AI 블로그 작성", "자동 생성", "맞춤형 콘텐츠"],
   },
   {
     id: "code-playground",
@@ -187,22 +187,42 @@ function Lab() {
               </CardContent>
 
               <CardActions sx={{ p: 2, pt: 0 }}>
-                {feature.status === "active" && feature.link ? (
-                  <Button
-                    component={Link}
-                    to={feature.link}
-                    variant="contained"
-                    fullWidth
-                    sx={{
-                      bgcolor: feature.color,
-                      "&:hover": {
+                {feature.status === "active" && (feature.link || feature.externalUrl) ? (
+                  feature.externalUrl ? (
+                    <Button
+                      component="a"
+                      href={feature.externalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="contained"
+                      fullWidth
+                      sx={{
                         bgcolor: feature.color,
-                        filter: "brightness(0.9)",
-                      },
-                    }}
-                  >
-                    사용해보기
-                  </Button>
+                        "&:hover": {
+                          bgcolor: feature.color,
+                          filter: "brightness(0.9)",
+                        },
+                      }}
+                    >
+                      사용해보기
+                    </Button>
+                  ) : (
+                    <Button
+                      component={Link}
+                      to={feature.link}
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        bgcolor: feature.color,
+                        "&:hover": {
+                          bgcolor: feature.color,
+                          filter: "brightness(0.9)",
+                        },
+                      }}
+                    >
+                      사용해보기
+                    </Button>
+                  )
                 ) : (
                   <Button disabled variant="outlined" fullWidth>
                     {feature.status === "coming-soon" ? "곧 출시" : "준비 중"}
