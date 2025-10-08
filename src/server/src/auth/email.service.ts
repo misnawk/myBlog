@@ -40,9 +40,9 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log('✅ 인증 코드 이메일 발송 성공:', email);
+      console.log('인증 코드 이메일 발송 성공:', email);
     } catch (error) {
-      console.error('❌ 인증 코드 이메일 발송 실패:', error);
+      console.error('인증 코드 이메일 발송 실패:', error);
       throw new Error('이메일 발송에 실패했습니다.');
     }
   }

@@ -65,8 +65,8 @@ export default function EditPost() {
       const quill = quillRef.current && quillRef.current.getEditor();
       let html = quill ? quill.root.innerHTML : content;
 
-      console.log('🔍 처리 전 HTML:', JSON.stringify(html));
-      console.log('🔍 처리 전 HTML (가독성):', html);
+      console.log('처리 전 HTML:', JSON.stringify(html));
+      console.log('처리 전 HTML (가독성):', html);
 
       const originalHtml = html;
 
@@ -75,9 +75,9 @@ export default function EditPost() {
       html = html.replace(/(<p><br\s*\/?><\/p>){3,}/g, '<p><br></p><p><br></p>');
       html = html.replace(/<p><br\s*\/?><\/p>$/, '');
 
-      console.log('✅ 처리 후 HTML:', JSON.stringify(html));
-      console.log('✅ 처리 후 HTML (가독성):', html);
-      console.log('🔄 변경 여부:', originalHtml !== html ? '변경됨' : '변경 안됨');
+      console.log('처리 후 HTML:', JSON.stringify(html));
+      console.log('처리 후 HTML (가독성):', html);
+      console.log('변경 여부:', originalHtml !== html ? '변경됨' : '변경 안됨');
 
       // 3) data:가 남아 있으면 저장 중단
       if (html.includes('src="data:')) {
@@ -89,15 +89,15 @@ export default function EditPost() {
       await updatePost(id, { title: title.trim(), content: html, category });
       setSnackbar({
         open: true,
-        message: "게시글이 성공적으로 수정되었습니다! 🎉",
+        message: "게시글이 성공적으로 수정되었습니다!",
         severity: "success",
       });
       timerRef.current = setTimeout(() => navigate(`/blogDetail/${id}`), 800);
     } catch (error) {
       console.error(error);
       const errorMessage = error.response?.status === 403
-        ? "게시글 수정 권한이 없습니다. 😢"
-        : "게시글 수정에 실패했습니다. 😢";
+        ? "게시글 수정 권한이 없습니다."
+        : "게시글 수정에 실패했습니다.";
 
       setSnackbar({
         open: true,

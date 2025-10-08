@@ -26,7 +26,7 @@ export function useCommentHandlers(id, comments, setComments, user, setSnackbar)
 
   const handleDeleteClick = async () => {
     try {
-      console.log('🗑️ 댓글 삭제 시작:', selectedComment.id);
+      console.log('댓글 삭제 시작:', selectedComment.id);
       await deleteComment(selectedComment.id);
 
       setComments(comments.filter(c => c.id !== selectedComment.id));
@@ -36,9 +36,9 @@ export function useCommentHandlers(id, comments, setComments, user, setSnackbar)
         message: '댓글이 삭제되었습니다.',
         severity: 'success'
       });
-      console.log('✅ 댓글 삭제 완료');
+      console.log('댓글 삭제 완료');
     } catch (error) {
-      console.error('❌ 댓글 삭제 실패:', error);
+      console.error('댓글 삭제 실패:', error);
       setSnackbar({
         open: true,
         message: error.response?.status === 403 ? '댓글 삭제 권한이 없습니다.' : '댓글 삭제에 실패했습니다.',
@@ -50,7 +50,7 @@ export function useCommentHandlers(id, comments, setComments, user, setSnackbar)
 
   const handleEditSubmit = async () => {
     try {
-      console.log('✏️ 댓글 수정 시작:', selectedComment.id);
+      console.log('댓글 수정 시작:', selectedComment.id);
       const updatedComment = await updateComment(selectedComment.id, { content: editComment });
 
       setComments(comments.map(c =>
@@ -64,9 +64,9 @@ export function useCommentHandlers(id, comments, setComments, user, setSnackbar)
         message: '댓글이 수정되었습니다.',
         severity: 'success'
       });
-      console.log('✅ 댓글 수정 완료');
+      console.log('댓글 수정 완료');
     } catch (error) {
-      console.error('❌ 댓글 수정 실패:', error);
+      console.error('댓글 수정 실패:', error);
       setSnackbar({
         open: true,
         message: error.response?.status === 403 ? '댓글 수정 권한이 없습니다.' : '댓글 수정에 실패했습니다.',
@@ -97,7 +97,7 @@ export function useCommentHandlers(id, comments, setComments, user, setSnackbar)
     }
 
     try {
-      console.log('📝 댓글 작성 시작');
+      console.log('댓글 작성 시작');
       const newComment = await createComment({
         content: comment.trim(),
         postId: parseInt(id)
@@ -110,9 +110,9 @@ export function useCommentHandlers(id, comments, setComments, user, setSnackbar)
         message: '댓글이 작성되었습니다.',
         severity: 'success'
       });
-      console.log('✅ 댓글 작성 완료');
+      console.log('댓글 작성 완료');
     } catch (error) {
-      console.error('❌ 댓글 작성 실패:', error);
+      console.error('댓글 작성 실패:', error);
       setSnackbar({
         open: true,
         message: error.response?.status === 401 ? '로그인이 필요합니다.' : '댓글 작성에 실패했습니다.',

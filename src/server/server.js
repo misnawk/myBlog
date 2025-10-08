@@ -132,7 +132,7 @@ wss.on('connection', (ws, req) => {
           };
           broadcast(entryMessage);
           saveToHistory(entryMessage); // 히스토리에 저장
-          console.log(`✅ 사용자 입장: ${user.nickname} (${sid})`);
+          console.log(`사용자 입장: ${user.nickname} (${sid})`);
         } else {
           // 닉네임 변경 시 변경 알림
           const changeMessage = {
@@ -142,7 +142,7 @@ wss.on('connection', (ws, req) => {
           };
           broadcast(changeMessage);
           saveToHistory(changeMessage); // 히스토리에 저장
-          console.log(`🔄 닉네임 변경: ${old} → ${user.nickname} (${sid})`);
+          console.log(`닉네임 변경: ${old} → ${user.nickname} (${sid})`);
         }
       }
 

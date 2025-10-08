@@ -53,8 +53,8 @@ export default function CreatePost() {
       let html = quill ? quill.root.innerHTML : content;
 
       // 디버깅: 처리 전 HTML 확인
-      console.log('🔍 처리 전 HTML:', JSON.stringify(html));
-      console.log('🔍 처리 전 HTML (가독성):', html);
+      console.log('처리 전 HTML:', JSON.stringify(html));
+      console.log('처리 전 HTML (가독성):', html);
 
       const originalHtml = html;
 
@@ -69,9 +69,9 @@ export default function CreatePost() {
       html = html.replace(/<p><br\s*\/?><\/p>$/, '');
 
       // 디버깅: 처리 후 HTML 확인
-      console.log('✅ 처리 후 HTML:', JSON.stringify(html));
-      console.log('✅ 처리 후 HTML (가독성):', html);
-      console.log('🔄 변경 여부:', originalHtml !== html ? '변경됨' : '변경 안됨');
+      console.log('처리 후 HTML:', JSON.stringify(html));
+      console.log('처리 후 HTML (가독성):', html);
+      console.log('변경 여부:', originalHtml !== html ? '변경됨' : '변경 안됨');
 
       // 3) data:가 남아 있으면 저장 중단
       if (html.includes('src="data:')) {
@@ -83,7 +83,7 @@ export default function CreatePost() {
       await createPost({ title: title.trim(), content: html, category });
       setSnackbar({
         open: true,
-        message: "게시글이 성공적으로 저장되었습니다! 🎉",
+        message: "게시글이 성공적으로 저장되었습니다!",
         severity: "success",
       });
       timerRef.current = setTimeout(() => navigate("/"), 800);
@@ -91,7 +91,7 @@ export default function CreatePost() {
       console.error(error);
       setSnackbar({
         open: true,
-        message: "게시글 저장에 실패했습니다. 😢",
+        message: "게시글 저장에 실패했습니다.",
         severity: "error",
       });
       setIsLoading(false);

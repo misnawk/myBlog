@@ -42,8 +42,8 @@ export function useEditPostForm(user) {
         setTitle(post.title || "");
         setCategory(post.category || "");
 
-        console.log('📥 DB에서 가져온 원본 콘텐츠:', JSON.stringify(post.content));
-        console.log('📥 DB에서 가져온 원본 콘텐츠 (가독성):', post.content);
+        console.log('DB에서 가져온 원본 콘텐츠:', JSON.stringify(post.content));
+        console.log('DB에서 가져온 원본 콘텐츠 (가독성):', post.content);
 
         setContent(post.content || "");
         setPageLoading(false);
