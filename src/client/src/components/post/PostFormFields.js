@@ -41,8 +41,8 @@ export default function PostFormFields({
         fullWidth
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        inputProps={{ maxLength: 50 }} // 제목은 최대 50자
-        helperText={`${title.length}/50`} // 제목은 최대 50자
+        inputProps={{ maxLength: 100 }} // 제목은 최대 100자
+        helperText={`${title.length}/100`} // 제목은 최대 100자
       />
 
       <FormControl fullWidth>
