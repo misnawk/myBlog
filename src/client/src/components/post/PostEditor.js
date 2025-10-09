@@ -64,6 +64,10 @@ export default function PostEditor({
           backgroundColor: "#f8f9fa",
           borderRadius: "8px 8px 0 0"
         },
+        "& .ql-container": {
+          height: "600px",
+          overflowY: "auto"
+        },
         "& .ql-editor": {
           "& .ql-code-block": {
             backgroundColor: "#f8f9fa",
@@ -99,7 +103,6 @@ export default function PostEditor({
         onChange={onChange}
         modules={modules}
         formats={formats}
-        style={{ height: 600 }}
       />
     </Box>
   );
