@@ -10,6 +10,7 @@ import { CommentModule } from './comment/comment.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CategoryModule } from './category/Category.module';
+import { SitemapModule } from './sitemap/sitemap.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +42,7 @@ import { CategoryModule } from './category/Category.module';
     PostModule,
     CommentModule,
     CategoryModule,
+    SitemapModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,7 +7,9 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['sitemap.xml', 'robots.txt'],
+  });
 
   // 요청 크기 제한 설정 (이미지 포함 콘텐츠 처리를 위해)
   app.use(express.json({ limit: '50mb' }));
