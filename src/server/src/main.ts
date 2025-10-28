@@ -17,9 +17,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000', 
-      'http://localhost:7000', 
-      'https://blog.minseok.life'
+      'http://localhost:3000',
+      'http://localhost:7000',
+      'https://blog.minseok.life',
     ],
     credentials: true,
   });
@@ -28,14 +28,21 @@ async function bootstrap() {
   app.use((req, res, next) => {
     // API 요청이 아니고, 파일 확장자가 없는 경우 index.html로 리다이렉트
     if (!req.url.startsWith('/api') && !req.url.includes('.')) {
-      const indexPath = join(__dirname, '..', '..', 'client', 'build', 'index.html');
+      const indexPath = join(
+        __dirname,
+        '..',
+        '..',
+        'client',
+        'build',
+        'index.html',
+      );
       res.sendFile(indexPath);
     } else {
       next();
     }
   });
 
-  const port = 7000; 
+  const port = 7000;
 
   await app.listen(port);
   console.log(`=== 서버 시작 완료 ===`);

@@ -8,12 +8,14 @@ export class SitemapController {
   @Get('sitemap.xml')
   @Header('Content-Type', 'text/xml')
   async getSitemap() {
+    console.log('=== Sitemap 생성 요청 ===');
+    console.log('요청 시간:', new Date().toISOString());
     return this.sitemapService.generateSitemap();
   }
 
   @Get('robots.txt')
   @Header('Content-Type', 'text/plain')
-  getRobotsTxt() ㅇ{
+  getRobotsTxt() {
     return this.sitemapService.generateRobotsTxt();
   }
 }
