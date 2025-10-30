@@ -33,7 +33,7 @@ const labFeatures = [
     icon: <ChatIcon sx={{ fontSize: 40 }} />,
     color: "#4CAF50",
     status: "active",
-    link: "/chat",
+    link: "min-chat.kro.kr",
     features: ["실시간 메시징", "온라인 사용자 표시", "메시지 기록"],
   },
   {
@@ -42,8 +42,8 @@ const labFeatures = [
     description: "AI가 블로그를 작성해주는 서비스입니다.",
     icon: <PsychologyIcon sx={{ fontSize: 40 }} />,
     color: "#FF9800",
-    status: "active",
-    externalUrl: "https://naver.com", 
+    status: "coming-soon",
+    externalUrl: "",
     features: ["AI 블로그 작성", "자동 생성", "맞춤형 콘텐츠"],
   },
   {
@@ -185,7 +185,8 @@ function Lab() {
               </CardContent>
 
               <CardActions sx={{ p: 2, pt: 0 }}>
-                {feature.status === "active" && (feature.link || feature.externalUrl) ? (
+                {feature.status === "active" &&
+                (feature.link || feature.externalUrl) ? (
                   feature.externalUrl ? (
                     <Button
                       component="a"
