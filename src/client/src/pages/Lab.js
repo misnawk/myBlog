@@ -33,7 +33,7 @@ const labFeatures = [
     icon: <ChatIcon sx={{ fontSize: 40 }} />,
     color: "#4CAF50",
     status: "active",
-    link: "min-chat.kro.kr",
+    externalUrl: "min-chat.kro.kr",
     features: ["실시간 메시징", "온라인 사용자 표시", "메시지 기록"],
   },
   {
