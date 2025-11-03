@@ -93,6 +93,12 @@ export default function PostEditor({
             fontStyle: "italic",
             color: "#6c757d",
           },
+          "& img": {
+            maxWidth: "400px",
+            height: "auto",
+            borderRadius: "8px",
+            margin: "8px 0",
+          },
         },
       }}
     >
